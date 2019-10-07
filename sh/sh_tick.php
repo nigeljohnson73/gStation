@@ -1,6 +1,6 @@
 <?php
 ini_set ( 'max_execution_time', 5 * 60 );
-include_once ("functions.php");
+include_once ("../functions.php");
 
 $ts = timestampNow ();
 $day = timestampFormat ( $ts, "d" ); // 4;

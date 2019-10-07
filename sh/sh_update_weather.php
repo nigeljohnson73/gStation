@@ -1,6 +1,6 @@
 <?php
 ini_set ( 'max_execution_time', 23 * 60 * 60 ); // this script can run forever... ish
-include_once ("functions.php");
+include_once ("../functions.php");
 
 // Iddeally this:
 // $yr_history = 20;
