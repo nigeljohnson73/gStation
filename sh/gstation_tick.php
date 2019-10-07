@@ -1,5 +1,5 @@
 <?php
-include_once (dirname( __FILE__ )."/../functions.php");
+include_once (dirname ( __FILE__ ) . "/../functions.php");
 
 $ts = timestampNow ();
 $day = timestampFormat ( $ts, "d" ); // 4;
@@ -10,6 +10,22 @@ echo "Location: " . $loc . " (" . latToDms ( $lat ) . ", " . lngToDms ( $lng ) .
 
 tick ();
 
+ob_start ();
+$cmd = "python3 " . dirname ( __FILE__ ) . "/dht22.py -h 2>&1";
+
+ob_start();
+passthru($cmd);
+$c = ob_get_contents();
+ob_end_clean(); //Use this instead of ob_flush()
+
+
+//$last_line = @system ( $cmd, $retval );
+// $c = ob_get_contents ();
+// ob_end_clean ();
+
+logger ( LL_INFO, "system command: '" . $cmd . "'" );
+logger ( LL_INFO, "system output: '" . $c . "'" );
+//logger ( LL_INFO, "last line: '" . $last_line . "'" );
 $str = $logger->getString ();
 if (strlen ( trim ( $str ) ) == 0) {
 	$str = "*** NO LOG OUTPUT ***";
