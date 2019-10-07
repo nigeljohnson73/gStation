@@ -11,7 +11,7 @@ echo "Location: " . $loc . " (" . latToDms ( $lat ) . ", " . lngToDms ( $lng ) .
 tick ();
 
 ob_start ();
-$cmd = "python3 " . dirname ( __FILE__ ) . "/dht22.py -h 2>&1";
+$cmd = "python3 " . dirname ( __FILE__ ) . "/dht22.py 2>&1";
 
 ob_start();
 passthru($cmd);
