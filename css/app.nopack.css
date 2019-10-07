@@ -1,0 +1,32 @@
+
+/* cadbury Purple: #3b0084 */
+body {
+	/*font-family: 'Ubuntu', sans-serif;*/
+	font-family: 'Lato', sans-serif;
+	font-weight: 400;
+	line-height: 1.4;
+	font-size: 16px;
+	color: #999;
+}
+
+p {
+	margin-bottom: 1em;
+}
+
+strong {
+	/*font-size:110%;*/
+	font-weight: 700;
+}
+
+h1, h2, h3, h4, h5 {
+	margin-top: 0;
+}
+
+blockquote {
+	font-family: 'Architects Daughter', cursive;
+}
+
+textarea.text-input {
+	font-family: Consolas, Monaco, Lucida Console, Liberation Mono,
+		DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace;
+}
