@@ -36,6 +36,14 @@ function setupTables() {
 	$mysql->query ( $str );
 
 	$str = "
+		CREATE TABLE IF NOT EXISTS th_logger (
+			entered TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL PRIMARY KEY,
+	 		temperature FLOAT NOT NULL,
+			humidity FLOAT NOT NULL
+		)";
+	$mysql->query ( $str );
+
+	$str = "
 		CREATE TABLE IF NOT EXISTS config (
 			id VARCHAR(64) NOT NULL PRIMARY KEY,
 			data MEDIUMTEXT NOT NULL,
