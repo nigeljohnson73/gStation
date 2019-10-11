@@ -52,20 +52,36 @@ function setupTables() {
 	$mysql->query ( $str );
 }
 
+function clearTempLogger() {
+	global $mysql;
+	$mysql->query ( "DELETE FROM th_logger where entered < '" . timestampFormat ( timestampAdd ( timestampNow (), numDays ( - 1 ) ), "Y-m-d H:i:s" ) . "'" );
+	// $mysql->query ( $query);
+	// if (is_array ( $ret ) && count ( $ret ) > 0) {
+	// return array("entered" => $ret[0]["entered"], "temperature" => $ret [0] ["temperature"]);
+	// }
+	// return null;
+}
+
 function lastTemp() {
 	global $mysql;
-	$ret = $mysql->query ( "SELECT * FROM th_logger where temperature != 999 ORDER BY entered DESC LIMIT 1");
+	$ret = $mysql->query ( "SELECT * FROM th_logger where temperature != 999 ORDER BY entered DESC LIMIT 1" );
 	if (is_array ( $ret ) && count ( $ret ) > 0) {
-		return array("entered" => $ret[0]["entered"], "temperature" => $ret [0] ["temperature"]);
+		return array (
+				"entered" => $ret [0] ["entered"],
+				"temperature" => $ret [0] ["temperature"]
+		);
 	}
 	return null;
 }
 
 function lastHumidity() {
 	global $mysql;
-	$ret = $mysql->query ( "SELECT * FROM th_logger where humidity != 999 ORDER BY entered DESC LIMIT 1");
+	$ret = $mysql->query ( "SELECT * FROM th_logger where humidity != 999 ORDER BY entered DESC LIMIT 1" );
 	if (is_array ( $ret ) && count ( $ret ) > 0) {
-		return array("entered" => $ret[0]["entered"], "humidity" => $ret [0] ["humidity"]);
+		return array (
+				"entered" => $ret [0] ["entered"],
+				"humidity" => $ret [0] ["humidity"]
+		);
 	}
 	return null;
 }
@@ -93,22 +109,22 @@ function setConfig($id, $value) {
 
 function light($val) {
 	global $hl_light_pin;
-	$cmd = "sh ".realpath(dirname(__FILE__)."/../sh/gpio.sh")." ".$hl_light_pin." ".$val;
+	$cmd = "sh " . realpath ( dirname ( __FILE__ ) . "/../sh/gpio.sh" ) . " " . $hl_light_pin . " " . $val;
 	ob_start ();
 	$last_line = @system ( $cmd, $retval );
 	ob_end_clean ();
-	logger(LL_INFO, $cmd);
-	logger(LL_INFO, $last_line);
+	logger ( LL_INFO, $cmd );
+	logger ( LL_INFO, $last_line );
 }
 
 function heat($val) {
 	global $hl_heat_pin;
-	$cmd = "sh ".realpath(dirname(__FILE__)."/../sh/gpio.sh")." ".$hl_heat_pin." ".$val;
+	$cmd = "sh " . realpath ( dirname ( __FILE__ ) . "/../sh/gpio.sh" ) . " " . $hl_heat_pin . " " . $val;
 	ob_start ();
 	$last_line = @system ( $cmd, $retval );
 	ob_end_clean ();
-	logger(LL_INFO, $cmd);
-	logger(LL_INFO, $last_line);
+	logger ( LL_INFO, $cmd );
+	logger ( LL_INFO, $last_line );
 }
 
 function tick() {
@@ -129,12 +145,13 @@ function tick() {
 		logger ( LL_INFO, "tick(): " . $msg );
 		setConfig ( "status", $status );
 		sendSms ( $msg, $bulksms_owner_sms );
-		light(($status=="DAY")?($hl_high_value):($hl_low_value));
+		light ( ($status == "DAY") ? ($hl_high_value) : ($hl_low_value) );
 	} else {
-		light(($last_status=="DAY")?($hl_high_value):($hl_low_value));
+		light ( ($last_status == "DAY") ? ($hl_high_value) : ($hl_low_value) );
 		logger ( LL_DEBUG, "tick(): " . $msg );
 	}
 	// sendSms($msg, "447517528741");
+	clearTempLogger ();
 }
 
 function getIdList($lat, $lng, $day, $mon) {
