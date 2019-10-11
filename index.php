@@ -23,6 +23,13 @@ $mon = timestampFormat ( timestampNow (), "m" ); // 10;
 // date_default_timezone_set ( $ret->timezone );
 // $obj = json_decode ( $json )->daily->data [0];
 
+$last_temp = lastTemp();
+if($last_temp == null) {
+	$last_temp = "NO DATA";
+} else {
+	$last_temp = $last_temp["temperature"] . "C at " . $last_temp["entered"];
+}
+
 ?>
 <!doctype html>
 <html ng-app>
@@ -46,7 +53,8 @@ $mon = timestampFormat ( timestampNow (), "m" ); // 10;
 		echo "Current status: '" . getConfig ( "STATUS", "NIGHT" ) . "'\n";
 		print_r ( getData ( $lat, $lng, $day, $mon, false, false ) );
 
-		?></pre>
+		?>
+Last temp: <?php echo $last_temp ?></pre>
 	</div>
 
 	<div class="container-fluid debug">

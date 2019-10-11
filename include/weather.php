@@ -52,6 +52,24 @@ function setupTables() {
 	$mysql->query ( $str );
 }
 
+function lastTemp() {
+	global $mysql;
+	$ret = $mysql->query ( "SELECT * FROM th_logger where temperature != 999 ORDER BY entered DESC LIMIT 1");
+	if (is_array ( $ret ) && count ( $ret ) > 0) {
+		return array("entered" => $ret[0]["entered"], "temperature" => $ret [0] ["temperature"]);
+	}
+	return null;
+}
+
+function lastHumidity() {
+	global $mysql;
+	$ret = $mysql->query ( "SELECT * FROM th_logger where humidity != 999 ORDER BY entered DESC LIMIT 1");
+	if (is_array ( $ret ) && count ( $ret ) > 0) {
+		return array("entered" => $ret[0]["entered"], "humidity" => $ret [0] ["humidity"]);
+	}
+	return null;
+}
+
 function getConfig($id, $default = false) {
 	global $mysql;
 	$ret = $mysql->query ( "SELECT data FROM config WHERE id = ?", "s", array (
