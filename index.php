@@ -70,6 +70,7 @@ Last temp: <?php echo $last_temp ?></pre>
 		echo $str . "\n";
 		?></pre>
 
+<img src="gfx/tempgraph.php?<?php echo randomQuery() ?>" alt="Temperature Graph" />
 		<!-- <?php //phpInfo() ?> -->
 	</div>
 </body>

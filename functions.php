@@ -5,6 +5,15 @@ ini_set ( 'upload_max_filesize', '32M' );
 error_reporting ( E_ALL );
 ini_set ( 'display_errors', 'on' );
 
+function randomQuery() {
+	mt_srand(time());
+	return mt_rand();
+}
+
+function scaleVal($v, $min, $max) {
+	return ($v-$min)/($max-$min);
+}
+
 function latToDms($decimal) {
 	$d = 0;
 	$m = 0;
@@ -471,7 +480,7 @@ function compressJavascript($force = false, $debug = true) {
 		$save = $force;
 
 		if ($debug) {
-			echo "<!-- compression check: $targetfn -->\n";
+			// echo "<!-- compression check: $targetfn -->\n";
 			// echo "<!-- mtime: $tt -->\n";
 		}
 
@@ -542,7 +551,7 @@ function compressStylesheet($force = false, $debug = true) {
 		$save = $force;
 
 		if ($debug) {
-			echo "<!-- compression check: $targetfn -->\n";
+			// echo "<!-- compression check: $targetfn -->\n";
 			// echo "<!-- mtime: $tt -->\n";
 		}
 
