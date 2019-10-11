@@ -91,8 +91,29 @@ function setConfig($id, $value) {
 	// return $default;
 }
 
+function light($val) {
+	global $hl_light_pin;
+	$cmd = "sh ".dirname(__FILE__)."/../sh/gpio ".$hl_light_pin." ".$val;
+	ob_start ();
+	$last_line = @system ( $cmd, $retval );
+	ob_end_clean ();
+	logger(LL_INFO, $cmd);
+	logger(LL_INFO, $last_line);
+}
+
+function heat($val) {
+	global $hl_heat_pin;
+	$cmd = "sh ".dirname(__FILE__)."/../sh/gpio ".$hl_heat_pin." ".$val;
+	ob_start ();
+	$last_line = @system ( $cmd, $retval );
+	ob_end_clean ();
+	logger(LL_INFO, $cmd);
+	logger(LL_INFO, $last_line);
+}
+
 function tick() {
 	global $lat, $lng, $day, $mon, $bulksms_owner_sms;
+	global $hl_high_value, $hl_low_value;
 	$data = getData ( $lat, $lng, $day, $mon );
 
 	$last_status = getConfig ( "status", "NIGHT" );
@@ -108,7 +129,9 @@ function tick() {
 		logger ( LL_INFO, "tick(): " . $msg );
 		setConfig ( "status", $status );
 		sendSms ( $msg, $bulksms_owner_sms );
+		light(($status=="DAY")?($hl_high_value):($hl_low_value));
 	} else {
+		light(($last_status=="DAY")?($hl_high_value):($hl_low_value));
 		logger ( LL_DEBUG, "tick(): " . $msg );
 	}
 	// sendSms($msg, "447517528741");
