@@ -93,7 +93,7 @@ function setConfig($id, $value) {
 
 function light($val) {
 	global $hl_light_pin;
-	$cmd = "sh ".dirname(__FILE__)."/../sh/gpio ".$hl_light_pin." ".$val;
+	$cmd = "sh ".realpath(dirname(__FILE__)."/../sh/gpio.sh")." ".$hl_light_pin." ".$val;
 	ob_start ();
 	$last_line = @system ( $cmd, $retval );
 	ob_end_clean ();
@@ -103,7 +103,7 @@ function light($val) {
 
 function heat($val) {
 	global $hl_heat_pin;
-	$cmd = "sh ".dirname(__FILE__)."/../sh/gpio ".$hl_heat_pin." ".$val;
+	$cmd = "sh ".realpath(dirname(__FILE__)."/../sh/gpio.sh")." ".$hl_heat_pin." ".$val;
 	ob_start ();
 	$last_line = @system ( $cmd, $retval );
 	ob_end_clean ();
