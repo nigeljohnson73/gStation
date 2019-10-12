@@ -18,6 +18,7 @@ holdTime = 1
 
 # the function called to shut down the RPI - just exist for now
 def shutdown():
+    echo ("SHUTDOWN")
     exit()
     # os.system("sudo poweroff")
 
