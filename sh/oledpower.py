@@ -11,6 +11,8 @@ import digitalio
 from PIL import Image, ImageDraw, ImageFont
 import adafruit_ssd1306
 
+import time
+
 # digital button for pressing and the hold time.
 offGPIO = 21
 holdTime = 1
@@ -18,7 +20,7 @@ holdTime = 1
 
 # the function called to shut down the RPI - just exist for now
 def shutdown():
-    echo ("SHUTDOWN")
+    print ("SHUTDOWN")
     exit()
     # os.system("sudo poweroff")
 
@@ -56,7 +58,7 @@ draw.rectangle((BORDER, BORDER, oled.width - BORDER - 1, oled.height - BORDER - 
 
 # Load default font.
 #font = ImageFont.load_default()
-font = ImageFont.truetype("../fonts/andalemo.ttf", 10)
+font = ImageFont.truetype("../fonts/andalemo.ttf", 14)
  
 # Draw Some Text
 text = "Hello Nige!"
@@ -68,4 +70,17 @@ draw.text((oled.width // 2 - font_width // 2, oled.height // 2 - font_height // 
 oled.image(image)
 oled.show()
 
-pause()
+print ("Hello World!")
+
+triggerfile = "/tmp/oled.txt"
+while True:
+	try:
+		with open(triggerfile, "r") as f:
+     			line= f.readline()
+     			print(line)
+		os.remove(triggerfile)
+
+	except FileNotFoundError:
+		print('File does not exist')
+
+	time.sleep(5)
