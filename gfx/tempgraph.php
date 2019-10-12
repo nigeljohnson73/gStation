@@ -74,7 +74,7 @@ if ($temps) {
 	imagestring ( $im, $font, $border, $y - $border + 5, timestampFormat ( time2Timestamp ( $min_x ), "Y-m-d H:i" ), $black );
 	imagestring ( $im, $font, $x - 4 * $border, $y - $border + 5, timestampFormat ( time2Timestamp ( $max_x ), "Y-m-d H:i" ), $black );
 } else {
-	imagestring ( $im, $font, 100, 100, "No Data", $red );
+	imagestring ( $im, $font, 100, 100, "No temperature data available", $red );
 }
 
 header ( 'Content-type: image/png' );

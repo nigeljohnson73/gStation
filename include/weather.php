@@ -291,6 +291,11 @@ function processData($day, $mon, $yr, $data) {
 				// logger ( LL_DEBUG, " *** Setting todays values" );
 				$obj->sunset = timestampFormat ( time2Timestamp ( $row->sunsetTime ), "His" );
 				$obj->sunrise = timestampFormat ( time2Timestamp ( $row->sunriseTime ), "His" );
+				$obj->daylight = ($row->sunsetTime - $row->sunriseTime) / 3600;
+// 				logger(LL_SYS, "sunrise: ".timestampFormat ( time2Timestamp ( $row->sunriseTime ), "Y-m-d H:i:s" ));
+// 				logger(LL_SYS, "sunset: ".timestampFormat ( time2Timestamp ( $row->sunsetTime ), "Y-m-d H:i:s" ));
+// 				logger(LL_SYS, "diff: ".timestampDifference("20191010010000", "20191010020000"));
+				//logger(LL_SYS, "diff: ".timestampDifference("20191010010000", "20191010020000"));
 				$obj->lunation = $row->moonPhase; // https://en.wikipedia.org/wiki/New_moon#Lunation_Number
 
 				addObjParam ( $obj, "high", $row, $high_labels );
