@@ -109,22 +109,22 @@ function setConfig($id, $value) {
 
 function light($val) {
 	global $hl_light_pin;
-	$cmd = "sh " . realpath ( dirname ( __FILE__ ) . "/../sh/gpio.sh" ) . " " . $hl_light_pin . " " . $val;
+	$cmd = "sh " . realpath ( dirname ( __FILE__ ) . "/../sh/gpio.sh" ) . " " . $hl_light_pin . " " . $val . " 2>&1";
 	ob_start ();
 	$last_line = @system ( $cmd, $retval );
 	ob_end_clean ();
 	logger ( LL_INFO, $cmd );
-	logger ( LL_INFO, $last_line );
+	logger ( LL_DEBUG, $last_line );
 }
 
 function heat($val) {
 	global $hl_heat_pin;
-	$cmd = "sh " . realpath ( dirname ( __FILE__ ) . "/../sh/gpio.sh" ) . " " . $hl_heat_pin . " " . $val;
+	$cmd = "sh " . realpath ( dirname ( __FILE__ ) . "/../sh/gpio.sh" ) . " " . $hl_heat_pin . " " . $val . " 2>&1";
 	ob_start ();
 	$last_line = @system ( $cmd, $retval );
 	ob_end_clean ();
 	logger ( LL_INFO, $cmd );
-	logger ( LL_INFO, $last_line );
+	logger ( LL_DEBUG, $last_line );
 }
 
 function tick() {
@@ -292,10 +292,10 @@ function processData($day, $mon, $yr, $data) {
 				$obj->sunset = timestampFormat ( time2Timestamp ( $row->sunsetTime ), "His" );
 				$obj->sunrise = timestampFormat ( time2Timestamp ( $row->sunriseTime ), "His" );
 				$obj->daylight = ($row->sunsetTime - $row->sunriseTime) / 3600;
-// 				logger(LL_SYS, "sunrise: ".timestampFormat ( time2Timestamp ( $row->sunriseTime ), "Y-m-d H:i:s" ));
-// 				logger(LL_SYS, "sunset: ".timestampFormat ( time2Timestamp ( $row->sunsetTime ), "Y-m-d H:i:s" ));
-// 				logger(LL_SYS, "diff: ".timestampDifference("20191010010000", "20191010020000"));
-				//logger(LL_SYS, "diff: ".timestampDifference("20191010010000", "20191010020000"));
+				// logger(LL_SYS, "sunrise: ".timestampFormat ( time2Timestamp ( $row->sunriseTime ), "Y-m-d H:i:s" ));
+				// logger(LL_SYS, "sunset: ".timestampFormat ( time2Timestamp ( $row->sunsetTime ), "Y-m-d H:i:s" ));
+				// logger(LL_SYS, "diff: ".timestampDifference("20191010010000", "20191010020000"));
+				// logger(LL_SYS, "diff: ".timestampDifference("20191010010000", "20191010020000"));
 				$obj->lunation = $row->moonPhase; // https://en.wikipedia.org/wiki/New_moon#Lunation_Number
 
 				addObjParam ( $obj, "high", $row, $high_labels );
@@ -345,13 +345,13 @@ function getData($lat, $lng, $day, $mon, $fill = false, $force = false) {
 
 	// Get a list of ID's associated with this day
 	$id_list = getIdList ( $lat, $lng, $day, $mon );
-	logger ( LL_DEBUG, "getData(): expecting " . count ( $id_list ) . " data elements" );
-	// logger ( LL_INFO, "getData(): id list:\n" . ob_print_r ( $id_list ) );
+	logger ( LL_DEBUG, "getData(): data points required: " . count ( $id_list ) );
+	logger ( LL_XDEBUG, "getData(): id list:\n" . ob_print_r ( $id_list ) );
 
 	// Get the data points in the database if they exist
 	$data_points = getDataPoints ( $id_list );
-	logger ( LL_DEBUG, "getData(): found " . count ( $data_points ) . " database elements" );
-	// logger ( LL_INFO, ob_print_r ( $data_points ) );
+	logger ( LL_DEBUG, "getData(): data points available: " . count ( $data_points ) );
+	logger ( LL_XDEBUG, ob_print_r ( $data_points ) );
 
 	// Process the list to see what we have missing
 	$ret = array ();
@@ -360,27 +360,22 @@ function getData($lat, $lng, $day, $mon, $fill = false, $force = false) {
 		$bits = explode ( "|", $id );
 		$ts_yr = timestampFormat ( $bits [0], "Y" );
 		$diff = abs ( timestampDifference ( timestampDay ( timestampNow () ), $bits [0] ) );
-		// logger(LL_INFO, "Diff: ".$diff. ", numDays($dy_history): ".numDays($dy_history));
-		// if($diff <= numDays($dy_history)) {
-		// logger(LL_INFO, "Diff: ".$diff. ", numDays($dy_history): ".numDays($dy_history).", ADDED API CALL");
-		// } else {
-		// logger(LL_INFO, "Diff: ".$diff. ", numDays($dy_history): ".numDays($dy_history).", SKIPPED API CALL");
-		// }
+
 		if (! isset ( $data_points [$id] ) || ($force && ($diff <= numDays ( max ( $dy_history, $dy_forecast ) )))) {
 			if (($force && ($ts_yr == $yr))) {
-				// logger ( LL_INFO, "Forced refresh for '$id'" );
+				logger ( LL_EDEBUG, "Forced refresh for '$id'" );
 			} else {
-				// logger ( LL_INFO, "Need data for '$id'" );
+				logger ( LL_DEBUG, "Need data for '$id'" );
 			}
 			$refresh [] = $id;
 		} else {
 			$ret [$id] = $data_points [$id];
-			// logger ( LL_INFO, "Got data for '$id'" );
+			logger ( LL_XDEBUG, "Got data for '$id'" );
 		}
 	}
 
 	if ($fill) {
-		logger ( LL_INFO, "getData(): need " . count ( $refresh ) . " website calls" );
+		logger ( LL_INFO, "getData(): API calls required: " . count ( $refresh ) );
 		foreach ( $refresh as $id ) {
 			$bits = explode ( "|", $id );
 			$ts = timestampFormat ( $bits [0], "Y-m-d\TH:i:s" );
@@ -390,8 +385,84 @@ function getData($lat, $lng, $day, $mon, $fill = false, $force = false) {
 
 			$call = "https://api.darksky.net/forecast/" . $darksky_key . "/" . $lat . "," . $lng . "," . $ts . "?units=si&exclude=currently,minutely,hourly,alerts";
 			logger ( LL_DEBUG, "Calling API: " . $call );
-			$data = file_get_contents ( $call );
+			$data = @file_get_contents ( $call );
+			if ($data) {
+				// Generate an object of all the values
+				$values = array (
+						"id" => $id,
+						"lat" => $lat,
+						"lng" => $lng,
+						"day" => $ts_day,
+						"month" => $ts_mon,
+						"year" => $ts_yr,
+						"data" => $data
+				);
 
+				// store it
+				$ret [$id] = ( object ) $values;
+				$mysql->query ( "REPLACE INTO weather (id, lat, lng, day, month, year, data) VALUES(?, ?, ?, ?, ?, ?, ?)", "sddiiis", array_values ( $values ) );
+			} else {
+				logger ( LL_WARNING, "getData(): API failure for " . timestampFormat ( $ts, "Y-m-d" ) );
+			}
+		}
+	}
+
+	return processData ( $day, $mon, $yr, $ret );
+	// logger ( LL_INFO, "Data:\n" . ob_print_r ( $ret ) );
+}
+
+function getHistoricData() {
+	global $darksky_key;
+	global $mysql;
+	global $yr_history, $dy_history, $lat, $lng, $api_call_cap;
+
+	// Calculate how many days to go back
+	$total_ndays = $yr_history * 365;
+	// Start from tomorrow for consistency
+	$tsnow = timestampAdd ( timestampNow (), numDays ( 1 ) );
+
+	// Iterate through all the data points we need
+	$dates = array ();
+	for($i = 1; $i <= $total_ndays; $i ++) {
+		$ts = timestampAdd ( $tsnow, numDays ( - $i ) );
+		$dates [timestampFormat ( $ts, "Ymd" ) . "|" . $lat . "|" . $lng] = $ts;
+	}
+	logger ( LL_DEBUG, "getHistoricData(): data points required: " . count ( $dates ) );
+
+	// Get any data points we already have
+	$data_points = getDataPoints ( array_keys ( $dates ) );
+	logger ( LL_DEBUG, "getHistoricData(): data points available: " . count ( $data_points ) );
+	foreach ( $data_points as $k => $v ) {
+		if (isset ( $dates [$k] )) {
+			unset ( $dates [$k] );
+		}
+	}
+
+	// We need to retrieve the rest
+	logger ( LL_INFO, "getHistoricData(): API calls required: " . count ( $dates ) );
+
+	// If we need too many, truncate the list
+	if (count ( $dates ) > $api_call_cap) {
+		$c = 0;
+		foreach ( $dates as $k => $v ) {
+			if ($c >= $api_call_cap) {
+				unset ( $dates [$k] );
+			}
+			$c ++;
+		}
+		logger ( LL_INFO, "getHistoricData(): API calls capped at " . count ( $dates ) );
+	}
+
+	foreach ( $dates as $id => $ts ) {
+		$ts = timestampFormat ( $ts, "Y-m-d\TH:i:s" );
+		$ts_day = timestampFormat ( $ts, "d" );
+		$ts_mon = timestampFormat ( $ts, "m" );
+		$ts_yr = timestampFormat ( $ts, "Y" );
+
+		$call = "https://api.darksky.net/forecast/" . $darksky_key . "/" . $lat . "," . $lng . "," . $ts . "?units=si&exclude=currently,minutely,hourly,alerts";
+		logger ( LL_DEBUG, "Calling API: " . $call );
+		$data = @file_get_contents ( $call );
+		if ($data) {
 			// Generate an object of all the values
 			$values = array (
 					"id" => $id,
@@ -402,14 +473,14 @@ function getData($lat, $lng, $day, $mon, $fill = false, $force = false) {
 					"year" => $ts_yr,
 					"data" => $data
 			);
+
 			// store it
 			$ret [$id] = ( object ) $values;
 			$mysql->query ( "REPLACE INTO weather (id, lat, lng, day, month, year, data) VALUES(?, ?, ?, ?, ?, ?, ?)", "sddiiis", array_values ( $values ) );
+		} else {
+			// Log the failure
+			logger ( LL_WARNING, "getHistoricData(): API failure for " . timestampFormat ( $ts, "Y-m-d" ) );
 		}
 	}
-
-	return processData ( $day, $mon, $yr, $ret );
-	// logger ( LL_INFO, "Data:\n" . ob_print_r ( $ret ) );
 }
-
 ?>

@@ -17,6 +17,7 @@ if (! defined ( "LL_NONE" )) {
 	define ( "LL_DBG", 4 );
 	define ( "LL_DEBUG", 4 );
 	define ( "LL_EDEBUG", 5 );
+	define ( "LL_XDEBUG", 6 );
 }
 
 $log_literals = array ();
@@ -26,6 +27,7 @@ $log_literals [LL_WARNING] = "LL_WARNING";
 $log_literals [LL_INFO] = "LL_INFO";
 $log_literals [LL_DEBUG] = "LL_DEBUG";
 $log_literals [LL_EDEBUG] = "LL_EDEBUG";
+$log_literals [LL_XDEBUG] = "LL_XDEBUG";
 
 $log_to_literal = array ();
 foreach ( $log_literals as $level => $literal ) {
@@ -63,7 +65,8 @@ class Logger {
 		$this->strings [LL_WARNING] = "WRN";
 		$this->strings [LL_INFO] = "INF";
 		$this->strings [LL_DEBUG] = "DBG";
-		$this->strings [LL_EDEBUG] = "DataBox";
+		$this->strings [LL_EDEBUG] = "EDBG";
+		$this->strings [LL_XDEBUG] = "XDBG";
 		$this->log2String ( true );
 		$this->_fp = null;
 

@@ -20,6 +20,9 @@ echo "Location: " . $loc . " (" . latToDms ( $lat ) . ", " . lngToDms ( $lng ) .
 
 print_r ( getData ( $lat, $lng, $day, $mon, true, $force_local_gets ) );
 
+echo "Retrieving historic data\n";
+print_r ( getHistoricData () );
+
 $str = $logger->getString ();
 if (strlen ( trim ( $str ) ) == 0) {
 	$str = "*** NO LOG OUTPUT ***";

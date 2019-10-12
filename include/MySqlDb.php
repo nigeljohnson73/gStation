@@ -26,11 +26,11 @@ class MySqlDb {
 	public function query($query, $type = null, $params = null) {
 		$this->query = $query;
 		$stmt = $this->conn->prepare ( $this->query );
-		if($stmt == false) {
+		if ($stmt == false) {
 			logger ( LL_ERROR, "mySqlDb::query(): prepare statement failed: " . $query );
 			return null;
 		}
-		
+
 		if ($type) {
 			$stmt->bind_param ( $type, ...$params );
 		}
