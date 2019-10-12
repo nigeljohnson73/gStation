@@ -9,6 +9,7 @@ A more reliable temp only sensor:
 Here is how to oled display over I2C
 
 * https://www.raspberrypi-spy.co.uk/2018/04/i2c-oled-display-module-with-raspberry-pi/
+* https://learn.adafruit.com/monochrome-oled-breakouts/python-wiring
 
 Here is Rasperry pi set up with DHT22: 
 
@@ -18,4 +19,11 @@ Here is Rasperry pi set up with DHT22:
 
 these are SSR related
 
-* https://www.youtube.com/watch?v=Q6v8BnDT47I
+ * https://www.youtube.com/watch?v=Q6v8BnDT47I
+ * https://tech.iprock.com/?p=10030
+
+Button press off
+
+ * https://github.com/TonyLHansen/raspberry-pi-safe-off-switch/
+
+ 
