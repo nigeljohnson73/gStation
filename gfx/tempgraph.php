@@ -13,8 +13,7 @@ $grey = imagecolorallocate ( $im, 0xee, 0xee, 0xee );
 $black = imagecolorallocate ( $im, 0x00, 0x00, 0x00 );
 $red = imagecolorallocate ( $im, 0xff, 0x00, 0x00 );
 
-function point($im, $x, $y, $colour) {
-	$dist = 0;
+function point($im, $x, $y, $colour, $dist = 1) {
 	$points = array (
 			$x - $dist,
 			$y, // Point 1 (x, y)
