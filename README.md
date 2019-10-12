@@ -148,5 +148,10 @@ Test that from a remote browser
     
     #button stuff
     sudo apt install python3-gpiozero
+    
+    vi /etc/rc.local
+    ## add to the bottom
+    python3 /webroot/gStation/sh/oledpower.py &
+    
 
 That should do it for now

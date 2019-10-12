@@ -90,7 +90,7 @@ while not done:
 		pass
 		#print('File does not exist')
 
-	time.sleep(1)
+	time.sleep(0.5)
 
 print("SHUTDOWN!")
 #sys.exit()
