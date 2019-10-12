@@ -17,35 +17,10 @@ import time
 offGPIO = 21
 holdTime = 1
 
-
-# the function called to shut down the RPI - just exist for now
-def shutdown():
-    print ("SHUTDOWN")
-    exit()
-    # os.system("sudo poweroff")
-
-
-# setup the callback
-btn = Button(offGPIO, hold_time=holdTime)
-btn.when_held = shutdown
-# pause()  # handle the button presses in the background
-
-# Use the big display
-WIDTH = 128
-HEIGHT = 64
-BORDER = 1
-# Use for I2C.
-i2c = board.I2C()
-oled = adafruit_ssd1306.SSD1306_I2C(WIDTH, HEIGHT, i2c, addr=0x3c)
-
-# Clear display.
-oled.fill(0)
-oled.show()
-
 # Text to display
-text = "Hello Nige!"
+done = False
 
-def drawText():
+def drawText(text):
     # Create blank image for drawing.
     # Make sure to create image with mode '1' for 1-bit color.
     image = Image.new('1', (oled.width, oled.height))
@@ -72,21 +47,51 @@ def drawText():
     oled.image(image)
     oled.show()
 
-drawText()
-print ("Hello World!")
+# the function called to shut down the RPI - just exist for now
+def shutdown():
+	global done
+	done = True
+	drawText("SHUTDOWN")
+
+
+# setup the callback
+btn = Button(offGPIO, hold_time=holdTime)
+btn.when_held = shutdown
+# pause()  # handle the button presses in the background
+
+# Use the big display
+WIDTH = 128
+HEIGHT = 64
+BORDER = 1
+
+# Use for I2C.
+i2c = board.I2C()
+oled = adafruit_ssd1306.SSD1306_I2C(WIDTH, HEIGHT, i2c, addr=0x3c)
+
+# Clear display.
+oled.fill(0)
+oled.show()
+
+drawText("Starting up...")
+print ("Starting up...")
 
 triggerfile = "/tmp/oled.txt"
-while True:
+while not done:
 	try:
 		with open(triggerfile, "r") as f:
-            line = f.readline()
-            text = line.strip()
+			line = f.readline()
+			text = line.strip()
 
 		os.remove(triggerfile)
-        print("Writing '",text,"'")
-        drawText()
+		print("Writing '",text,"'")
+		drawText(text)
 
 	except FileNotFoundError:
-		print('File does not exist')
+		pass
+		#print('File does not exist')
 
-	time.sleep(5)
+	time.sleep(1)
+
+print("SHUTDOWN!")
+#sys.exit()
+os.system("sudo poweroff")
