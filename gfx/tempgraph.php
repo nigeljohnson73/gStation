@@ -43,18 +43,18 @@ function getTemps() {
 	return null;
 }
 
-$legend = "Temperatures over the last 24 hours";
+$legend = "Temperature over the last 24 hours";
 $temps = getTemps ();
 if (! $temps) {
 	$legend = "A pretty little sine wave (as there is no real data yet)";
-	
+
 	$nmins = 60 * 24;
 	$deg_step = 360 / $nmins;
 	$mid_temp = 22;
 	$delt_temp = 1.2;
 	$tnow = time ();
 	for($i = 0; $i < $nmins; $i ++) {
-		$temps [$tnow - ($i * 60)] = $mid_temp + $delt_temp * sin ( deg2rad($i*$deg_step) );
+		$temps [$tnow - ($i * 60)] = $mid_temp + $delt_temp * sin ( deg2rad ( $i * $deg_step ) );
 	}
 }
 
@@ -74,18 +74,18 @@ if ($temps) {
 
 	// Draw hour markers
 	$assume_hours = 24;
-	$x_step = ($x-2*$border)/($assume_hours);
-	for($i=1; $i<=$assume_hours; $i++) {
-		imageline ( $im, $border+($i*$x_step), $border, $border+($i*$x_step), $y - $border, $lgrey );
+	$x_step = ($x - 2 * $border) / ($assume_hours);
+	for($i = 1; $i <= $assume_hours; $i ++) {
+		imageline ( $im, $border + ($i * $x_step), $border, $border + ($i * $x_step), $y - $border, $lgrey );
 	}
-	
+
 	// Draw hour markers
 	$assume_hours = 12;
-	$x_step = ($x-2*$border)/($assume_hours);
-	for($i=1; $i<=$assume_hours; $i++) {
-		imageline ( $im, $border+($i*$x_step), $border, $border+($i*$x_step), $y - $border, $dgrey );
+	$x_step = ($x - 2 * $border) / ($assume_hours);
+	for($i = 1; $i <= $assume_hours; $i ++) {
+		imageline ( $im, $border + ($i * $x_step), $border, $border + ($i * $x_step), $y - $border, $dgrey );
 	}
-	
+
 	// Draw half degree lines
 	for($i = $min_y; $i < $max_y; $i += 0.5) {
 		$yv = (scaleVal ( $i, $min_y, $max_y ) * ($y - 2 * $border)) + $border;
@@ -101,7 +101,7 @@ if ($temps) {
 	// Draw Axes
 	imageline ( $im, $border, $y - $border, $x - $border, $y - $border, $black );
 	imageline ( $im, $border, $y - $border, $border, $border, $black );
-	
+
 	// Process in the data points
 	foreach ( $temps as $k => $v ) {
 		$xv = (scaleVal ( $k, $min_x, $max_x ) * ($x - 2 * $border)) + $border;
@@ -110,8 +110,8 @@ if ($temps) {
 	}
 
 	// Overall legend
-	imagestring ( $im, $font, $border, $border/2, $legend, $black );
-	
+	imagestring ( $im, $font, $border, $border / 2, $legend, $black );
+
 	// Legend for temperatures
 	imagestring ( $im, $font, 10, $y - $border - 10, $min_y . "C", $black );
 	imagestring ( $im, $font, 10, $border - 10, $max_y . "C", $black );
