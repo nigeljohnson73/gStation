@@ -36,7 +36,7 @@ def drawText(text):
     
     # Load default font.
     # font = ImageFont.load_default()
-    font = ImageFont.truetype("../fonts/andalemo.ttf", 14)
+    font = ImageFont.truetype(os.path.dirname(os.path.abspath(__file__))+"/../fonts/andalemo.ttf", 14)
      
     # Draw Some Text
     (font_width, font_height) = font.getsize(text)
