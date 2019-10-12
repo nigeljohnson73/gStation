@@ -47,9 +47,16 @@ if ($use_dht) {
 	@list ( $dummy, $temperature ) = explode ( " t=", $last_line );
 	if ($temperature == "") {
 		echo "Unable to determine local temp\n\n";
+		ob_start ();
+		@system ( "echo '999C ".getConfig("STATUS", "---")."' > /tmp/oled.txt", $retval );
+		ob_end_clean ();
 	} else {
 		$temperature = ($temperature + 0) / 1000;
-
+		ob_start ();
+		$t = round($temperature, 1);
+		@system ( "echo '".$t."C ".getConfig("STATUS", "---")."' > /tmp/oled.txt", $retval );
+		ob_end_clean ();
+		
 		$ret = $mysql->query ( "REPLACE INTO th_logger (temperature, humidity) VALUES (?, ?)", "dd", array (
 				$temperature,
 				999
