@@ -11,6 +11,7 @@ import digitalio
 from PIL import Image, ImageDraw, ImageFont
 import adafruit_ssd1306
 
+from datetime import datetime
 import time
 
 # digital button for pressing and the hold time.
@@ -34,14 +35,18 @@ def drawText(text):
     # Draw a smaller inner rectangle
     draw.rectangle((BORDER, BORDER, oled.width - BORDER - 1, oled.height - BORDER - 1), outline=0, fill=0)
     
-    # Load default font.
-    # font = ImageFont.load_default()
-    font = ImageFont.truetype(os.path.dirname(os.path.abspath(__file__))+"/../fonts/andalemo.ttf", 14)
      
     # Draw Some Text
+    font = ImageFont.truetype(os.path.dirname(os.path.abspath(__file__))+"/../fonts/andalemo.ttf", 14)
     (font_width, font_height) = font.getsize(text)
-    draw.text((oled.width // 2 - font_width // 2, oled.height // 2 - font_height // 2),
-              text, font=font, fill=255)
+    #draw.text((oled.width // 2 - font_width // 2, oled.height // 2 - font_height // 2), text, font=font, fill=255)
+    draw.text((oled.width // 2 - font_width // 2, oled.height // 2 - font_height-1 ), text, font=font, fill=255)
+
+    now = datetime.now()
+    ts = now.strftime('%Y-%m-%d %H:%M:%S')
+    font = ImageFont.truetype(os.path.dirname(os.path.abspath(__file__))+"/../fonts/andalemo.ttf", 10)
+    (font_width, font_height) = font.getsize(ts)
+    draw.text((oled.width // 2 - font_width // 2, oled.height // 2 + font_height+1 ), ts, font=font, fill=255)
     
     # Display image
     oled.image(image)
