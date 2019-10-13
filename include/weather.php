@@ -194,6 +194,7 @@ function readSensors($quiet = false) {
 function tick($quiet = false) {
 	global $lat, $lng, $day, $mon, $bulksms_owner_sms, $bulksms_alert_sunrise, $bulksms_alert_sunset;
 	global $hl_high_value, $hl_low_value;
+	global $mysql;
 	$tsnow = timestampFormat ( timestampNow (), "His" );
 
 	$last_status = getConfig ( "status", "NIGHT" );
