@@ -1,15 +1,32 @@
-# gStation (formally tMan)
+# gStation
 
-Originally set up as a Terrarium Manager this project has morphed into a germination station controller as well.
+Germination station was originally designed to control the heat and light for a germination station for my succulents by mimicing the seasonal 
+conditions anywhere in the world. The upside is that it will also control the heat and light requirements for full sized plant instalations, 
+hydropnics stations even reptile vivariums. 
+
+## Possible implementation things to do
+
+An I2C bus temp/humidity sensor
+
+ * https://code.google.com/archive/p/am2315-python-api/
+ * AM2315: https://smile.amazon.co.uk/dp/B07VF17C7N
+ * HDC1080: https://smile.amazon.co.uk/dp/B07DJ7FLHS
+ * BME280: https://smile.amazon.co.uk/dp/B07KY8WY4M
+
+Raspi PPID tuned Heat controller
+
+ * https://studentnet.cs.manchester.ac.uk/resources/library/thesis_abstracts/MSc14/FullText/Ioannidis-Feidias-fulltext.pdf
+
+## Completed
 
 A more reliable temp only sensor:
 
-* http://www.circuitbasics.com/raspberry-pi-ds18b20-temperature-sensor-tutorial/
+ * http://www.circuitbasics.com/raspberry-pi-ds18b20-temperature-sensor-tutorial/
 
 Here is how to oled display over I2C
 
-* https://www.raspberrypi-spy.co.uk/2018/04/i2c-oled-display-module-with-raspberry-pi/
-* https://learn.adafruit.com/monochrome-oled-breakouts/python-wiring
+ * https://www.raspberrypi-spy.co.uk/2018/04/i2c-oled-display-module-with-raspberry-pi/
+ * https://learn.adafruit.com/monochrome-oled-breakouts/python-wiring
 
 Here is Rasperry pi set up with DHT22: 
 
@@ -25,10 +42,6 @@ these are SSR related
 Button press off
 
  * https://github.com/TonyLHansen/raspberry-pi-safe-off-switch/
-
-Raspi PPID tuned Heat controller
-
- * https://studentnet.cs.manchester.ac.uk/resources/library/thesis_abstracts/MSc14/FullText/Ioannidis-Feidias-fulltext.pdf
 
  -------------------------------
 

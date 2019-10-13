@@ -105,5 +105,6 @@ while not done:
 
 # If we got here then done was set to True in the shutdown function
 print("SHUTDOWN")
+# TODO: set the GPIOs back off 
 os.system("sudo poweroff")
 sys.exit()
