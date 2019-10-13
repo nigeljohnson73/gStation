@@ -139,7 +139,7 @@ function setOled($text) {
 }
 
 function readSensors($quiet = false) {
-	global $use_dht;
+	global $use_dht, $mysql;
 
 	// Tidy up the logger tables
 	clearSensorLogger ();
