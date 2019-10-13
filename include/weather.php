@@ -36,52 +36,50 @@ function setupTables() {
 	$mysql->query ( $str );
 
 	$str = "
-		CREATE TABLE IF NOT EXISTS th_logger (
-			entered TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL PRIMARY KEY,
-	 		temperature FLOAT NOT NULL,
-			humidity FLOAT NOT NULL
-		)";
-	$mysql->query ( $str );
-
-	$str = "
 		CREATE TABLE IF NOT EXISTS config (
 			id VARCHAR(64) NOT NULL PRIMARY KEY,
 			data MEDIUMTEXT NOT NULL,
 			last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 		)";
 	$mysql->query ( $str );
+
+	$str = "
+		CREATE TABLE IF NOT EXISTS temperature_logger (
+			entered TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL PRIMARY KEY,
+	 		demanded FLOAT NOT NULL,
+	 		temperature FLOAT NOT NULL
+		)";
+	$mysql->query ( $str );
+
+	$str = "
+		CREATE TABLE IF NOT EXISTS humidity_logger (
+			entered TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL PRIMARY KEY,
+	 		demanded FLOAT NOT NULL,
+	 		humidity FLOAT NOT NULL
+		)";
+	$mysql->query ( $str );
 }
 
 function clearSensorLogger() {
 	global $mysql;
-	$mysql->query ( "DELETE FROM th_logger where entered < '" . timestampFormat ( timestampAdd ( timestampNow (), numDays ( - 1 ) ), "Y-m-d H:i:s" ) . "'" );
-	// $mysql->query ( $query);
-	// if (is_array ( $ret ) && count ( $ret ) > 0) {
-	// return array("entered" => $ret[0]["entered"], "temperature" => $ret [0] ["temperature"]);
-	// }
-	// return null;
+	$mysql->query ( "DELETE FROM temperature_logger where entered < '" . timestampFormat ( timestampAdd ( timestampNow (), numDays ( - 1 ) ), "Y-m-d H:i:s" ) . "'" );
+	$mysql->query ( "DELETE FROM humidity_logger where entered < '" . timestampFormat ( timestampAdd ( timestampNow (), numDays ( - 1 ) ), "Y-m-d H:i:s" ) . "'" );
 }
 
 function lastTemp() {
 	global $mysql;
-	$ret = $mysql->query ( "SELECT * FROM th_logger where temperature != 999 ORDER BY entered DESC LIMIT 1" );
+	$ret = $mysql->query ( "SELECT * FROM temperature_logger ORDER BY entered DESC LIMIT 1" );
 	if (is_array ( $ret ) && count ( $ret ) > 0) {
-		return array (
-				"entered" => $ret [0] ["entered"],
-				"temperature" => $ret [0] ["temperature"]
-		);
+		return $ret [0];
 	}
 	return null;
 }
 
 function lastHumidity() {
 	global $mysql;
-	$ret = $mysql->query ( "SELECT * FROM th_logger where humidity != 999 ORDER BY entered DESC LIMIT 1" );
+	$ret = $mysql->query ( "SELECT * FROM humidity_logger where humidity != 999 ORDER BY entered DESC LIMIT 1" );
 	if (is_array ( $ret ) && count ( $ret ) > 0) {
-		return array (
-				"entered" => $ret [0] ["entered"],
-				"humidity" => $ret [0] ["humidity"]
-		);
+		return $ret [0];
 	}
 	return null;
 }
@@ -109,24 +107,24 @@ function setConfig($id, $value) {
 
 function setLight($val) {
 	global $hl_light_pin, $hl_high_value;
-	//$cmd = "sh " . realpath ( dirname ( __FILE__ ) . "/../sh/gpio.sh" ) . " " . $hl_light_pin . " " . $val . " 2>&1";
-	$cmd = "echo " . $val . " > /sys/class/gpio/gpio".$hl_light_pin."/value 2>&1";
+	// $cmd = "sh " . realpath ( dirname ( __FILE__ ) . "/../sh/gpio.sh" ) . " " . $hl_light_pin . " " . $val . " 2>&1";
+	$cmd = "echo " . $val . " > /sys/class/gpio/gpio" . $hl_light_pin . "/value > /dev/nul 2>&1";
 	ob_start ();
 	$last_line = @system ( $cmd, $retval );
 	ob_end_clean ();
 	logger ( LL_INFO, "setLight(" . (($val == $hl_high_value) ? ("ON") : ("OFF")) . "): " . $cmd );
-	logger ( LL_DEBUG, "setLight(" . (($val == $hl_high_value) ? ("ON") : ("OFF")) . "): " . $last_line );
+	// logger ( LL_DEBUG, "setLight(" . (($val == $hl_high_value) ? ("ON") : ("OFF")) . "): " . $last_line );
 }
 
 function setHeat($val) {
 	global $hl_heat_pin, $hl_high_value;
-	//$cmd = "sh " . realpath ( dirname ( __FILE__ ) . "/../sh/gpio.sh" ) . " " . $hl_heat_pin . " " . $val . " 2>&1";
-	$cmd = "echo " . $val . " > /sys/class/gpio/gpio".$hl_heat_pin."/value 2>&1";
+	// $cmd = "sh " . realpath ( dirname ( __FILE__ ) . "/../sh/gpio.sh" ) . " " . $hl_heat_pin . " " . $val . " 2>&1";
+	$cmd = "echo " . $val . " > /sys/class/gpio/gpio" . $hl_heat_pin . "/value > /dev/nul 2>&1";
 	ob_start ();
 	$last_line = @system ( $cmd, $retval );
 	ob_end_clean ();
 	logger ( LL_INFO, "setHeat(" . (($val == $hl_high_value) ? ("ON") : ("OFF")) . "): " . $cmd );
-	logger ( LL_DEBUG, "setHeat(" . (($val == $hl_high_value) ? ("ON") : ("OFF")) . "): " . $last_line );
+	// logger ( LL_DEBUG, "setHeat(" . (($val == $hl_high_value) ? ("ON") : ("OFF")) . "): " . $last_line );
 }
 
 function setOled($text) {
@@ -135,7 +133,7 @@ function setOled($text) {
 	$last_line = @system ( $cmd, $retval );
 	ob_end_clean ();
 	logger ( LL_INFO, "setOled(): " . $cmd );
-	logger ( LL_DEBUG, "setOled(): " . $last_line );
+	// logger ( LL_DEBUG, "setOled(): " . $last_line );
 }
 
 function readSensors($quiet = false) {
@@ -152,21 +150,19 @@ function readSensors($quiet = false) {
 		ob_end_clean ();
 
 		if ($last_line [0] != 'T') {
-			if(!quiet) echo "Unable to determine local temp/humidity\n\n";
+			if (! quiet)
+				echo "Unable to determine local temp/humidity\n\n";
 		} else {
 			@list ( $temperature, $humidity ) = @explode ( "|", $last_line );
 			$temperature = @explode ( ":", $temperature ) [1] + 0;
 			$humidity = @explode ( ":", $humidity ) [1] + 0;
 
-			$ret = $mysql->query ( "REPLACE INTO th_logger (temperature, humidity) VALUES (?, ?)", "dd", array (
-					$temperature,
-					$humidity
-			) );
-
 			setConfig ( "temperature", $temperature );
 			setConfig ( "humidity", $humidity );
-			if(!$quiet) echo "Local temperature: " . $temperature . "C\n";
-			if(!$quiet) echo "Local humidity: " . $humidity . "%\n";
+			if (! $quiet)
+				echo "Local temperature: " . $temperature . "C\n";
+			if (! $quiet)
+				echo "Local humidity: " . $humidity . "%\n";
 			echo "\n";
 		}
 	} else {
@@ -178,21 +174,19 @@ function readSensors($quiet = false) {
 
 		@list ( $dummy, $temperature ) = explode ( " t=", $last_line );
 		if ($temperature == "") {
-			if(!$quiet) echo "Unable to determine local temp\n\n";
+			if (! $quiet)
+				echo "Unable to determine local temp\n\n";
 			ob_start ();
 			@system ( "echo '999C " . getConfig ( "STATUS", "---" ) . "' > /tmp/oled.txt", $retval );
 			ob_end_clean ();
 		} else {
 			$temperature = ($temperature + 0) / 1000;
 
-			$ret = $mysql->query ( "REPLACE INTO th_logger (temperature, humidity) VALUES (?, ?)", "dd", array (
-					$temperature,
-					999
-			) );
-
 			setConfig ( "temperature", $temperature );
-			if(!$quiet) echo "Local temperature: " . $temperature . "C\n";
-			if(!$quiet) echo "\n";
+			if (! $quiet)
+				echo "Local temperature: " . $temperature . "C\n";
+			if (! $quiet)
+				echo "\n";
 		}
 	}
 }
@@ -206,10 +200,17 @@ function tick($quiet = false) {
 	$last_temperature = getConfig ( "temperature" );
 	$last_humidity = getConfig ( "humidity" );
 
-	// Get the relevant data for where we are
+	/**
+	 * *************************************************************************************************************************************
+	 * Get the weather data from the database
+	 */
 	$data = getData ( $lat, $lng, $day, $mon );
 
-	// Calculate status based on sunset times (should be local times)
+	/**
+	 * *************************************************************************************************************************************
+	 * Calculate the sunset/rise times.
+	 * They should be remotely correct and based in local timezone hours
+	 */
 	$status = (( int ) ($tsnow) >= ( int ) ($data->sunrise) && ( int ) ($tsnow) <= ( int ) ($data->sunset)) ? ("DAY") : ("NIGHT");
 
 	if (! $quiet)
@@ -230,25 +231,36 @@ function tick($quiet = false) {
 	}
 	setLight ( ($status == "DAY") ? ($hl_high_value) : ($hl_low_value) );
 
-	// Now work on sensors
-	readSensors ($quiet);
+	/**
+	 * *************************************************************************************************************************************
+	 * Read the local environmental sensors
+	 */
+	readSensors ( $quiet );
 
-	// First atempt temp stuff
+	/**
+	 * *************************************************************************************************************************************
+	 * Work with the temperature
+	 */
 	$demand_temperature = ($status == "DAY") ? ($data->high_hist) : ($data->low_hist);
 	setConfig ( "temperature_demand", $demand_temperature );
-
 	$temperature = getConfig ( "temperature" );
-	$heat = false;
 
-	if ($temperature) {
+	// Work out whether we need to switch the heater on
+	$heat = false;
+	if ($temperature !== false) {
+		$mysql->query ( "REPLACE INTO temperature_logger (temperature, demanded) VALUES (?, ?)", "dd", array (
+				$temperature,
+				$demand_temperature
+		) );
+
 		// $direction_temperature = ($temperature<$last_temperature)?("UP"):(($temperature==$last_temperature)?("--"):("DN"));
-		// TODO: calulate whether we need to do anything with last and current and direction
+		// TODO: calulate whether we need to do anything with last temp, current and direction (is it suitably different)
 
 		setConfig ( "temperature_last", $last_temperature );
 		setConfig ( "temperature", $temperature );
 		// setConfig ( "temperature_direction", $direction_temperature );
 
-		// TODO: Do we need to switch the heater on
+		// TODO: Calculate the
 		$heat = $demand_temperature > $temperature;
 
 		// Set the string for display
@@ -258,7 +270,10 @@ function tick($quiet = false) {
 	}
 	setHeat ( ($heat) ? ($hl_high_value) : ($hl_low_value) );
 
-	// Output to the OLED display handler
+	/**
+	 * *************************************************************************************************************************************
+	 * Send the sumary to the OLED display
+	 */
 	$str = $temperature . "C " . $status . " " . (($heat) ? ("#") : ("."));
 	setOled ( $str );
 }

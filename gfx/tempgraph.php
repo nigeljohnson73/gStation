@@ -12,6 +12,7 @@ $lgrey = imagecolorallocate ( $im, 0xdd, 0xdd, 0xdd );
 $grey = imagecolorallocate ( $im, 0xee, 0xee, 0xee );
 $black = imagecolorallocate ( $im, 0x00, 0x00, 0x00 );
 $red = imagecolorallocate ( $im, 0xff, 0x00, 0x00 );
+$pink = imagecolorallocate ( $im, 0xff, 0xaa, 0xaa );
 
 function point($im, $x, $y, $colour, $dist = 1) {
 	$points = array (
@@ -30,13 +31,16 @@ function point($im, $x, $y, $colour, $dist = 1) {
 
 function getTemps() {
 	global $mysql;
-	$res = $mysql->query ( "SELECT * FROM th_logger where temperature != 999" );
+	$res = $mysql->query ( "SELECT * FROM temperature_logger where temperature != 999" );
 	// var_dump($res);
 	if (is_array ( $res ) && count ( $res ) > 0) {
 		$ret = array ();
 		foreach ( $res as $r )
 			// echo ob_print_r($r);
-			$ret [timestamp2Time ( $r ["entered"] )] = $r ["temperature"];
+			$ret [timestamp2Time ( $r ["entered"] )] = ( object ) array (
+					"demanded" => $r ["demanded"],
+					"temperature" => $r ["temperature"]
+			);
 		return $ret;
 	}
 	return null;
@@ -53,7 +57,10 @@ if (! $temps) {
 	$delt_temp = 1.2;
 	$tnow = time ();
 	for($i = 0; $i < $nmins; $i ++) {
-		$temps [$tnow - ($i * 60)] = $mid_temp + $delt_temp * sin ( deg2rad ( $i * $deg_step ) );
+		$temps [$tnow - ($i * 60)] = ( object ) array (
+				"demanded" => $mid_temp + $delt_temp * sin ( deg2rad ( $i * $deg_step ) ),
+				"temperature" => $mid_temp + $delt_temp * cos ( deg2rad ( $i * $deg_step ) )
+		);
 	}
 }
 
@@ -64,12 +71,30 @@ $font = 4;
 // Start with background
 imagefill ( $im, 0, 0, $grey );
 
+function tempMin($arr) {
+	$blank = 99999;
+	$ret = $blank;
+	foreach($arr as $v) {
+		$ret = min($ret, $v->temperature, $v->demanded);
+	}
+	return ($ret == $blank)?(null):($ret);
+}
+
+function tempMax($arr) {
+	$blank = -99999;
+	$ret = $blank;
+	foreach($arr as $v) {
+		$ret = max($ret, $v->temperature, $v->demanded);
+	}
+	return ($ret == $blank)?(null):($ret);
+}
+
 if ($temps) {
 	// print_r($temps);
 	$min_x = min ( array_keys ( $temps ) );
 	$max_x = max ( array_keys ( $temps ) );
-	$min_y = floor ( min ( array_values ( $temps ) ) );
-	$max_y = ceil ( max ( array_values ( $temps ) ) );
+	$min_y = floor ( tempMin ( array_values ( $temps ) ) );
+	$max_y = ceil ( tempMax ( array_values ( $temps ) ) );
 
 	// Draw hour markers
 	$assume_hours = 24;
@@ -104,8 +129,10 @@ if ($temps) {
 	// Process in the data points
 	foreach ( $temps as $k => $v ) {
 		$xv = (scaleVal ( $k, $min_x, $max_x ) * ($x - 2 * $border)) + $border;
-		$yv = $y - ((scaleVal ( $v, $min_y, $max_y ) * ($y - 2 * $border)) + $border);
-		point ( $im, $xv, $yv, $red );
+		$yvd = $y - ((scaleVal ( $v->demanded, $min_y, $max_y ) * ($y - 2 * $border)) + $border);
+		$yvt = $y - ((scaleVal ( $v->temperature, $min_y, $max_y ) * ($y - 2 * $border)) + $border);
+		point ( $im, $xv, $yvd, $pink );
+		point ( $im, $xv, $yvt, $red );
 	}
 
 	// Overall legend
