@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
 
+# Generall imports
+import os, sys, time
+from datetime import datetime
+
 # For GPIOZero and a shutdown button
 from gpiozero import Button
-from signal import pause
-import os, sys
 
-# For the display
+# For the OLED display
 import board
 import digitalio
 from PIL import Image, ImageDraw, ImageFont
 import adafruit_ssd1306
 
-from datetime import datetime
-import time
 
 # digital button for pressing and the hold time.
 offGPIO1 = 21
@@ -58,11 +58,12 @@ def drawText(text):
 	oled.image(image)
 	oled.show()
 
-# the function called to shut down the RPI - just exist for now
+# the function called to shut down the RPI - just exit the loop and it;;l do the rest down there
 def shutdown():
-	global done
-	done = True
-	drawText("SHUTDOWN")
+    # Gotta declare it global if you wanna write to it
+    global done
+    done = True
+    drawText("SHUTDOWN")
 
 
 # setup the callback
@@ -70,10 +71,9 @@ btn1 = Button(offGPIO1, hold_time=holdTime)
 btn1.when_held = shutdown
 btn2 = Button(offGPIO2, hold_time=holdTime)
 btn2.when_held = shutdown
-# pause()  # handle the button presses in the background
 
 
-# Use for I2C.
+# Use I2C for the OLED display
 i2c = board.I2C()
 oled = adafruit_ssd1306.SSD1306_I2C(WIDTH, HEIGHT, i2c, addr=0x3c)
 
@@ -81,26 +81,29 @@ oled = adafruit_ssd1306.SSD1306_I2C(WIDTH, HEIGHT, i2c, addr=0x3c)
 oled.fill(0)
 oled.show()
 
-print("OLED display starting up")
+print("Starting OLED button trap")
 drawText ("Starting up...")
 
 triggerfile = "/tmp/oled.txt"
 while not done:
 	try:
+        # Try and read the file
 		with open(triggerfile, "r") as f:
 			line = f.readline()
 			text = line.strip()
 
+        # If we didn't excpetion then we have some content, remove the file, display the content
 		os.remove(triggerfile)
-		#print("Writing '",text,"'")
 		drawText(text)
 
 	except FileNotFoundError:
+        # No file yet, that's fine, carry on
 		pass
-		#print('File does not exist')
 
+    # Pause for a bit so we don't trip up anything
 	time.sleep(0.5)
 
+# If we got here then done was set to True in the shutdown function
 print("SHUTDOWN")
-#sys.exit()
 os.system("sudo poweroff")
+sys.exit()

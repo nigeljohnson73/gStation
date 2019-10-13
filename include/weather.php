@@ -52,7 +52,7 @@ function setupTables() {
 	$mysql->query ( $str );
 }
 
-function clearTempLogger() {
+function clearSensorLogger() {
 	global $mysql;
 	$mysql->query ( "DELETE FROM th_logger where entered < '" . timestampFormat ( timestampAdd ( timestampNow (), numDays ( - 1 ) ), "Y-m-d H:i:s" ) . "'" );
 	// $mysql->query ( $query);
@@ -107,51 +107,158 @@ function setConfig($id, $value) {
 	// return $default;
 }
 
-function light($val) {
-	global $hl_light_pin;
+function setLight($val) {
+	global $hl_light_pin, $hl_high_value;
 	$cmd = "sh " . realpath ( dirname ( __FILE__ ) . "/../sh/gpio.sh" ) . " " . $hl_light_pin . " " . $val . " 2>&1";
 	ob_start ();
 	$last_line = @system ( $cmd, $retval );
 	ob_end_clean ();
-	logger ( LL_INFO, $cmd );
-	logger ( LL_DEBUG, $last_line );
+	logger ( LL_INFO, "setLight(" . (($val == $hl_high_value) ? ("ON") : ("OFF")) . "): " . $cmd );
+	logger ( LL_DEBUG, "setLight(" . (($val == $hl_high_value) ? ("ON") : ("OFF")) . "): " . $last_line );
 }
 
-function heat($val) {
-	global $hl_heat_pin;
+function setHeat($val) {
+	global $hl_heat_pin, $hl_high_value;
 	$cmd = "sh " . realpath ( dirname ( __FILE__ ) . "/../sh/gpio.sh" ) . " " . $hl_heat_pin . " " . $val . " 2>&1";
 	ob_start ();
 	$last_line = @system ( $cmd, $retval );
 	ob_end_clean ();
-	logger ( LL_INFO, $cmd );
-	logger ( LL_DEBUG, $last_line );
+	logger ( LL_INFO, "setHeat(" . (($val == $hl_high_value) ? ("ON") : ("OFF")) . "): " . $cmd );
+	logger ( LL_DEBUG, "setHeat(" . (($val == $hl_high_value) ? ("ON") : ("OFF")) . "): " . $last_line );
 }
 
-function tick() {
-	global $lat, $lng, $day, $mon, $bulksms_owner_sms;
+function setOled($text) {
+	$cmd = "echo '" . $text . "' > /tmp/oled.txt";
+	ob_start ();
+	$last_line = @system ( $cmd, $retval );
+	ob_end_clean ();
+	logger ( LL_INFO, "setOled(): " . $cmd );
+	logger ( LL_DEBUG, "setOled(): " . $last_line );
+}
+
+function readSensors($quiet = false) {
+	global $use_dht;
+
+	// Tidy up the logger tables
+	clearSensorLogger ();
+
+	if ($use_dht) {
+		$cmd = "python3 " . dirname ( __FILE__ ) . "/dht22.py 2>&1";
+		ob_start ();
+		$last_line = @system ( $cmd, $retval );
+		// $last_line = "T:25.9|H:53.3";
+		ob_end_clean ();
+
+		if ($last_line [0] != 'T') {
+			if(!quiet) echo "Unable to determine local temp/humidity\n\n";
+		} else {
+			@list ( $temperature, $humidity ) = @explode ( "|", $last_line );
+			$temperature = @explode ( ":", $temperature ) [1] + 0;
+			$humidity = @explode ( ":", $humidity ) [1] + 0;
+
+			$ret = $mysql->query ( "REPLACE INTO th_logger (temperature, humidity) VALUES (?, ?)", "dd", array (
+					$temperature,
+					$humidity
+			) );
+
+			setConfig ( "temperature", $temperature );
+			setConfig ( "humidity", $humidity );
+			if(!$quiet) echo "Local temperature: " . $temperature . "C\n";
+			if(!$quiet) echo "Local humidity: " . $humidity . "%\n";
+			echo "\n";
+		}
+	} else {
+		$cmd = "cat /sys/bus/w1/devices/28-*/w1_slave 2>&1";
+		ob_start ();
+		$last_line = @system ( $cmd, $retval );
+		// $last_line = "67 01 4c 46 7f ff 0c 10 c4 t=22437";
+		ob_end_clean ();
+
+		@list ( $dummy, $temperature ) = explode ( " t=", $last_line );
+		if ($temperature == "") {
+			if(!$quiet) echo "Unable to determine local temp\n\n";
+			ob_start ();
+			@system ( "echo '999C " . getConfig ( "STATUS", "---" ) . "' > /tmp/oled.txt", $retval );
+			ob_end_clean ();
+		} else {
+			$temperature = ($temperature + 0) / 1000;
+
+			$ret = $mysql->query ( "REPLACE INTO th_logger (temperature, humidity) VALUES (?, ?)", "dd", array (
+					$temperature,
+					999
+			) );
+
+			setConfig ( "temperature", $temperature );
+			if(!$quiet) echo "Local temperature: " . $temperature . "C\n";
+			if(!$quiet) echo "\n";
+		}
+	}
+}
+
+function tick($quiet = false) {
+	global $lat, $lng, $day, $mon, $bulksms_owner_sms, $bulksms_alert_sunrise, $bulksms_alert_sunset;
 	global $hl_high_value, $hl_low_value;
-	$data = getData ( $lat, $lng, $day, $mon );
+	$tsnow = timestampFormat ( timestampNow (), "His" );
 
 	$last_status = getConfig ( "status", "NIGHT" );
-	$tsnow = timestampFormat ( timestampNow (), "His" );
+	$last_temperature = getConfig ( "temperature" );
+	$last_humidity = getConfig ( "humidity" );
+
+	// Get the relevant data for where we are
+	$data = getData ( $lat, $lng, $day, $mon );
+
+	// Calculate status based on sunset times (should be local times)
 	$status = (( int ) ($tsnow) >= ( int ) ($data->sunrise) && ( int ) ($tsnow) <= ( int ) ($data->sunset)) ? ("DAY") : ("NIGHT");
-	// logger ( LL_INFO, "Tick control: \n" . ob_print_r ( $data ) );
-	echo "Status: '" . $status . "'\n";
-	echo ob_print_r ( $data ) . "\n";
+
+	if (! $quiet)
+		echo "Status: '" . $status . "'\n";
+	if (! $quiet)
+		echo ob_print_r ( $data ) . "\n";
 
 	$msg = "status is still '" . $last_status . "'";
 	if ($last_status != $status) {
 		$msg = "status changed from '" . $last_status . "' to '" . $status . "'";
 		logger ( LL_INFO, "tick(): " . $msg );
 		setConfig ( "status", $status );
-		sendSms ( $msg, $bulksms_owner_sms );
-		light ( ($status == "DAY") ? ($hl_high_value) : ($hl_low_value) );
+		if (($status == "DAY" && $bulksms_alert_sunrise) || ($status == "NIGHT" && $bulksms_alert_sunset)) {
+			sendSms ( $msg, $bulksms_owner_sms );
+		}
 	} else {
-		light ( ($last_status == "DAY") ? ($hl_high_value) : ($hl_low_value) );
 		logger ( LL_DEBUG, "tick(): " . $msg );
 	}
-	// sendSms($msg, "447517528741");
-	clearTempLogger ();
+	setLight ( ($status == "DAY") ? ($hl_high_value) : ($hl_low_value) );
+
+	// Now work on sensors
+	readSensors ($quiet);
+
+	// First atempt temp stuff
+	$demand_temperature = ($status == "DAY") ? ($data->high_hist) : ($data->low_hist);
+	setConfig ( "temperature_demand", $demand_temperature );
+
+	$temperature = getConfig ( "temperature" );
+	$heat = false;
+
+	if ($temperature) {
+		// $direction_temperature = ($temperature<$last_temperature)?("UP"):(($temperature==$last_temperature)?("--"):("DN"));
+		// TODO: calulate whether we need to do anything with last and current and direction
+
+		setConfig ( "temperature_last", $last_temperature );
+		setConfig ( "temperature", $temperature );
+		// setConfig ( "temperature_direction", $direction_temperature );
+
+		// TODO: Do we need to switch the heater on
+		$heat = $demand_temperature > $temperature;
+
+		// Set the string for display
+		$temperature = round ( $temperature, 1 );
+	} else {
+		$temperature = "---";
+	}
+	setHeat ( ($heat) ? ($hl_high_value) : ($hl_low_value) );
+
+	// Output to the OLED display handler
+	$str = $temperature . "C " . $status . " " . (($heat) ? ("#") : ("."));
+	setOled ( $str );
 }
 
 function getIdList($lat, $lng, $day, $mon) {

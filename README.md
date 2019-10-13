@@ -26,6 +26,10 @@ Button press off
 
  * https://github.com/TonyLHansen/raspberry-pi-safe-off-switch/
 
+Raspi PPID tuned Heat controller
+
+ * https://studentnet.cs.manchester.ac.uk/resources/library/thesis_abstracts/MSc14/FullText/Ioannidis-Feidias-fulltext.pdf
+
  -------------------------------
 
 ## Setting things up 
