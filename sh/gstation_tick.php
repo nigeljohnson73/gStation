@@ -11,12 +11,12 @@ echo "Location: " . $loc . " (" . latToDms ( $lat ) . ", " . lngToDms ( $lng ) .
 $call_delay = 10;
 
 $quiet = false;
-//while ((timestampFormat(timestampNow(), "s")+0) <= 56) {
+while ((timestampFormat(timestampNow(), "s")+0) <= 56) {
 	tick ($quiet);
-// 	logger ( LL_EDEBUG, "tick(): sleep" );
-// 	sleep($call_delay);
-// 	$quiet = true;
-// }
+	logger ( LL_EDEBUG, "tick(): sleep" );
+	sleep($call_delay);
+	$quiet = true;
+}
 
 logger ( LL_INFO, "tick(): completed" );
 // logger ( LL_DEBUG, "system command: '" . $cmd . "'" );
