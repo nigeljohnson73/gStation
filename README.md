@@ -153,10 +153,33 @@ Test that from a remote browser
     
     #button stuff
     sudo apt install python3-gpiozero
-    
+
+Finally the rc.local
+
     vi /etc/rc.local
     ## add to the bottom
-    python3 /webroot/gStation/sh/oledpower.py &
+
+	# Set up the GPIO pins for the heat/light
+    if [ ! -d /sys/class/gpio/gpio17 ]
+    then
+        echo 17 > /sys/class/gpio/export
+        sleep 1 ;# Short delay while GPIO permissions are set up
+    fi
+    if [ ! -d /sys/class/gpio/gpio18 ]
+    then
+        echo 18 > /sys/class/gpio/export
+        sleep 1 ;# Short delay while GPIO permissions are set up
+    fi
     
+	# Set up the GPIO pins for output
+    echo out > /sys/class/gpio/gpio17/direction
+    echo out > /sys/class/gpio/gpio18/direction
+    
+	# Switch them off for now
+    echo 1 > /sys/class/gpio/gpio17/value
+    echo 1 > /sys/class/gpio/gpio18/value
+    
+	# Start the OLED display
+    python3 /webroot/gStation/sh/oledpower.py &
 
 That should do it for now
