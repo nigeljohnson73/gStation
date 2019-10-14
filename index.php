@@ -51,7 +51,7 @@ if($last_temp == null) {
 		echo "Processing weather at " . timestampFormat ( timestampNow (), "Y-m-d\TH:i:sT" ) . "\n";
 		echo "Location: " . $loc . " (" . latToDms ( $lat ) . ", " . lngToDms ( $lng ) . ")\n";
 		echo "Current status: '" . getConfig ( "STATUS", "NIGHT" ) . "'\n";
-		print_r ( getData ( $lat, $lng, $day, $mon, false, false ) );
+		print_r ( getData ( $lat, $lng, $day, $mon, null, false, false ) );
 
 		?>
 Last temp: <?php echo $last_temp ?></pre>
@@ -70,7 +70,8 @@ Last temp: <?php echo $last_temp ?></pre>
 		echo $str . "\n";
 		?></pre>
 
-<img src="gfx/tempgraph.php?<?php echo randomQuery() ?>" alt="Temperature Graph" />
+<img src="gfx/graph_local_temperatures.php?<?php echo randomQuery() ?>" alt="Local Temperature Graph" />
+<img src="gfx/graph_remote_temperatures.php" alt="Remote Average Temperature Graph" />
 		<!-- <?php //phpInfo() ?> -->
 	</div>
 </body>

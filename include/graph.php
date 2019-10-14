@@ -4,8 +4,10 @@ function _graphMinMax($arr, $compfunc, $blankval, $kvfunc) {
 	// echo "<pre>_graphMinMax(\$arr, $compfunc, $blankval, $kvfunc): called\n" . ob_print_r ( $arr ) . "</pre>\n";
 	$ret = $blankval;
 	foreach ( $arr as $legend => $vals ) {
-		// echo "&nbsp;&nbsp;&nbsp;&nbsp;_graphMinMax(\$arr, $compfunc, $kvfunc): '$legend': curr: $ret, new: " . $compfunc ( $kvfunc ( $vals ) ) . "</br>";
-		$ret = $compfunc ( $ret, $compfunc ( $kvfunc ( $vals ) ) );
+		if (count ( $vals )) {
+			// echo "&nbsp;&nbsp;&nbsp;&nbsp;_graphMinMax(\$arr, $compfunc, $kvfunc): '$legend': curr: $ret, new: " . $compfunc ( $kvfunc ( $vals ) ) . "</br>";
+			$ret = $compfunc ( $ret, $compfunc ( $kvfunc ( $vals ) ) );
+		}
 	}
 	$ret = ($ret == $blankval) ? (null) : ($ret);
 	// echo "&nbsp;&nbsp;&nbsp;&nbsp;_graphMinMax(\$arr, $compfunc, $kvfunc): return: " . tfn ( $ret ) . "</br>";
@@ -46,25 +48,24 @@ function graphPoint($im, $x, $y, $colour, $dist = 1) {
 /**
  * **************************************
  * $data - a legend indexed array of keyed value arrays with the keys being unix timestamps
- * 
+ *
  * $legend - The main title of the graph
  *
  * $nmajor_x - number of major tick lines on the x axis, should be calculated based on the range of days or whatever
  *
  * $nminor_x - number of minor ticks per major on the x axis
- * 
+ *
  * $min_y - the lowest y value to display (should be lower than the lowest value)
- * 
+ *
  * $max_y - the highest y value to display (should be higher than the highest value)
- * 
+ *
  * $nmajor_y - number of major tick lines on the y axis, should be calculated based on the range (should be awhole number ideally)
  *
  * $nminor_y - number of minor ticks per major on the y axis
- * 
+ *
  * $y_ticks - a value indexed array of labels to display
- * 
  */
-function drawTimeGraph($data, $legend, $nmajor_x, $nminor_x, $min_y, $max_y, $nmajor_y, $nminor_y, $y_ticks) {
+function drawTimeGraph($data, $legend, $nmajor_x, $nminor_x, $min_y, $max_y, $nmajor_y, $nminor_y, $y_ticks, $x_format = "Y-m-d H:i") {
 	$x = 640;
 	$y = 480;
 	$border = 40;
@@ -160,11 +161,15 @@ function drawTimeGraph($data, $legend, $nmajor_x, $nminor_x, $min_y, $max_y, $nm
 	// range for values
 	foreach ( $y_ticks as $v => $label ) {
 		$yv = $y - ((scaleVal ( $v, $min_y, $max_y ) * ($y - 2 * $border)) + $border);
-		imagestring ( $im, $font, 10, $yv - 7, $label, $fg );
+		imagestring ( $im, /*$font*/2, 10, $yv - 7, $label, $fg );
 	}
 	// range for timestamps
-	imagestring ( $im, $font, $border, $y - $border + 5, timestampFormat ( time2Timestamp ( $min_x ), "Y-m-d H:i" ), $fg );
-	imagestring ( $im, $font, $x - 4 * $border, $y - $border + 5, timestampFormat ( time2Timestamp ( $max_x ), "Y-m-d H:i" ), $fg );
+	imagestring ( $im, $font, $border, $y - $border + 5, timestampFormat ( time2Timestamp ( $min_x ), $x_format ), $fg );
+
+	$rhs_label = timestampFormat ( time2Timestamp ( $max_x ), $x_format );
+	//list ( $left, , $right ) = imageftbbox ( 12, 0, $font, $rhs_label );
+	$width = imageFontWidth($font) * strlen($rhs_label);
+	imagestring ( $im, $font, $x - $border - $width, $y - $border + 5, $rhs_label, $fg );
 
 	return $im;
 }

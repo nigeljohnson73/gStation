@@ -18,7 +18,7 @@ $mon = timestampFormat ( $ts, "m" );
 echo "\nProcessing weather at " . timestampFormat ( $ts, "Y-m-d\TH:i:sT" ) . "\n";
 echo "Location: " . $loc . " (" . latToDms ( $lat ) . ", " . lngToDms ( $lng ) . ")\n";
 
-print_r ( getData ( $lat, $lng, $day, $mon, true, $force_local_gets ) );
+print_r ( getData ( $lat, $lng, $day, $mon, null, true, $force_local_gets ) );
 
 echo "Retrieving historic data\n";
 print_r ( getHistoricData () );

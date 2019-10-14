@@ -2,7 +2,7 @@
 $quiet = true;
 include_once (dirname ( __FILE__ ) . "/../functions.php");
 
-function getTemps() {
+function getLocalTemps() {
 	global $mysql;
 	// $res = $mysql->query ( "SELECT * FROM temperature_logger where temperature != 999 ORDER BY entered desc limit 10" );
 	$res = $mysql->query ( "SELECT * FROM temperature_logger where temperature != 999" );
@@ -23,8 +23,8 @@ function getTemps() {
 	return null;
 }
 
-$legend = "Temperature over the last 24 hours";
-$temps = getTemps ();
+$legend = "Local Temperature over the last 24 hours";
+$temps = getLocalTemps ();
 // echo "<pre>" . ob_print_r ( $temps ) . "</pre>";
 if (! $temps) {
 	$legend = "A pretty little sine wave (as there is no real data yet)";

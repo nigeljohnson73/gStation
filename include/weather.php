@@ -386,8 +386,17 @@ function processData($day, $mon, $yr, $data) {
 		$row = json_decode ( $row->data );
 		$ns = "nearest-station";
 		// var_dump($row->flags->$ns);
+		if (isset ( $row->latitude )) {
+			$obj->lat = $row->latitude;
+		}
+		if (isset ( $row->longitude )) {
+			$obj->lng = $row->longitude;
+		}
 		if (isset ( $row->timezone )) {
 			$obj->timezone = $row->timezone;
+		}
+		if (isset ( $row->offset )) {
+			$obj->timezoneOffset = $row->offset * 60 * 60;
 		}
 		// $obj->units = $row->flags->units;
 		if (isset ( $row->flags->$ns )) {
@@ -417,6 +426,13 @@ function processData($day, $mon, $yr, $data) {
 				$obj->sunset = timestampFormat ( time2Timestamp ( $row->sunsetTime ), "His" );
 				$obj->sunrise = timestampFormat ( time2Timestamp ( $row->sunriseTime ), "His" );
 				$obj->daylight = ($row->sunsetTime - $row->sunriseTime) / 3600;
+				$obj->midnightTime = $row->time; // timestampFormat ( time2Timestamp ( $row->time ), "c" );
+				$obj->sunsetTime = $row->sunsetTime;
+				$obj->sunriseTime = $row->sunriseTime;
+				$obj->sunsetOffset = $row->sunsetTime - $row->time;
+				$obj->sunriseOffset = $row->sunriseTime - $row->time;
+				// $obj->sunsetOffset = $row->sunsetTime-$row->time;
+				// $obj->sunriseOffset = $row->sunriseTime-$row->time;
 				// logger(LL_SYS, "sunrise: ".timestampFormat ( time2Timestamp ( $row->sunriseTime ), "Y-m-d H:i:s" ));
 				// logger(LL_SYS, "sunset: ".timestampFormat ( time2Timestamp ( $row->sunsetTime ), "Y-m-d H:i:s" ));
 				// logger(LL_SYS, "diff: ".timestampDifference("20191010010000", "20191010020000"));
@@ -460,13 +476,15 @@ function processData($day, $mon, $yr, $data) {
 	return ( object ) $arr;
 }
 
-function getData($lat, $lng, $day, $mon, $fill = false, $force = false) {
+function getData($lat, $lng, $day, $mon, $yr = null, $fill = false, $force = false) {
 	global $darksky_key;
 	global $mysql;
 	global $dy_history, $dy_forecast;
 
 	// calculate so we can do comparisons
-	$yr = timeStampFormat ( timestampNow (), "Y" );
+	if ($yr === null) {
+		$yr = timeStampFormat ( timestampNow (), "Y" );
+	}
 
 	// Get a list of ID's associated with this day
 	$id_list = getIdList ( $lat, $lng, $day, $mon );
@@ -608,4 +626,62 @@ function getHistoricData() {
 		}
 	}
 }
+
+function getSunData($ndays = 10) {
+	$data = getRawHistoricData ( $ndays );
+	// return $data;
+
+	$rise = array ();
+	$set = array ();
+	$day = array ();
+	foreach ( $data as $ts => $d ) {
+		$t = $d->midnightTime + $d->timezoneOffset + 1; // plus the offset to get to local time plus one so it's definately today
+		                                                // $rise [$t] = $d -> sunriseOffset/3600;
+		$rise [$t] = $d->sunriseOffset / 3600;
+		$set [$t] = $d->sunsetOffset / 3600;
+		$day [$t] = ($d->sunsetOffset - $d->sunriseOffset) / 3600;
+	}
+
+	return array (
+			"daylight" => $day,
+			"sunrise" => $rise,
+			"sunset" => $set
+	);
+}
+
+function getTempData($ndays = 10) {
+	$data = getRawHistoricData ( $ndays );
+	// return $data;
+
+	$lo = array ();
+	$hi = array ();
+	foreach ( $data as $ts => $d ) {
+		$t = $d->midnightTime + $d->timezoneOffset + 1; // plus the offset to get to local time plus one so it's definately today
+		                                                // $rise [$t] = $d -> sunriseOffset/3600;
+		$lo [$t] = $d->low_hist;
+		$hi [$t] = $d->high_hist;
+	}
+
+	return array (
+			"low" => $lo,
+			"high" => $hi
+	);
+}
+
+function getRawHistoricData($ndays = 10) {
+	global $mysql, $lat, $lng;
+
+	$ts = timestampNow ();
+	for($i = 0; $i < $ndays; $i ++) {
+		$yr = timestampFormat ( $ts, "Y" );
+		$mn = timestampFormat ( $ts, "m" );
+		$dy = timestampFormat ( $ts, "d" );
+
+		$data [timestampFormat ( $ts, "Ymd" )] = getData ( $lat, $lng, $dy, $mn, $yr );
+
+		$ts = timestampAddDays ( $ts, - 1 );
+	}
+	return $data;
+}
+
 ?>
