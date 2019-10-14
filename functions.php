@@ -6,12 +6,13 @@ error_reporting ( E_ALL );
 ini_set ( 'display_errors', 'on' );
 
 function randomQuery() {
-	mt_srand(time());
-	return mt_rand();
+	mt_srand ( time () );
+	return mt_rand ();
 }
 
+// Returned a value between 0 and 1 as a percenteage of where $v is in the range $min -> $max
 function scaleVal($v, $min, $max) {
-	return ($v-$min)/($max-$min);
+	return ($v - $min) / ($max - $min);
 }
 
 function latToDms($decimal) {
