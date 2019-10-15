@@ -267,11 +267,14 @@ function tick($quiet = false) {
 	 * *************************************************************************************************************************************
 	 * Send the sumary to the OLED display
 	 */
-	//$str = round ( $temperature, 2 ) . "° " . $status . " " . (($heat) ? ("(#)") : ("(_)"));
-	$str = "" . round ( $temperature, 2 ) . "° ";
-	$str .= ($direction_temperature==0)?("--"):(($direction_temperature>0)?("/\\"):("\\/"));
-	$str .= " " . round ( $demand_temperature, 2 ) . "°|".(($heat) ? ("[#]") : ("[_]"))." ".(($status=="DAY") ? ("[#]") : ("[_]"));
-	
+	// $str = round ( $temperature, 2 ) . "° " . $status . " " . (($heat) ? ("(#)") : ("(_)"));
+	$str = "" . sprintf ( "%02.1f", $temperature ) . "° ";
+	$str .= ($direction_temperature == 0) ? ("-") : (($direction_temperature > 0) ? ("^") : ("v"));
+	//$str .= ($direction_temperature == 0) ? ("--") : (($direction_temperature > 0) ? ("/\\") : ("\\/"));
+	$str .= " " . sprintf ( "%02.1f", $demand_temperature ) . "°";
+	$str .= "|";
+	$str .= (($heat) ? ("H[#]") : ("H[_]")) . " " . (($status == "DAY") ? ("[#]L") : ("[_]L"));
+
 	// $status . " " . (($heat) ? ("(#)") : ("(_)"));
 	$log = timestampFormat ( timestampNow (), "H:i:s" ) . "; dem: " . round ( $demand_temperature, 2 ) . ", act: " . round ( $temperature, 2 ) . ", dir: $direction_temperature, OLED: '$str'";
 	logger ( LL_INFO, $log );
