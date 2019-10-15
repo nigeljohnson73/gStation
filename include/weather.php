@@ -605,15 +605,21 @@ function getModeledDataFields($arr) {
 }
 
 function modelStatus() {
+	global $mysql;
+	
 	$ret = new StdClass ();
 	$raw = getDarkSkyDataPoints ( null, true );
 	$valid = getDarkSkyDataPoints ( null, false );
-
+	
 	$ret->dataPointTotal = count ( $raw );
 	$ret->dataPointValid = count ( $valid );
 	$ret->dataPointInvalid = count ( $raw ) - count ( $valid );
 	$ret->dataPointPerDay = floor ( count ( $raw ) / 365 );
 
+	$rows  = $mysql->query("select max(last_updated) as ud from model");
+	if($rows && count($rows)) {
+		$ret->lastModelRebuild = $rows[0]["ud"];
+	}
 	return $ret;
 }
 ?>
