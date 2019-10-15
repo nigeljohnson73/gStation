@@ -51,6 +51,7 @@ $mon = timestampFormat ( timestampNow (), "m" ); // 10;
 		echo "Processing weather at " . timestampFormat ( timestampNow (), "Y-m-d\TH:i:s T" ) . "\n";
 		echo "Location: " . $loc . " (" . latToDms ( $lat ) . ", " . lngToDms ( $lng ) . ")\n";
 		echo "Current status: '" . getConfig ( "STATUS", "---" ) . "'\n";
+		print_r(getModel(timestampNow()));
 		// print_r ( getData ( $lat, $lng, $day, $mon, null, false, false ) );
 
 		?>
@@ -72,6 +73,7 @@ Last temp: <?php print_r(tfn(lastTemp())) ?></pre>
 
 		<img src="gfx/graph_local_temperatures.php?<?php echo randomQuery() ?>" alt="Local actual temperature graph" /> 
 		<img src="gfx/graph_remote_temperatures.php" alt="Remote average temperature graph" />
+		<img src="gfx/graph_remote_sun.php" alt="Remote sunrise and sunset graph" />
 		<img src="gfx/graph_remote_daylight.php" alt="Remote day length graph" />
 		<img src="gfx/graph_remote_sunrise.php" alt="Remote sunrise graph" />
 		<img src="gfx/graph_remote_sunset.php" alt="Remote sunset graph" />

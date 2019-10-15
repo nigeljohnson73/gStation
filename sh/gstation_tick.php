@@ -10,7 +10,7 @@ echo "Location: " . $loc . " (" . latToDms ( $lat ) . ", " . lngToDms ( $lng ) .
 
 logger ( LL_INFO, "tick(): started" );
 $call_delay = 5;
-$last_tick = 56;
+$last_tick = 55;
 
 function nowSecond() {
 	return timestampFormat ( timestampNow (), "s" ) + 0;
@@ -20,12 +20,12 @@ $quiet = false;
 while ( nowSecond () <= $last_tick ) {
 	echo "tick()\n";
 	tick ( $quiet );
-	if (nowSecond () < ($last_tick - $call_delay)) {
+// 	if (nowSecond () < ($last_tick - $call_delay)) {
 		logger ( LL_EDEBUG, "tick(): sleep" );
 		sleep ( $call_delay );
-	} else {
-		echo "tick(): not time for next loop\n";
-	}
+// 	} else {
+// 		echo "tick(): not time for next loop\n";
+// 	}
 	$quiet = true;
 }
 
