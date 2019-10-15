@@ -150,29 +150,33 @@ function drawTimeGraph($data, $legend, $nmajor_x, $nminor_x, $min_y, $max_y, $nm
 					$pinpoint
 			);
 		}
-		$pp = array ();
-		$pp [1] = array (
-				$lorange,
-				$yellow
-		);
-		$pp [0] = array (
+
+		$pinpoint [0]->colors = array (
 				$red,
 				$lorange
 		);
+		if (isset ( $pinpoint [1] )) {
+			$pinpoint [1]->colors = array (
+					$lorange,
+					$yellow
+			);
+		}
+
 		$pinpoint = array_reverse ( $pinpoint );
-		foreach ( $pinpoint as $k=>$p ) {
+		// echo "<pre>".ob_print_r($pinpoint)."</pre>";
+		foreach ( $pinpoint as $k => $p ) {
 			$xv = (scaleVal ( $p->x, $min_x, $max_x ) * ($x - 2 * $border)) + $border;
 			$yv = $y - ((scaleVal ( $p->y, $min_y, $max_y ) * ($y - 2 * $border)) + $border);
 			$in_x = $xv >= $border && ($xv <= ($x - $border));
 			$in_y = $yv >= $border && ($yv <= ($y - $border));
 			if ($in_x && $in_y) {
-				graphPoint ( $im, $xv, $yv, $pp[$k][1], 5 );
+				graphPoint ( $im, $xv, $yv, $p->colors [1], 5 );
 			}
 			if ($in_x) {
-				imageline ( $im, $xv, $border, $xv, $y - $border, $pp[$k][0] );
+				imageline ( $im, $xv, $border, $xv, $y - $border, $p->colors [0] );
 			}
 			if ($in_y) {
-				imageline ( $im, $border, $yv, $x - $border, $yv, $pp[$k][0] );
+				imageline ( $im, $border, $yv, $x - $border, $yv, $p->colors [0] );
 			}
 		}
 	}
