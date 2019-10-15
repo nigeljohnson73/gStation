@@ -41,7 +41,7 @@ function clearSensorLogger() {
 	$mysql->query ( "DELETE FROM temperature_logger where entered < '" . timestampFormat ( timestampAdd ( timestampNow (), numDays ( - 1 ) ), "Y-m-d H:i:s" ) . "'" );
 }
 
-function lastTemp($n = 10) {
+function lastTemp($n = 9) {
 	global $mysql, $temperature_buffer;
 	$rows = $mysql->query ( "SELECT * FROM temperature_logger ORDER BY entered DESC LIMIT " . $n );
 	$ret = null;
@@ -246,7 +246,7 @@ function tick($quiet = false) {
 	 * Work with the temperature
 	 */
 	// TODO: FIX demaded from the getModel()
-	$temperature = lastTemp ( 9 );
+	$temperature = lastTemp ( 11 );
 	if (! $quiet) {
 		echo "Last temp: " . ob_print_r ( $temperature ) . "\n";
 	}

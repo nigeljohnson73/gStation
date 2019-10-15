@@ -65,7 +65,10 @@ function graphPoint($im, $x, $y, $colour, $dist = 1) {
  *
  * $y_ticks - a value indexed array of labels to display
  */
-function drawTimeGraph($data, $legend, $nmajor_x, $nminor_x, $min_y, $max_y, $nmajor_y, $nminor_y, $y_ticks, $x_format = "Y-m-d H:i") {
+function drawTimeGraph($data, $legend, $nmajor_x, $nminor_x, $min_y, $max_y, $nmajor_y, $nminor_y, $y_ticks, $x_format = null, $pinpoint = null) {
+	if ($x_format === null) {
+		$x_format = "Y-m-d H:i";
+	}
 	$x = 640;
 	$y = 480;
 	$border = 40;
@@ -139,6 +142,23 @@ function drawTimeGraph($data, $legend, $nmajor_x, $nminor_x, $min_y, $max_y, $nm
 		}
 	}
 
+	// Draw the pin point
+	if ($pinpoint) {
+		$xv = (scaleVal ( $pinpoint->x, $min_x, $max_x ) * ($x - 2 * $border)) + $border;
+		$yv = $y - ((scaleVal ( $pinpoint->y, $min_y, $max_y ) * ($y - 2 * $border)) + $border);
+		$in_x = $xv >= $border && ($xv <= ($x - $border));
+		$in_y = $yv >= $border && ($yv <= ($y - $border));
+		if ($in_x && $in_y) {
+			graphPoint ( $im, $xv, $yv, $orange, 5 );
+		}
+		if ($in_x) {
+			imageline ( $im, $xv, $border, $xv, $y - $border, $red );
+		}
+		if ($in_y) {
+			imageline ( $im, $border, $yv, $x - $border, $yv, $red );
+		}
+	}
+
 	// Draw Axes
 	imageline ( $im, $border, $y - $border, $x - $border, $y - $border, $fg );
 	imageline ( $im, $border, $y - $border, $border, $border, $fg );
@@ -167,8 +187,8 @@ function drawTimeGraph($data, $legend, $nmajor_x, $nminor_x, $min_y, $max_y, $nm
 	imagestring ( $im, $font, $border, $y - $border + 5, timestampFormat ( time2Timestamp ( $min_x ), $x_format ), $fg );
 
 	$rhs_label = timestampFormat ( time2Timestamp ( $max_x ), $x_format );
-	//list ( $left, , $right ) = imageftbbox ( 12, 0, $font, $rhs_label );
-	$width = imageFontWidth($font) * strlen($rhs_label);
+	// list ( $left, , $right ) = imageftbbox ( 12, 0, $font, $rhs_label );
+	$width = imageFontWidth ( $font ) * strlen ( $rhs_label );
 	imagestring ( $im, $font, $x - $border - $width, $y - $border + 5, $rhs_label, $fg );
 
 	return $im;
