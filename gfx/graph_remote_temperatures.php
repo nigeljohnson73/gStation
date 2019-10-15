@@ -15,17 +15,10 @@ foreach ( $model as $k => $v ) {
 	$lo [$time] = $v->temperatureLow;
 }
 
-if(1) {
 $data = array (
 		"high" => $hi,
 		"low" => $lo
 );
-} else {
-$data = array (
-		"high" => smoothValues ( $hi, $smoothing_days ),
-		"low" => smoothValues ( $lo, $smoothing_days )
-);
-}
 
 $min_y = floor ( graphValMin ( $data ) );
 $max_y = ceil ( graphValMax ( $data ) );

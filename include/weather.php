@@ -784,7 +784,7 @@ function rebuildDataModel() {
 	// Get all the data we have. This will pop at some point. TODO: probably cap this to something!!
 	$hist = getDarkSkyDataPoints ();
 
-	global $season_adjust_days, $timeszone_adjust_hours, $smoothing_days;
+	global $season_adjust_days, $timeszone_adjust_hours, $smoothing_days, $smoothing_loops;
 
 	// Temporary store for the day/month combo data
 	$store = array ();
@@ -829,43 +829,41 @@ function rebuildDataModel() {
 	// $v in the day object
 	// $pk is the paramater key within the day object
 
-	if (1) {
-		$smooth_exclude = array (
-				"lunation"
-		);
-		$store = array ();
+	$smooth_exclude = array (
+			"lunation"
+	);
+	$store = array ();
 
-		// First collect all the paramaeter data. Store by field key to sort, then model key to put back
-		foreach ( $model as $k => $v ) {
-			// Convert to an array so we can field surf
-			$v = ( array ) $v;
-			foreach ( $v as $pk => $val ) {
-				if (! in_array ( $pk, $smooth_exclude )) {
-					if (! isset ( $store [$pk] )) {
-						$store [$pk] = array ();
-					}
-// 					if($k[0]=="0" && $k[1]=="1" && $pk == "temperatureHigh"){
-// 						echo "Storing ".$pk."(".$k."): ".$val."\n";
-// 					}
-					$store [$pk] [$k] = $val;
+	// First collect all the paramaeter data. Store by field key to sort, then model key to put back
+	foreach ( $model as $k => $v ) {
+		// Convert to an array so we can field surf
+		$v = ( array ) $v;
+		foreach ( $v as $pk => $val ) {
+			if (! in_array ( $pk, $smooth_exclude )) {
+				if (! isset ( $store [$pk] )) {
+					$store [$pk] = array ();
 				}
+				// if($k[0]=="0" && $k[1]=="1" && $pk == "temperatureHigh"){
+				// echo "Storing ".$pk."(".$k."): ".$val."\n";
+				// }
+				$store [$pk] [$k] = $val;
 			}
 		}
+	}
 
-		// Smooth the parameters
-		// echo "Going in '".array_keys($store)[0]."': ".ob_print_r($store[array_keys($store)[0]])."\n";
-		foreach ( $store as $pk => $vals ) {
-			// Sort so they are in the right order. Don't know how they get out of order but still
-			ksort($vals);
-			$store [$pk] = smoothValues ( $vals, $smoothing_days );
-		}
-		// echo "Coming out '".array_keys($store)[0]."': ".ob_print_r($store[array_keys($store)[0]])."\n";
+	// Smooth the parameters
+	// echo "Going in '".array_keys($store)[0]."': ".ob_print_r($store[array_keys($store)[0]])."\n";
+	foreach ( $store as $pk => $vals ) {
+		// Sort so they are in the right order. Don't know how they get out of order but still
+		ksort ( $vals );
+		$store [$pk] = smoothValues ( $vals, $smoothing_days, $smoothing_loops );
+	}
+	// echo "Coming out '".array_keys($store)[0]."': ".ob_print_r($store[array_keys($store)[0]])."\n";
 
-		// Now put everything back where it was
-		foreach ( $store as $pk => $vals ) {
-			foreach ( $vals as $k => $val ) {
-				$model [$k]->$pk = $val;
-			}
+	// Now put everything back where it was
+	foreach ( $store as $pk => $vals ) {
+		foreach ( $vals as $k => $val ) {
+			$model [$k]->$pk = $val;
 		}
 	}
 

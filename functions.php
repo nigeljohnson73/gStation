@@ -8,22 +8,29 @@ ini_set ( 'display_errors', 'on' );
 // All calcuations are done in UTC
 date_default_timezone_set ( "UTC" );
 
-function smoothValues($arr, $n = 1) {
+function smoothValues($arr, $n = 1, $l = 1) {
+	for($i = 0; $i < $l; $i ++) {
+		$arr = _smoothValues ( $arr, $n );
+	}
+	return $arr;
+}
+
+function _smoothValues($arr, $n = 1) {
 	$keys = array_keys ( $arr );
-	$ret = array();
-	foreach ( $keys as $i=>$key ) {
-		//echo "Begin key '".$key."'\n";
+	$ret = array ();
+	foreach ( $keys as $i => $key ) {
+		// echo "Begin key '".$key."'\n";
 		$v = 0;
 		$comma = "";
-		//echo "     gathering: ";
-		for($j = -$n; $j <= $n; $j++) {
-			$k = (($i+$j)<0)?(($i+$j)+count($arr)):(($i+$j)>=count($arr)?(($i+$j)-count($arr)):(($i+$j)));
-			//echo $comma.$keys[$k];//." (".$j.", ".$k.")";
-			$v += $arr[$keys[$k]];
+		// echo " gathering: ";
+		for($j = - $n; $j <= $n; $j ++) {
+			$k = (($i + $j) < 0) ? (($i + $j) + count ( $arr )) : (($i + $j) >= count ( $arr ) ? (($i + $j) - count ( $arr )) : (($i + $j)));
+			// echo $comma.$keys[$k];//." (".$j.", ".$k.")";
+			$v += $arr [$keys [$k]];
 			$comma = ", ";
 		}
-		//echo "\n";
-		$ret[$key] = $v / (2*$n+1);
+		// echo "\n";
+		$ret [$key] = $v / (2 * $n + 1);
 	}
 	return $ret;
 }
@@ -32,7 +39,7 @@ function smoothValues($arr, $n = 1) {
 function averageObjectArray($arr) {
 	// A place for all the field data and the values
 	$store = array ();
-	
+
 	// Iterate through each object in the array
 	foreach ( $arr as $i ) {
 		$keys = array_keys ( ( array ) $i );
@@ -49,7 +56,7 @@ function averageObjectArray($arr) {
 			}
 		}
 	}
-	
+
 	// start as an array so I can sort the keys later
 	$ret = array ();
 	// Now iterate through each field that was collected
@@ -58,10 +65,10 @@ function averageObjectArray($arr) {
 		$v = array_sum ( $vals ) / count ( $vals );
 		$ret [$k] = $v;
 	}
-	
+
 	// Now sort the array based on key names
 	ksort ( $ret );
-	
+
 	// return a new object from the array
 	return ( object ) $ret;
 }
@@ -78,8 +85,8 @@ function firstOf($obj, $keys) {
 			return $obj->$k;
 		}
 	}
-	//echo "    Failed to find '".implode("', '", $keys)."'\n";
-	//echo "".ob_print_r($obj)."\n";
+	// echo " Failed to find '".implode("', '", $keys)."'\n";
+	// echo "".ob_print_r($obj)."\n";
 	return null;
 }
 
