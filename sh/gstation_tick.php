@@ -18,7 +18,7 @@ function nowSecond() {
 
 $quiet = false;
 while ( nowSecond () <= $last_tick ) {
-	echo "tick()\n";
+//	echo "tick()\n";
 	tick ( $quiet );
 // 	if (nowSecond () < ($last_tick - $call_delay)) {
 		logger ( LL_EDEBUG, "tick(): sleep" );

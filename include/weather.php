@@ -56,7 +56,7 @@ function lastTemp($n = 10) {
 
 		$temp_diff = $temps [count ( $temps ) - 2] - $temps [1];
 		if (abs ( $temp_diff ) > $temperature_buffer) {
-			$ret ["direction"] = ($temp_diff > 0) ? (1) : (- 1);
+			$ret ["direction"] = ($temp_diff > 0) ? (- 1) : (1);
 		} else {
 			$ret ["direction"] = 0;
 		}
@@ -251,6 +251,8 @@ function tick($quiet = false) {
 		echo "Last temp: " . ob_print_r ( $temperature ) . "\n";
 	}
 	$direction_temperature = $temperature->direction;
+	setConfig ( "temperature_direction", $direction_temperature );
+
 	$temperature = $temperature->temperature;
 	if (abs ( $temperature - $last_temperature ) > $temperature_buffer) {
 		setConfig ( "temperature", $temperature );
@@ -265,8 +267,13 @@ function tick($quiet = false) {
 	 * *************************************************************************************************************************************
 	 * Send the sumary to the OLED display
 	 */
-	$str = round ( $temperature, 2 ) . "C " . $status . " " . (($heat) ? ("(#)") : ("(_)"));
-	$log = "dem: " . round ( $demand_temperature, 2 ) . ", act: " . round ( $temperature, 2 ) . ", dir: $direction_temperature, OLED: '$str'";
+	//$str = round ( $temperature, 2 ) . "° " . $status . " " . (($heat) ? ("(#)") : ("(_)"));
+	$str = "" . round ( $temperature, 2 ) . "° ";
+	$str .= ($direction_temperature==0)?("--"):(($direction_temperature>0)?("/\\"):("\\/"));
+	$str .= " " . round ( $demand_temperature, 2 ) . "°|".(($heat) ? ("[#]") : ("[_]"))." ".(($status=="DAY") ? ("[#]") : ("[_]"));
+	
+	// $status . " " . (($heat) ? ("(#)") : ("(_)"));
+	$log = timestampFormat ( timestampNow (), "H:i:s" ) . "; dem: " . round ( $demand_temperature, 2 ) . ", act: " . round ( $temperature, 2 ) . ", dir: $direction_temperature, OLED: '$str'";
 	logger ( LL_INFO, $log );
 	echo "$log\n";
 	setOled ( $str );
