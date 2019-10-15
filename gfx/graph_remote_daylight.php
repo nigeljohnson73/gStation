@@ -3,12 +3,10 @@ $quiet = true;
 include_once (dirname ( __FILE__ ) . "/../functions.php");
 
 global $loc;
-$legend = "$loc Day Length";
-$ndays = 365;
-$data = getSunData ( $ndays );
-unset($data["sunrise"]);
-unset($data["sunset"]);
+$legend = "$loc Modelled Daily Daylight Hours";
 
+$arr = array("daylightHours");
+$data = getModeledDataFields($arr);
 
 $min_y = floor ( graphValMin ( $data ) );
 $max_y = ceil ( graphValMax ( $data ) );

@@ -629,7 +629,7 @@ function darkSkyObj($data, $id = null) {
 		return null;
 	}
 	$dso = $data->daily->data [0];
-	$ts = time2Timestamp ( $dso->time + $utcOffset );
+// 	$ts = time2Timestamp ( $dso->time- $utcOffset );
 	// echo "Converting " . timestampFormat ( $ts, "Y-m-d H:i:s" ) . "\n";
 
 	if (! isset ( $dso->time )) {
@@ -650,8 +650,8 @@ function darkSkyObj($data, $id = null) {
 	$obj->humidity = firstOf ( $dso, "humidity" );
 	$obj->lunation = firstOf ( $dso, "moonPhase" );
 	$obj->pressure = firstOf ( $dso, "pressure" );
-	$obj->sunriseOffset = $dso->sunriseTime - $dso->time;
-	$obj->sunsetOffset = $dso->sunsetTime - $dso->time;
+	$obj->sunriseOffset = $dso->sunriseTime - $dso->time - $utcOffset;
+	$obj->sunsetOffset = $dso->sunsetTime - $dso->time - $utcOffset;
 	$obj->temperatureHigh = firstOf ( $dso, $temperature_high_labels );
 	$obj->temperatureLow = firstOf ( $dso, $temperature_low_labels );
 	$obj->daylightHours = ($obj->sunsetOffset - $obj->sunriseOffset) / 3600;
@@ -783,7 +783,8 @@ function rebuildDataModel() {
 
 	// Get all the data we have. This will pop at some point. TODO: probably cap this to something!!
 	$hist = getDarkSkyDataPoints ();
-
+	logger(LL_INFO, "rebuildDataModel(): Processing ".count($hist)." data points");
+	
 	global $season_adjust_days, $timeszone_adjust_hours, $smoothing_days, $smoothing_loops;
 
 	// Temporary store for the day/month combo data
@@ -797,12 +798,13 @@ function rebuildDataModel() {
 		}
 		$store [$ts] [] = $v;
 	}
-
+	
 	// Deleteing any leap data. Leap days are either the day after Feb 28, or the day before Mar 01
 	if (isset ( $store ["0229"] )) {
 		unset ( $store ["0229"] );
 	}
-
+	logger(LL_INFO, "rebuildDataModel(): Processed into ".count($store)." day model");
+	
 	// flatten the day data into day/month averages
 	$model = array ();
 	foreach ( $store as $k => $v ) {
@@ -824,6 +826,8 @@ function rebuildDataModel() {
 		$model [$k] = $v;
 	}
 
+	logger(LL_INFO, "rebuildDataModel(): Flattened model by averages per day");
+	
 	// Perform smoothing
 	// $k is the month-day key
 	// $v in the day object
@@ -850,7 +854,8 @@ function rebuildDataModel() {
 			}
 		}
 	}
-
+	logger(LL_INFO, "rebuildDataModel(): Smoothing: calculated data keys");
+	
 	// Smooth the parameters
 	// echo "Going in '".array_keys($store)[0]."': ".ob_print_r($store[array_keys($store)[0]])."\n";
 	foreach ( $store as $pk => $vals ) {
@@ -858,6 +863,7 @@ function rebuildDataModel() {
 		ksort ( $vals );
 		$store [$pk] = smoothValues ( $vals, $smoothing_days, $smoothing_loops );
 	}
+	logger(LL_INFO, "rebuildDataModel(): Smoothing: performed smoothing");
 	// echo "Coming out '".array_keys($store)[0]."': ".ob_print_r($store[array_keys($store)[0]])."\n";
 
 	// Now put everything back where it was
@@ -866,7 +872,8 @@ function rebuildDataModel() {
 			$model [$k]->$pk = $val;
 		}
 	}
-
+	logger(LL_INFO, "rebuildDataModel(): Smoothing: updated model");
+	
 	// Update the model table
 	foreach ( $model as $k => $v ) {
 		$values = array (
@@ -876,11 +883,13 @@ function rebuildDataModel() {
 
 		$mysql->query ( "REPLACE INTO model (id, data) VALUES(?, ?)", "ss", array_values ( $values ) );
 	}
+	logger(LL_INFO, "rebuildDataModel(): Stored model to database");
 }
 
+// TODO: make it indexable
 function getModel() {
 	global $mysql;
-	$rows = $mysql->query ( "SELECT * FROM model ORDER BY id asc" );
+	$rows = $mysql->query ( "SELECT * FROM model ORDER BY id ASC" );
 	$ret = array ();
 	foreach ( $rows as $row ) {
 		$k = $row ["id"];
@@ -888,6 +897,22 @@ function getModel() {
 		$ret [$k] = $v;
 	}
 	return $ret;
+}
+
+function getModeledDataFields($arr) {
+	$model = getModel ();
+	$yr = timestampFormat ( timestampNow (), "Y" );
+	$data = array ();
+	foreach ( $model as $k => $v ) {
+		$time = timestamp2Time ( $yr . $k );
+		foreach ( $arr as $kk ) {
+			if(!isset($data [$kk])) {
+				$data [$kk] = array();
+			}
+			$data [$kk] [$time] = $v->$kk;
+		}
+	}
+	return $data;
 }
 
 ?>

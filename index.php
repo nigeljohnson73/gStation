@@ -70,11 +70,11 @@ Last temp: <?php print_r(tfn(lastTemp())) ?></pre>
 		echo $str . "\n";
 		?></pre>
 
-		<img
-			src="gfx/graph_local_temperatures.php?<?php echo randomQuery() ?>"
-			alt="Local Temperature Graph" /> <img
-			src="gfx/graph_remote_temperatures.php"
-			alt="Remote Average Temperature Graph" />
+		<img src="gfx/graph_local_temperatures.php?<?php echo randomQuery() ?>" alt="Local actual temperature graph" /> 
+		<img src="gfx/graph_remote_temperatures.php" alt="Remote average temperature graph" />
+		<img src="gfx/graph_remote_daylight.php" alt="Remote day length graph" />
+		<img src="gfx/graph_remote_sunrise.php" alt="Remote sunrise graph" />
+		<img src="gfx/graph_remote_sunset.php" alt="Remote sunset graph" />
 		<!-- <?php //phpInfo() ?> -->
 	</div>
 </body>

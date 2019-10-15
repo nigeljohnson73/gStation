@@ -5,20 +5,8 @@ include_once (dirname ( __FILE__ ) . "/../functions.php");
 global $loc;
 $legend = "$loc Modelled Daily Hi/Low Temperatures";
 
-$model = getModel ();
-$yr = timestampFormat ( timestampNow (), "Y" );
-$hi = array ();
-$lo = array ();
-foreach ( $model as $k => $v ) {
-	$time = timestamp2Time ( $yr . $k );
-	$hi [$time] = $v->temperatureHigh;
-	$lo [$time] = $v->temperatureLow;
-}
-
-$data = array (
-		"high" => $hi,
-		"low" => $lo
-);
+$arr = array("temperatureHigh", "temperatureLow");
+$data = getModeledDataFields($arr);
 
 $min_y = floor ( graphValMin ( $data ) );
 $max_y = ceil ( graphValMax ( $data ) );
