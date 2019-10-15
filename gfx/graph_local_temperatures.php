@@ -23,9 +23,12 @@ function getLocalTemps() {
 	return null;
 }
 
-$legend = "Local Temperature over the last 24 hours";
+$legend = "Measured Temperature over the last 24 hours";
 $temps = getLocalTemps ();
-// echo "<pre>" . ob_print_r ( $temps ) . "</pre>";
+foreach ( $temps as $k => $v ) {
+	$temps [$k] = decimateArray ( $v, 5 );
+}
+
 if (! $temps) {
 	$legend = "A pretty little sine wave (as there is no real data yet)";
 

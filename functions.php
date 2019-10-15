@@ -8,6 +8,38 @@ ini_set ( 'display_errors', 'on' );
 // All calcuations are done in UTC
 date_default_timezone_set ( "UTC" );
 
+function decimateArray($arr, $n = 2) {
+	$i = 0;
+	$k = null;
+	$v = array ();
+
+	$ret = array ();
+	foreach ( $arr as $ak => $av ) {
+		if ($i == $n) {
+			// echo "process data for $k: $i, $n\n";
+			// echo "Process data: i: $i, k: $k\n";
+			$ret [$k] = array_sum ( $v ) / count ( $v );
+			$i = 0;
+			$k = null;
+			$v = array ();
+		}
+		$i += 1;
+
+		if ($k === null) {
+			// echo "Stash key: i: $i, ak: $ak\n";
+			$k = $ak;
+		}
+
+		// echo "Adding value '$av'\n";
+		$v [] = $av;
+	}
+	if (count ( $v ) > 0) {
+		// echo "processing left over\n";
+		$ret [$k] = array_sum ( $v ) / count ( $v );
+	}
+	return $ret;
+}
+
 function smoothValues($arr, $n = 1, $l = 1) {
 	for($i = 0; $i < $l; $i ++) {
 		$arr = _smoothValues ( $arr, $n );
