@@ -28,6 +28,8 @@ BORDER = 1
 done = False
 
 def drawText(text):
+	lines = text.split("|");
+	
 	# Create blank image for drawing.
 	# Make sure to create image with mode '1' for 1-bit color.
 	image = Image.new('1', (oled.width, oled.height))
@@ -44,9 +46,11 @@ def drawText(text):
 
 	# Draw Some Text
 	font = ImageFont.truetype(os.path.dirname(os.path.abspath(__file__))+"/../fonts/andalemo.ttf", 14)
-	(font_width, font_height) = font.getsize(text)
-	#draw.text((oled.width // 2 - font_width // 2, oled.height // 2 - font_height // 2), text, font=font, fill=255)
-	draw.text((oled.width // 2 - font_width // 2, oled.height // 2 - font_height-3 ), text, font=font, fill=255)
+	(font_width, font_height) = font.getsize(lines[0])
+	draw.text((oled.width // 2 - font_width // 2, oled.height // 2 - font_height-13 ), lines[0], font=font, fill=255)
+
+	(font_width, font_height) = font.getsize(lines[1])
+	draw.text((oled.width // 2 - font_width // 2, oled.height // 2 - font_height-3 ), lines[1], font=font, fill=255)
 
 	now = datetime.now()
 	ts = now.strftime('%Y-%m-%d %H:%M')
@@ -63,7 +67,7 @@ def shutdown():
     # Gotta declare it global if you wanna write to it
     global done
     done = True
-    drawText("SHUTDOWN")
+    drawText("SHUTDOWN|PRESSED")
 
 
 # setup the callback
