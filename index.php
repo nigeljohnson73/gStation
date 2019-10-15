@@ -23,12 +23,12 @@ $mon = timestampFormat ( timestampNow (), "m" ); // 10;
 // date_default_timezone_set ( $ret->timezone );
 // $obj = json_decode ( $json )->daily->data [0];
 
-$last_temp = lastTemp();
-if($last_temp == null) {
-	$last_temp = "NO DATA";
-} else {
-	$last_temp = $last_temp["temperature"] . "C at " . $last_temp["entered"];
-}
+// $last_temp = lastTemp();
+// if($last_temp == null) {
+// $last_temp = "NO DATA";
+// } else {
+// $last_temp = $last_temp["temperature"] . "C at " . $last_temp["entered"];
+// }
 
 ?>
 <!doctype html>
@@ -48,13 +48,13 @@ if($last_temp == null) {
 		<pre><?php
 		// tick();
 		// $status = getConfig("STATUS", "NIGHT");
-		echo "Processing weather at " . timestampFormat ( timestampNow (), "Y-m-d\TH:i:sT" ) . "\n";
+		echo "Processing weather at " . timestampFormat ( timestampNow (), "Y-m-d\TH:i:s T" ) . "\n";
 		echo "Location: " . $loc . " (" . latToDms ( $lat ) . ", " . lngToDms ( $lng ) . ")\n";
-		echo "Current status: '" . getConfig ( "STATUS", "NIGHT" ) . "'\n";
-		print_r ( getData ( $lat, $lng, $day, $mon, null, false, false ) );
+		echo "Current status: '" . getConfig ( "STATUS", "---" ) . "'\n";
+		// print_r ( getData ( $lat, $lng, $day, $mon, null, false, false ) );
 
 		?>
-Last temp: <?php echo $last_temp ?></pre>
+Last temp: <?php print_r(tfn(lastTemp())) ?></pre>
 	</div>
 
 	<div class="container-fluid debug">
@@ -70,8 +70,11 @@ Last temp: <?php echo $last_temp ?></pre>
 		echo $str . "\n";
 		?></pre>
 
-<img src="gfx/graph_local_temperatures.php?<?php echo randomQuery() ?>" alt="Local Temperature Graph" />
-<img src="gfx/graph_remote_temperatures.php" alt="Remote Average Temperature Graph" />
+		<img
+			src="gfx/graph_local_temperatures.php?<?php echo randomQuery() ?>"
+			alt="Local Temperature Graph" /> <img
+			src="gfx/graph_remote_temperatures.php"
+			alt="Remote Average Temperature Graph" />
 		<!-- <?php //phpInfo() ?> -->
 	</div>
 </body>

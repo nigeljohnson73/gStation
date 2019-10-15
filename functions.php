@@ -5,6 +5,84 @@ ini_set ( 'upload_max_filesize', '32M' );
 error_reporting ( E_ALL );
 ini_set ( 'display_errors', 'on' );
 
+// All calcuations are done in UTC
+date_default_timezone_set ( "UTC" );
+
+function smoothValues($arr, $n = 1) {
+	$keys = array_keys ( $arr );
+	$ret = array();
+	foreach ( $keys as $i=>$key ) {
+		//echo "Begin key '".$key."'\n";
+		$v = 0;
+		$comma = "";
+		//echo "     gathering: ";
+		for($j = -$n; $j <= $n; $j++) {
+			$k = (($i+$j)<0)?(($i+$j)+count($arr)):(($i+$j)>=count($arr)?(($i+$j)-count($arr)):(($i+$j)));
+			//echo $comma.$keys[$k];//." (".$j.", ".$k.")";
+			$v += $arr[$keys[$k]];
+			$comma = ", ";
+		}
+		//echo "\n";
+		$ret[$key] = $v / (2*$n+1);
+	}
+	return $ret;
+}
+
+// Flattens an aray of objects and averages any repeated fields
+function averageObjectArray($arr) {
+	// A place for all the field data and the values
+	$store = array ();
+	
+	// Iterate through each object in the array
+	foreach ( $arr as $i ) {
+		$keys = array_keys ( ( array ) $i );
+		// iterate through each field in the object
+		foreach ( $keys as $k ) {
+			$val = $i->$k;
+			// If the field has a value (not a null) store it
+			if ($val != null) {
+				// Create the storage if it doesn't exist yet
+				if (! isset ( $store [$k] )) {
+					$store [$k] = array ();
+				}
+				$store [$k] [] = $val;
+			}
+		}
+	}
+	
+	// start as an array so I can sort the keys later
+	$ret = array ();
+	// Now iterate through each field that was collected
+	foreach ( $store as $k => $vals ) {
+		// calculate the average of those that exist
+		$v = array_sum ( $vals ) / count ( $vals );
+		$ret [$k] = $v;
+	}
+	
+	// Now sort the array based on key names
+	ksort ( $ret );
+	
+	// return a new object from the array
+	return ( object ) $ret;
+}
+
+// returns the first field from the object
+function firstOf($obj, $keys) {
+	if (! is_array ( $keys )) {
+		$keys = array (
+				$keys
+		);
+	}
+	foreach ( $keys as $k ) {
+		if (isset ( $obj->$k )) {
+			return $obj->$k;
+		}
+	}
+	//echo "    Failed to find '".implode("', '", $keys)."'\n";
+	//echo "".ob_print_r($obj)."\n";
+	return null;
+}
+
 function randomQuery() {
 	mt_srand ( time () );
 	return mt_rand ();
@@ -637,7 +715,6 @@ foreach ( $inc as $file ) {
 }
 // echo "-->\n";
 
-date_default_timezone_set ( $timezone );
 compressStylesheet ();
 compressJavascript ();
 
