@@ -255,11 +255,11 @@ function tick($quiet = false) {
 
 	$temperature = $temperature->temperature;
 	setConfig ( "temperature", $temperature );
-	
-// 	if (abs ( $temperature - $last_temperature ) > $temperature_buffer) {
-// 	} else {
-// 		$temperature = $last_temperature;
-// 	}
+
+	// if (abs ( $temperature - $last_temperature ) > $temperature_buffer) {
+	// } else {
+	// $temperature = $last_temperature;
+	// }
 
 	// Work out whether we need to switch the heater on
 	$heat = ($demand_temperature - $temperature) > 0;
@@ -271,7 +271,7 @@ function tick($quiet = false) {
 	// $str = round ( $temperature, 2 ) . "° " . $status . " " . (($heat) ? ("(#)") : ("(_)"));
 	$str = "" . sprintf ( "%02.1f", $temperature ) . "° ";
 	$str .= ($direction_temperature == 0) ? ("-") : (($direction_temperature > 0) ? ("^") : ("v"));
-	//$str .= ($direction_temperature == 0) ? ("--") : (($direction_temperature > 0) ? ("/\\") : ("\\/"));
+	// $str .= ($direction_temperature == 0) ? ("--") : (($direction_temperature > 0) ? ("/\\") : ("\\/"));
 	$str .= " " . sprintf ( "%02.1f", $demand_temperature ) . "°";
 	$str .= "|";
 	$str .= (($heat) ? ("H[#]") : ("H[_]")) . " " . (($status == "DAY") ? ("[#]L") : ("[_]L"));
@@ -569,7 +569,6 @@ function rebuildDataModel() {
 	logger ( LL_INFO, "rebuildDataModel(): Stored model to database" );
 }
 
-// TODO: make it indexable
 function getModel($ts = null) {
 	$sql = "SELECT * FROM model";
 	if ($ts != null) {
@@ -605,4 +604,16 @@ function getModeledDataFields($arr) {
 	return $data;
 }
 
+function modelStatus() {
+	$ret = new StdClass ();
+	$raw = getDarkSkyDataPoints ( null, true );
+	$valid = getDarkSkyDataPoints ( null, false );
+
+	$ret->dataPointTotal = count ( $raw );
+	$ret->dataPointValid = count ( $valid );
+	$ret->dataPointInvalid = count ( $raw ) - count ( $valid );
+	$ret->dataPointPerDay = floor ( count ( $raw ) / 365 );
+
+	return $ret;
+}
 ?>

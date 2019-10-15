@@ -51,11 +51,14 @@ $mon = timestampFormat ( timestampNow (), "m" ); // 10;
 		echo "Processing weather at " . timestampFormat ( timestampNow (), "Y-m-d\TH:i:s T" ) . "\n";
 		echo "Location: " . $loc . " (" . latToDms ( $lat ) . ", " . lngToDms ( $lng ) . ")\n";
 		echo "Current status: '" . getConfig ( "STATUS", "---" ) . "'\n";
-		print_r(getModel(timestampNow()));
-		// print_r ( getData ( $lat, $lng, $day, $mon, null, false, false ) );
-
 		?>
-Last temp: <?php print_r(tfn(lastTemp())) ?></pre>
+		
+Current data: <?php print_r(getModel(timestampNow())) ?>
+
+Model status: <?php print_r(modelStatus()) ?>
+
+Last temp: <?php print_r(tfn(lastTemp())) ?>
+		</pre>
 	</div>
 
 	<div class="container-fluid debug">
