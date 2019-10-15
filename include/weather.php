@@ -254,11 +254,12 @@ function tick($quiet = false) {
 	setConfig ( "temperature_direction", $direction_temperature );
 
 	$temperature = $temperature->temperature;
-	if (abs ( $temperature - $last_temperature ) > $temperature_buffer) {
-		setConfig ( "temperature", $temperature );
-	} else {
-		$temperature = $last_temperature;
-	}
+	setConfig ( "temperature", $temperature );
+	
+// 	if (abs ( $temperature - $last_temperature ) > $temperature_buffer) {
+// 	} else {
+// 		$temperature = $last_temperature;
+// 	}
 
 	// Work out whether we need to switch the heater on
 	$heat = ($demand_temperature - $temperature) > 0;
