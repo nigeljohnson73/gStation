@@ -86,7 +86,7 @@ oled.fill(0)
 oled.show()
 
 print("Starting OLED button trap")
-drawText ("Booting|gStation")
+drawText ("gStation|Starting...")
 
 triggerfile = "/tmp/oled.txt"
 while not done:

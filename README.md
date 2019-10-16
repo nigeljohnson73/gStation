@@ -193,6 +193,6 @@ Finally the rc.local
     echo 1 > /sys/class/gpio/gpio18/value
     
 	# Start the OLED display
-    python3 /webroot/gStation/sh/oledpower.py &
-
-That should do it for now
+    sh /webroot/gStation/sh/oledmonitor.sh &
+    
+That should do it for now. Reboot and watch the beauty unfold.
