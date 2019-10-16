@@ -41,7 +41,7 @@ function clearSensorLogger() {
 	$mysql->query ( "DELETE FROM temperature_logger where entered < '" . timestampFormat ( timestampAdd ( timestampNow (), numDays ( - 1 ) ), "Y-m-d H:i:s" ) . "'" );
 }
 
-function lastTemp($n = 9) {
+function lastTemp($n = 11) {
 	global $mysql, $temperature_buffer;
 	$rows = $mysql->query ( "SELECT * FROM temperature_logger ORDER BY entered DESC LIMIT " . $n );
 	$ret = null;
@@ -52,15 +52,26 @@ function lastTemp($n = 9) {
 			$row = ( object ) $row;
 			$temps [] = $row->temperature;
 		}
+		$temps_raw = $temps;
 		$temps = smoothValues ( $temps, 1, 2 );
 
 		$temp_diff = $temps [count ( $temps ) - 2] - $temps [1];
+		$ret ["direction_unbuffered"] = ($temp_diff =0) ? (0) : (($temp_diff > 0) ? (- 1) : (1));
+		
 		if (abs ( $temp_diff ) > $temperature_buffer) {
 			$ret ["direction"] = ($temp_diff > 0) ? (- 1) : (1);
 		} else {
 			$ret ["direction"] = 0;
 		}
+
 		$ret ["temperature"] = array_sum ( $temps ) / count ( $temps );
+		$str = "lastTemp($n):";
+		$str .= " R(".implode(", ", $temps_raw).")";
+		$str .= ", S(".implode(", ", $temps).")";
+		$str .= ", T:".sprintf("%02.3f", $ret ["temperature"]);
+		$str .= ", D:".$ret ["direction"];
+		$str .= ", UD:".$ret ["direction_unbuffered"];
+		logger(LL_INFO, $str);
 	}
 	return ( object ) $ret;
 }
@@ -246,7 +257,7 @@ function tick($quiet = false) {
 	 * Work with the temperature
 	 */
 	// TODO: FIX demaded from the getModel()
-	$temperature = lastTemp ( 11 );
+	$temperature = lastTemp ( );
 	if (! $quiet) {
 		echo "Last temp: " . ob_print_r ( $temperature ) . "\n";
 	}

@@ -50,7 +50,7 @@ def drawText(text):
 	draw.text((oled.width // 2 - font_width // 2, oled.height // 2 - font_height-14 ), lines[0], font=font, fill=255)
 
 	(font_width, font_height) = font.getsize(lines[1])
-	draw.text((oled.width // 2 - font_width // 2, oled.height // 2 - font_height+7 ), lines[1], font=font, fill=255)
+	draw.text((oled.width // 2 - font_width // 2, oled.height // 2 - font_height+8 ), lines[1], font=font, fill=255)
 
 	now = datetime.now()
 	ts = now.strftime('%Y-%m-%d %H:%M')
