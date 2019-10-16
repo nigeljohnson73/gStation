@@ -7,6 +7,7 @@ $mon = timestampFormat ( $ts, "m" ); // 10;
 
 echo "\nChecking status at " . timestampFormat ( $ts, "Y-m-d\TH:i:s T" ) . "\n";
 echo "Location: " . $loc . " (" . latToDms ( $lat ) . ", " . lngToDms ( $lng ) . ")\n\n";
+clearSensorLogger();
 
 logger ( LL_INFO, "tick(): started" );
 $call_delay = 5;

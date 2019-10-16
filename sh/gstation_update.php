@@ -6,7 +6,7 @@ $ts = timestampNow ();
 echo "\nProcessing weather at " . timestampFormat ( $ts, "Y-m-d\TH:i:s T" ) . "\n";
 echo "Location: " . $loc . " (" . latToDms ( $lat ) . ", " . lngToDms ( $lng ) . ")\n\n";
 
-setupTables ();
+clearSensorLogger();
 
 echo "Retrieving historic data from Dark Sky\n";
 getDarkSkyApiData ( $force_api_history );

@@ -12,7 +12,7 @@ include_once ("functions.php");
 // buy: https://succulentplants.uk/product/fenestraria-baby-toes-living-stone-rooted-plant/#comment-2356
 // Create connection
 
-setupTables ();
+clearSensorLogger();
 $day = timestampFormat ( timestampNow (), "d" ); // 4;
 $mon = timestampFormat ( timestampNow (), "m" ); // 10;
                                                  // $mon = 10;

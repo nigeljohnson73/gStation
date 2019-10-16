@@ -45,6 +45,7 @@ function setupTables() {
 
 function clearSensorLogger() {
 	global $mysql;
+	setupTables();
 	$mysql->query ( "DELETE FROM temperature_logger where entered < '" . timestampFormat ( timestampAdd ( timestampNow (), numDays ( - 1 ) ), "Y-m-d H:i:s" ) . "'" );
 	$mysql->query ( "DELETE FROM temperature_gradient_logger where entered < '" . timestampFormat ( timestampAdd ( timestampNow (), numDays ( - 1 ) ), "Y-m-d H:i:s" ) . "'" );
 }
@@ -150,9 +151,6 @@ function setOled($text) {
 
 function readSensors($quiet = false) {
 	global $mysql;
-
-	// Tidy up the logger tables
-	clearSensorLogger ();
 
 	// if ($use_dht) {
 	// $cmd = "python3 " . dirname ( __FILE__ ) . "/dht22.py 2>&1";
