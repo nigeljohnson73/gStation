@@ -273,7 +273,7 @@ function tick($quiet = false) {
 	// $str .= ($direction_temperature == 0) ? ("--") : (($direction_temperature > 0) ? ("/\\") : ("\\/"));
 	$str .= " " . sprintf ( "%02.1f", $demand_temperature ) . "°";
 	$str .= "|";
-	$str .= (($heat) ? ("H[#]") : ("H[_]")) . " " . (($status == "DAY") ? ("[#]L") : ("[_]L"));
+	$str .= (($heat) ? ("H[*]") : ("H[ ]")) . " " . (($status == "DAY") ? ("[*]L") : ("[ ]L"));
 
 	// $status . " " . (($heat) ? ("(#)") : ("(_)"));
 	$log = timestampFormat ( timestampNow (), "H:i:s" ) . "; dem: " . round ( $demand_temperature, 2 ) . ", act: " . round ( $temperature, 2 ) . ", dir: $direction_temperature, OLED: '$str'";
