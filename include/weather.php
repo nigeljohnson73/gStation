@@ -34,46 +34,64 @@ function setupTables() {
 	 		temperature FLOAT NOT NULL
 		)";
 	$mysql->query ( $str );
+
+	$str = "
+		CREATE TABLE IF NOT EXISTS temperature_gradient_logger (
+			entered TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL PRIMARY KEY,
+	 		gradient FLOAT NOT NULL
+		)";
+	$mysql->query ( $str );
 }
 
 function clearSensorLogger() {
 	global $mysql;
 	$mysql->query ( "DELETE FROM temperature_logger where entered < '" . timestampFormat ( timestampAdd ( timestampNow (), numDays ( - 1 ) ), "Y-m-d H:i:s" ) . "'" );
+	$mysql->query ( "DELETE FROM temperature_gradient_logger where entered < '" . timestampFormat ( timestampAdd ( timestampNow (), numDays ( - 1 ) ), "Y-m-d H:i:s" ) . "'" );
 }
 
-function lastTemp($n = 11) {
+function lastTemp() {
+	$n = 2;
 	global $mysql, $temperature_buffer;
 	$rows = $mysql->query ( "SELECT * FROM temperature_logger ORDER BY entered DESC LIMIT " . $n );
 	$ret = null;
 	if (is_array ( $rows ) && count ( $rows ) > 0) {
 		$ret ["demanded"] = $rows [0] ["demanded"];
 		$temps = array ();
+		$times = array ();
 		foreach ( $rows as $row ) {
 			$row = ( object ) $row;
 			$temps [] = $row->temperature;
+			$times [] = timestamp2Time ( $row->entered );
 		}
-		$temps_raw = $temps;
-		//$temps = smoothValues ( $temps, 1, 2 );
+		// $temps_raw = $temps;
+		$fall = $temps [0] - $temps [count ( $temps ) - 1];
+		$crawl = $times [0] - $times [count ( $times ) - 1];
+		$m = $fall / $crawl;
 
-		$temp_diff = $temps [count ( $temps ) - 2] - $temps [1];
-		$ret ["direction_unbuffered"] = ($temp_diff == 0) ? (0) : (($temp_diff > 0) ? (- 1) : (1));
-		
-		if (abs ( $temp_diff ) > $temperature_buffer) {
-			$ret ["direction"] = ($temp_diff > 0) ? (- 1) : (1);
-		} else {
-			$ret ["direction"] = 0;
-		}
+		$mysql->query ( "REPLACE INTO temperature_gradient_logger (gradient) VALUES (?)", "d", array (
+				$m
+		) );
 
 		$ret ["temperature"] = array_sum ( $temps ) / count ( $temps );
+		$dir = 0;
+		if (abs ( $m ) >= $temperature_buffer) {
+			$dir = ($m < 0) ? (- 1) : (1);
+		}
+		$ret ["direction"] = $dir;
+		
 		$str = "lastTemp($n):";
-		//$str .= " R(".implode(", ", $temps_raw).")";
-		//$str .= ", S(".implode(", ", $temps).")";
-		$str .= ", T:".sprintf("%02.3f", $ret ["temperature"]);
-		$str .= ", L:".sprintf("%02.3f", $temps [count($temps)-1]);
-		$str .= ", DIF:". (-1*$temp_diff);
+		// $str .= " TEMPS(".implode(", ", $temps).")";
+		// $str .= " TIMES(".implode(", ", $times).")";
+		// // $str .= ", S(".implode(", ", $temps).")";
+		$str .= ", F:" . sprintf ( "%02.3f", $fall ) . "° ";
+		$str .= ", C:" . sprintf ( "%02.3f", $crawl ) . "s ";
+		$str .= ", M:" . sprintf ( "%02.3f", $m );
+		$str .= ", T:" . sprintf ( "%02.3f", $ret ["temperature"] );
+		// $str .= ", L:".sprintf("%02.3f", $temps [count($temps)-1]);
+		// $str .= ", DIF:". (-1*$temp_diff);
 		$str .= ", DIR:".$ret ["direction"];
-		$str .= ", UD:".$ret ["direction_unbuffered"];
-		logger(LL_INFO, $str);
+		// $str .= ", UD:".$ret ["direction_unbuffered"];
+		logger ( LL_INFO, $str );
 	}
 	return ( object ) $ret;
 }
@@ -213,7 +231,6 @@ function tick($quiet = false) {
 	global $mysql;
 	global $temperature_buffer;
 
-	// TODO: calculate the offset rebasing
 	$tsnow = timestampNow ();
 	$nowOffset = timestampFormat ( $tsnow, "H" ) * 60 * 60 + timestampFormat ( $tsnow, "i" ) * 60 + timestampFormat ( $tsnow, "s" );
 
@@ -259,7 +276,7 @@ function tick($quiet = false) {
 	 * Work with the temperature
 	 */
 	// TODO: FIX demaded from the getModel()
-	$temperature = lastTemp ( );
+	$temperature = lastTemp ();
 	if (! $quiet) {
 		echo "Last temp: " . ob_print_r ( $temperature ) . "\n";
 	}
@@ -277,7 +294,7 @@ function tick($quiet = false) {
 	// Work out whether we need to switch the heater on
 	$heat = ($demand_temperature - $temperature) > 0;
 	setHeat ( ($heat) ? ($hl_high_value) : ($hl_low_value) );
-	
+
 	/**
 	 * *************************************************************************************************************************************
 	 * Send the sumary to the OLED display
@@ -317,17 +334,9 @@ function darkSkyObj($data, $id = null) {
 	$utcOffset = $data->offset * 3600;
 
 	if (! isset ( $data->daily->data [0] )) {
-		// echo "CRAP DETECTED: " . ob_print_r ( $data ) . "\n";
-		// if ($id) {
-		// $sql = "DELETE FROM history WHERE id = '" . $id . "'";
-		// echo "Delete SQL: $sql\n";
-		// $mysql->query ( $sql );
-		// }
 		return null;
 	}
 	$dso = $data->daily->data [0];
-	// $ts = time2Timestamp ( $dso->time- $utcOffset );
-	// echo "Converting " . timestampFormat ( $ts, "Y-m-d H:i:s" ) . "\n";
 
 	if (! isset ( $dso->time )) {
 		echo "    Missing core data 'time'\n";
@@ -354,7 +363,6 @@ function darkSkyObj($data, $id = null) {
 	$obj->daylightHours = ($obj->sunsetOffset - $obj->sunriseOffset) / 3600;
 	$obj->windSpeed = firstOf ( $dso, "windSpeed" );
 
-	// $obj=(object)sort((array)$obj);
 	return $obj;
 }
 
@@ -620,19 +628,19 @@ function getModeledDataFields($arr) {
 
 function modelStatus() {
 	global $mysql;
-	
+
 	$ret = new StdClass ();
 	$raw = getDarkSkyDataPoints ( null, true );
 	$valid = getDarkSkyDataPoints ( null, false );
-	
+
 	$ret->dataPointTotal = count ( $raw );
 	$ret->dataPointValid = count ( $valid );
 	$ret->dataPointInvalid = count ( $raw ) - count ( $valid );
 	$ret->dataPointPerDay = floor ( count ( $raw ) / 365 );
 
-	$rows  = $mysql->query("select max(last_updated) as ud from model");
-	if($rows && count($rows)) {
-		$ret->lastModelRebuild = $rows[0]["ud"];
+	$rows = $mysql->query ( "select max(last_updated) as ud from model" );
+	if ($rows && count ( $rows )) {
+		$ret->lastModelRebuild = $rows [0] ["ud"];
 	}
 	return $ret;
 }
