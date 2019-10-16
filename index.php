@@ -77,18 +77,24 @@ Last temp: <?php print_r(tfn(lastTemp())) ?></pre>
 
 	&nbsp;
 	<div class="row">
-	<div class="container-fluid debug">
-		<pre><?php
-		$str = $logger->getString ();
-		if (strlen ( trim ( $str ) ) == 0) {
-			$str = "*** NO LOG OUTPUT ***";
-		} else {
-			$str = trim ( $str ) . "\n*** END OF LOG ***";
-		}
-		echo "Log output:\n";
-		echo $str . "\n";
-		?></pre>
+		<div class="container-fluid debug">
+			<pre><?php
+			$str = $logger->getString ();
+			if (strlen ( trim ( $str ) ) == 0) {
+				$str = "*** NO LOG OUTPUT ***";
+			} else {
+				$str = trim ( $str ) . "\n*** END OF LOG ***";
+			}
+			echo "Log output:\n";
+			echo $str . "\n";
+			?></pre>
+		</div>
 	</div>
+
+	<div class="row">
+		<div class="container-fluid text-center">
+		<a target="DarkSky" href="https://darksky.net/poweredby/"><img src="https://darksky.net/dev/img/attribution/poweredby.png" alt="Powered by Dark Sky" style="width:150px;" /></a>
+		</div>
 	</div>
 </body>
 </html>
