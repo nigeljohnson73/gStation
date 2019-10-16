@@ -45,7 +45,7 @@ function setupTables() {
 
 function clearSensorLogger() {
 	global $mysql;
-	setupTables();
+	setupTables ();
 	$mysql->query ( "DELETE FROM temperature_logger where entered < '" . timestampFormat ( timestampAdd ( timestampNow (), numDays ( - 1 ) ), "Y-m-d H:i:s" ) . "'" );
 	$mysql->query ( "DELETE FROM temperature_gradient_logger where entered < '" . timestampFormat ( timestampAdd ( timestampNow (), numDays ( - 1 ) ), "Y-m-d H:i:s" ) . "'" );
 }
@@ -75,11 +75,11 @@ function lastTemp() {
 
 		$ret ["temperature"] = array_sum ( $temps ) / count ( $temps );
 		$dir = 0;
-		if (abs ( $m ) >= $temperature_buffer) {
+		if (abs ( $m ) >= 0.01) { // $temperature_buffer) {
 			$dir = ($m < 0) ? (- 1) : (1);
 		}
 		$ret ["direction"] = $dir;
-		
+
 		$str = "lastTemp($n):";
 		// $str .= " TEMPS(".implode(", ", $temps).")";
 		// $str .= " TIMES(".implode(", ", $times).")";
@@ -90,7 +90,7 @@ function lastTemp() {
 		$str .= ", T:" . sprintf ( "%02.3f", $ret ["temperature"] );
 		// $str .= ", L:".sprintf("%02.3f", $temps [count($temps)-1]);
 		// $str .= ", DIF:". (-1*$temp_diff);
-		$str .= ", DIR:".$ret ["direction"];
+		$str .= ", DIR:" . $ret ["direction"];
 		// $str .= ", UD:".$ret ["direction_unbuffered"];
 		logger ( LL_INFO, $str );
 	}

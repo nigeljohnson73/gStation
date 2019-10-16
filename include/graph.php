@@ -65,7 +65,7 @@ function graphPoint($im, $x, $y, $colour, $dist = 1) {
  *
  * $y_ticks - a value indexed array of labels to display
  */
-function drawTimeGraph($data, $legend, $nmajor_x, $nminor_x, $min_y, $max_y, $nmajor_y, $nminor_y, $y_ticks, $x_format = null, $pinpoint = null) {
+function drawTimeGraph($data, $legend, $nmajor_x, $nminor_x, $min_y, $max_y, $nmajor_y, $nminor_y, $y_ticks = null, $x_format = null, $pinpoint = null) {
 	if ($x_format === null) {
 		$x_format = "Y-m-d H:i";
 	}
@@ -200,10 +200,17 @@ function drawTimeGraph($data, $legend, $nmajor_x, $nminor_x, $min_y, $max_y, $nm
 	// Overall legend
 	imagestring ( $im, $font, $border, $border / 2, $legend, $fg );
 
+	//echo "<pre>TICKS: ".ob_print_r(tfn($y_ticks))."</pre>";
 	// range for values
-	foreach ( $y_ticks as $v => $label ) {
-		$yv = $y - ((scaleVal ( $v, $min_y, $max_y ) * ($y - 2 * $border)) + $border);
-		imagestring ( $im, /*$font*/2, 10, $yv - 7, $label, $fg );
+	if ($y_ticks) {
+		foreach ( $y_ticks as $v => $label ) {
+			$yv = $y - ((scaleVal ( $v, $min_y, $max_y ) * ($y - 2 * $border)) + $border);
+			imagestring ( $im, /*$font*/2, 10, $yv - 7, $label, $fg );
+		}
+	} else {
+		//echo "BOLLOCKS";
+		$yv = $y - ((scaleVal ( $min_y, $min_y, $max_y ) * ($y - 2 * $border)) + $border);
+		imagestring ( $im, /*$font*/2, 10, $yv - 7, $min_y, $fg );
 	}
 	// range for timestamps
 	imagestring ( $im, $font, $border, $y - $border + 5, timestampFormat ( time2Timestamp ( $min_x ), $x_format ), $fg );
