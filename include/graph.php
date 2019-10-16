@@ -200,7 +200,7 @@ function drawTimeGraph($data, $legend, $nmajor_x, $nminor_x, $min_y, $max_y, $nm
 	// Overall legend
 	imagestring ( $im, $font, $border, $border / 2, $legend, $fg );
 
-	//echo "<pre>TICKS: ".ob_print_r(tfn($y_ticks))."</pre>";
+	// echo "<pre>TICKS: ".ob_print_r(tfn($y_ticks))."</pre>";
 	// range for values
 	if ($y_ticks) {
 		foreach ( $y_ticks as $v => $label ) {
@@ -208,7 +208,7 @@ function drawTimeGraph($data, $legend, $nmajor_x, $nminor_x, $min_y, $max_y, $nm
 			imagestring ( $im, /*$font*/2, 10, $yv - 7, $label, $fg );
 		}
 	} else {
-		//echo "BOLLOCKS";
+		// echo "BOLLOCKS";
 		$yv = $y - ((scaleVal ( $min_y, $min_y, $max_y ) * ($y - 2 * $border)) + $border);
 		imagestring ( $im, /*$font*/2, 10, $yv - 7, $min_y, $fg );
 	}

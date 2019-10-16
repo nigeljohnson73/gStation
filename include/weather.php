@@ -34,20 +34,13 @@ function setupTables() {
 	 		temperature FLOAT NOT NULL
 		)";
 	$mysql->query ( $str );
-
-	$str = "
-		CREATE TABLE IF NOT EXISTS temperature_gradient_logger (
-			entered TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL PRIMARY KEY,
-	 		gradient FLOAT NOT NULL
-		)";
-	$mysql->query ( $str );
 }
 
 function clearSensorLogger() {
 	global $mysql;
 	setupTables ();
 	$mysql->query ( "DELETE FROM temperature_logger where entered < '" . timestampFormat ( timestampAdd ( timestampNow (), numDays ( - 1 ) ), "Y-m-d H:i:s" ) . "'" );
-	$mysql->query ( "DELETE FROM temperature_gradient_logger where entered < '" . timestampFormat ( timestampAdd ( timestampNow (), numDays ( - 1 ) ), "Y-m-d H:i:s" ) . "'" );
+	// $mysql->query ( "DELETE FROM temperature_gradient_logger where entered < '" . timestampFormat ( timestampAdd ( timestampNow (), numDays ( - 1 ) ), "Y-m-d H:i:s" ) . "'" );
 }
 
 function lastTemp() {
@@ -58,7 +51,7 @@ function lastTemp() {
 	if (is_array ( $rows ) && count ( $rows ) > 0) {
 		$ret ["demanded"] = $rows [0] ["demanded"];
 		$temps = array ();
-		$times = array ();
+		// $times = array ();
 		foreach ( $rows as $row ) {
 			$row = ( object ) $row;
 			$temps [] = $row->temperature;
@@ -69,29 +62,15 @@ function lastTemp() {
 		$crawl = $times [0] - $times [count ( $times ) - 1];
 		$m = $fall / $crawl;
 
-		$mysql->query ( "REPLACE INTO temperature_gradient_logger (gradient) VALUES (?)", "d", array (
-				$m
-		) );
-
-		$ret ["temperature"] = array_sum ( $temps ) / count ( $temps );
-		$dir = 0;
-		if (abs ( $m ) >= 0.01) { // $temperature_buffer) {
-			$dir = ($m < 0) ? (- 1) : (1);
-		}
-		$ret ["direction"] = $dir;
+		$ret ["temperature"] = $temps [count ( $temps ) - 1];
+		$ret ["direction"] = ($m == 0) ? (0) : (($m > 0) ? (1) : (0));
 
 		$str = "lastTemp($n):";
-		// $str .= " TEMPS(".implode(", ", $temps).")";
-		// $str .= " TIMES(".implode(", ", $times).")";
-		// // $str .= ", S(".implode(", ", $temps).")";
 		$str .= ", F:" . sprintf ( "%02.3f", $fall ) . "° ";
 		$str .= ", C:" . sprintf ( "%02.3f", $crawl ) . "s ";
 		$str .= ", M:" . sprintf ( "%02.3f", $m );
 		$str .= ", T:" . sprintf ( "%02.3f", $ret ["temperature"] );
-		// $str .= ", L:".sprintf("%02.3f", $temps [count($temps)-1]);
-		// $str .= ", DIF:". (-1*$temp_diff);
 		$str .= ", DIR:" . $ret ["direction"];
-		// $str .= ", UD:".$ret ["direction_unbuffered"];
 		logger ( LL_INFO, $str );
 	}
 	return ( object ) $ret;
@@ -114,8 +93,6 @@ function setConfig($id, $value) {
 			$id,
 			$value
 	) );
-	// var_dump($ret);
-	// return $default;
 }
 
 function setLight($val) {
@@ -233,8 +210,6 @@ function tick($quiet = false) {
 	$nowOffset = timestampFormat ( $tsnow, "H" ) * 60 * 60 + timestampFormat ( $tsnow, "i" ) * 60 + timestampFormat ( $tsnow, "s" );
 
 	$last_status = getConfig ( "status", "NIGHT" );
-	$last_temperature = getConfig ( "temperature" );
-	// $last_humidity = getConfig ( "humidity" ); // Not doing this at the moment
 
 	/**
 	 * *************************************************************************************************************************************
@@ -259,8 +234,6 @@ function tick($quiet = false) {
 	} else {
 		logger ( LL_DEBUG, "tick(): " . $msg );
 	}
-	$demand_temperature = ($status == "DAY") ? ($data->temperatureHigh) : ($data->temperatureLow);
-	setConfig ( "temperature_demand", $demand_temperature );
 	setLight ( ($status == "DAY") ? ($hl_high_value) : ($hl_low_value) );
 
 	/**
@@ -273,7 +246,9 @@ function tick($quiet = false) {
 	 * *************************************************************************************************************************************
 	 * Work with the temperature
 	 */
-	// TODO: FIX demaded from the getModel()
+	$demand_temperature = ($status == "DAY") ? ($data->temperatureHigh) : ($data->temperatureLow);
+	setConfig ( "temperature_demand", $demand_temperature );
+
 	$temperature = lastTemp ();
 	if (! $quiet) {
 		echo "Last temp: " . ob_print_r ( $temperature ) . "\n";
@@ -283,11 +258,6 @@ function tick($quiet = false) {
 
 	$temperature = $temperature->temperature;
 	setConfig ( "temperature", $temperature );
-
-	// if (abs ( $temperature - $last_temperature ) > $temperature_buffer) {
-	// } else {
-	// $temperature = $last_temperature;
-	// }
 
 	// Work out whether we need to switch the heater on
 	$heat = ($demand_temperature - $temperature) > 0;

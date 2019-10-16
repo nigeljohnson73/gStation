@@ -69,7 +69,6 @@ Last temp: <?php print_r(tfn(lastTemp())) ?></pre>
 	
 		<div class="col-sm-8 text-center">
 				<img src="gfx/graph_local_temperatures.php?<?php echo randomQuery() ?>" alt="Local actual temperature graph" class="img-thumbnail" style="margin-bottom:8px; margin-right:5px;" /> 
-				<img src="gfx/graph_local_temperature_gradient.php?<?php echo randomQuery() ?>" alt="Local temperature gradient graph" class="img-thumbnail" style="margin-bottom:8px; margin-right:5px;" /> 
 				<img src="gfx/graph_schedule_temperatures.php" alt="Remote average temperature graph" class="img-thumbnail" style="margin-bottom:8px; margin-right:5px;" />
 				<img src="gfx/graph_schedule_sun.php" alt="Remote sunrise and sunset graph" class="img-thumbnail" style="margin-bottom:8px; margin-right:5px;" />
 				<img src="gfx/graph_schedule_daylight.php" alt="Remote day length graph" class="img-thumbnail" style="margin-bottom:8px; margin-right:5px;" />

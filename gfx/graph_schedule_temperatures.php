@@ -30,10 +30,13 @@ $pinpoint_dem = array ();
 $pinpoint_dem ["x"] = timestamp2Time ( $tsnow );
 $pinpoint_dem ["y"] = getConfig ( "temperature_demand" );
 
-$im = drawTimeGraph ( $data, $legend, $x_ticks, $x_subticks, $min_y, $max_y, $max_y - $min_y, 1, $y_ticks, "M d", array (
+$pinpoint = array (
 		( object ) $pinpoint_act,
 		( object ) $pinpoint_dem
-) );
+);
+
+// echo "<pre>" . ob_print_r ( $pinpoint ). "</pre>";
+$im = drawTimeGraph ( $data, $legend, $x_ticks, $x_subticks, $min_y, $max_y, $max_y - $min_y, 1, $y_ticks, "M d", $pinpoint );
 
 header ( 'Content-type: image/png' );
 imagepng ( $im );
