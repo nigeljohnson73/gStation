@@ -263,7 +263,7 @@ function tick($quiet = false) {
 
 	// Work out whether we need to switch the heater on
 	$heat = ($demand_temperature - $temperature) > 0;
-	setHeat ( ($$heat) ? ($hl_high_value) : ($hl_low_value) );
+	setHeat ( ($heat) ? ($hl_high_value) : ($hl_low_value) );
 	
 	/**
 	 * *************************************************************************************************************************************
