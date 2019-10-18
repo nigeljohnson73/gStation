@@ -6,6 +6,7 @@ function getLocalTemps() {
 	global $mysql;
 	// $res = $mysql->query ( "SELECT * FROM temperature_logger where temperature != 999 ORDER BY entered desc limit 10" );
 	$res = $mysql->query ( "SELECT * FROM temperature_logger where temperature != 999" );
+//	echo "Local temp count: ".count($res)."\n";
 	// var_dump($res);
 	if (is_array ( $res ) && count ( $res ) > 0) {
 		$dem = array ();
@@ -31,7 +32,7 @@ $min_y = 0;
 $max_y = 5;
 $y_ticks = array();
 
-if ($temps && count ( $temps ) > 2) {
+if ($temps && count ( $temps[array_keys($temps)[0]] ) > 2) {
 	$legend = "Measured Temperature over the last 24 hours";
 	foreach ( $temps as $k => $v ) {
 		$temps [$k] = decimateArray ( $v, 5 );
