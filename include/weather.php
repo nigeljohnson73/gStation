@@ -632,8 +632,11 @@ function rebuildDataModel() {
 }
 
 function getModel($ts = null) {
+	$expected = 365;
 	$sql = "SELECT * FROM model";
+
 	if ($ts != null) {
+		$expected = 1;
 		if ($ts == "0229") {
 			$ts = "0228"; // No leap years
 		}
@@ -643,7 +646,7 @@ function getModel($ts = null) {
 	global $mysql;
 	$rows = $mysql->query ( $sql );
 
-	if (! $rows || count ( $rows ) < 365) {
+	if (! $rows || count ( $rows ) != $expected) {
 		// if we got no data, just make sure we have performed the initialisation
 		logger ( LL_INFO, "getModel(): no model stored" );
 		setupTables ();
