@@ -26,6 +26,7 @@ foreach ( $data as $k => $v ) {
 		                                    // echo "".$ts." sunsetOffset</br>\n";
 		                                    // }
 
+		//$local_timezone = "UTC";
 		$dt = new DateTime ( '@' . round ( $kk + $vv, 0 ) );
 		$dt->setTimeZone ( new DateTimeZone ( $local_timezone ) );
 		$nhr = $dt->format ( 'H' );

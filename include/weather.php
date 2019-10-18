@@ -365,6 +365,11 @@ function getDarkSkyDataPoints($id_list = null, $raw = false) {
 
 function getDarkSkyApiData($force_recall) {
 	global $darksky_key;
+	if ($darksky_key == "") {
+		logger ( LL_INFO, "getDarkSkyApiData(): No API key" );
+		return;
+	}
+
 	global $mysql;
 	global $yr_history, $dy_history, $lat, $lng, $api_call_cap;
 
@@ -387,11 +392,14 @@ function getDarkSkyApiData($force_recall) {
 		$ts = timestampAdd ( $ts, numDays ( - 1 ) );
 	}
 	logger ( LL_DEBUG, "getDarkSkyApiData(): data points required: " . (count ( $force ) + count ( $dates )) );
+	// echo "getDarkSkyApiData(): data points required: " . (count ( $force ) + count ( $dates ))."\n";
 
 	// Get any data points we already have
 	$data_points = getDarkSkyDataPoints ( $dates, true );
 	logger ( LL_DEBUG, "getDarkSkyApiData(): forced requests: " . count ( $force ) );
 	logger ( LL_DEBUG, "getDarkSkyApiData(): data points available: " . count ( $data_points ) );
+	// echo "getDarkSkyApiData(): forced requests: " . count ( $force ) ."\n";
+	// echo "getDarkSkyApiData(): data points available: " . count ( $data_points )."\n";
 	foreach ( $data_points as $k => $v ) {
 		if (isset ( $dates [$k] )) {
 			unset ( $dates [$k] );
@@ -403,6 +411,8 @@ function getDarkSkyApiData($force_recall) {
 	// generate our call list
 	$calls = array_merge ( $force, array_values ( $dates ) );
 	logger ( LL_INFO, "getDarkSkyApiData(): API calls required: " . (count ( $calls )) );
+	// echo "getDarkSkyApiData(): API calls required: " . (count ( $calls ))."\n";
+	// return;
 
 	// If we need too many, truncate the list
 	if (count ( $calls ) > $api_call_cap) {
@@ -452,100 +462,162 @@ function getDarkSkyApiData($force_recall) {
 }
 
 function rebuildDataModel() {
-	global $mysql;
-
-	// Get all the data we have. This will pop at some point. TODO: probably cap this to something!!
-	$hist = getDarkSkyDataPoints ();
-	logger ( LL_INFO, "rebuildDataModel(): Processing " . count ( $hist ) . " data points" );
-
-	global $season_adjust_days, $timeszone_adjust_hours, $smoothing_days, $smoothing_loops;
-
-	// Temporary store for the day/month combo data
-	$store = array ();
-	foreach ( $hist as $k => $v ) {
-		$nk = timestampAdd ( $k, numDays ( - $season_adjust_days ) );
-		// echo "Season adjust: ".timestampFormat($k, "c"). " --> ".timestampFormat($nk, "c")."\n";
-		$ts = timestampFormat ( $nk, "md" );
-		if (! isset ( $store [$ts] )) {
-			$store [$ts] = array ();
-		}
-		$store [$ts] [] = $v;
-	}
-
-	// Deleteing any leap data. Leap days are either the day after Feb 28, or the day before Mar 01
-	if (isset ( $store ["0229"] )) {
-		unset ( $store ["0229"] );
-	}
-	logger ( LL_INFO, "rebuildDataModel(): Processed into " . count ( $store ) . " day model" );
-
-	// flatten the day data into day/month averages
+	global $mysql, $darksky_key;
 	$model = array ();
-	foreach ( $store as $k => $v ) {
-		$v = averageObjectArray ( $v );
 
-		// Alter the timeszone times
-		$time_offset = array (
-				"sunriseOffset",
-				"sunsetOffset"
-		);
-		$day_secs = 24 * 60 * 60;
-		foreach ( $time_offset as $o ) {
-			$v->$o += $timeszone_adjust_hours * 60 * 60;
-			// clamp to within day
-			$v->$o = ($v->$o < 0) ? ($v->$o + $day_secs) : (($v->$o >= $day_secs) ? ($v->$o - $day_secs) : ($v->$o));
-		}
-
-		// We are done here
-		$model [$k] = $v;
+	$hist = null;
+	// IF we have signed up for DarkSky and have a key, check how much data we have
+	if ($darksky_key != "") {
+		// Get all the data we have. This will pop at some point. TODO: probably cap this to something!!
+		$hist = getDarkSkyDataPoints ();
 	}
 
-	logger ( LL_INFO, "rebuildDataModel(): Flattened model by averages per day" );
+	// IF we have data, make sure we have enough to process
+	if ($hist && count ( $hist ) >= 365) {
+		logger ( LL_INFO, "rebuildDataModel(): Processing " . count ( $hist ) . " data points" );
 
-	// Perform smoothing
-	// $k is the month-day key
-	// $v in the day object
-	// $pk is the paramater key within the day object
+		global $season_adjust_days, $timeszone_adjust_hours, $smoothing_days, $smoothing_loops;
 
-	$smooth_exclude = array (
-			"lunation"
-	);
-	$store = array ();
+		// Temporary store for the day/month combo data
+		$store = array ();
+		foreach ( $hist as $k => $v ) {
+			$nk = timestampAdd ( $k, numDays ( - $season_adjust_days ) );
+			// echo "Season adjust: ".timestampFormat($k, "c"). " --> ".timestampFormat($nk, "c")."\n";
+			$ts = timestampFormat ( $nk, "md" );
+			if (! isset ( $store [$ts] )) {
+				$store [$ts] = array ();
+			}
+			$store [$ts] [] = $v;
+		}
 
-	// First collect all the paramaeter data. Store by field key to sort, then model key to put back
-	foreach ( $model as $k => $v ) {
-		// Convert to an array so we can field surf
-		$v = ( array ) $v;
-		foreach ( $v as $pk => $val ) {
-			if (! in_array ( $pk, $smooth_exclude )) {
-				if (! isset ( $store [$pk] )) {
-					$store [$pk] = array ();
+		// Deleteing any leap data. Leap days are either the day after Feb 28, or the day before Mar 01
+		if (isset ( $store ["0229"] )) {
+			unset ( $store ["0229"] );
+		}
+		logger ( LL_INFO, "rebuildDataModel(): Processed into " . count ( $store ) . " day model" );
+
+		// flatten the day data into day/month averages
+		$model = array ();
+		foreach ( $store as $k => $v ) {
+			$v = averageObjectArray ( $v );
+
+			// Alter the timeszone times
+			$time_offset = array (
+					"sunriseOffset",
+					"sunsetOffset"
+			);
+			$day_secs = 24 * 60 * 60;
+			foreach ( $time_offset as $o ) {
+				$v->$o += $timeszone_adjust_hours * 60 * 60;
+				// clamp to within day
+				$v->$o = ($v->$o < 0) ? ($v->$o + $day_secs) : (($v->$o >= $day_secs) ? ($v->$o - $day_secs) : ($v->$o));
+			}
+
+			// We are done here
+			$model [$k] = $v;
+		}
+
+		logger ( LL_INFO, "rebuildDataModel(): Flattened model by averages per day" );
+
+		// Perform smoothing
+		// $k is the month-day key
+		// $v in the day object
+		// $pk is the paramater key within the day object
+
+		$smooth_exclude = array (
+				"lunation"
+		);
+		$store = array ();
+
+		// First collect all the paramaeter data. Store by field key to sort, then model key to put back
+		foreach ( $model as $k => $v ) {
+			// Convert to an array so we can field surf
+			$v = ( array ) $v;
+			foreach ( $v as $pk => $val ) {
+				if (! in_array ( $pk, $smooth_exclude )) {
+					if (! isset ( $store [$pk] )) {
+						$store [$pk] = array ();
+					}
+					// if($k[0]=="0" && $k[1]=="1" && $pk == "temperatureHigh"){
+					// echo "Storing ".$pk."(".$k."): ".$val."\n";
+					// }
+					$store [$pk] [$k] = $val;
 				}
-				// if($k[0]=="0" && $k[1]=="1" && $pk == "temperatureHigh"){
-				// echo "Storing ".$pk."(".$k."): ".$val."\n";
-				// }
-				$store [$pk] [$k] = $val;
 			}
 		}
-	}
-	logger ( LL_INFO, "rebuildDataModel(): Smoothing: calculated data keys" );
+		logger ( LL_INFO, "rebuildDataModel(): Smoothing: calculated data keys" );
 
-	// Smooth the parameters
-	// echo "Going in '".array_keys($store)[0]."': ".ob_print_r($store[array_keys($store)[0]])."\n";
-	foreach ( $store as $pk => $vals ) {
-		// Sort so they are in the right order. Don't know how they get out of order but still
-		ksort ( $vals );
-		$store [$pk] = smoothValues ( $vals, $smoothing_days, $smoothing_loops );
-	}
-	logger ( LL_INFO, "rebuildDataModel(): Smoothing: performed smoothing" );
-	// echo "Coming out '".array_keys($store)[0]."': ".ob_print_r($store[array_keys($store)[0]])."\n";
+		// Smooth the parameters
+		// echo "Going in '".array_keys($store)[0]."': ".ob_print_r($store[array_keys($store)[0]])."\n";
+		foreach ( $store as $pk => $vals ) {
+			// Sort so they are in the right order. Don't know how they get out of order but still
+			ksort ( $vals );
+			$store [$pk] = smoothValues ( $vals, $smoothing_days, $smoothing_loops );
+		}
+		logger ( LL_INFO, "rebuildDataModel(): Smoothing: performed smoothing" );
+		// echo "Coming out '".array_keys($store)[0]."': ".ob_print_r($store[array_keys($store)[0]])."\n";
 
-	// Now put everything back where it was
-	foreach ( $store as $pk => $vals ) {
-		foreach ( $vals as $k => $val ) {
-			$model [$k]->$pk = $val;
+		// Now put everything back where it was
+		foreach ( $store as $pk => $vals ) {
+			foreach ( $vals as $k => $val ) {
+				$model [$k]->$pk = $val;
+			}
+		}
+		logger ( LL_INFO, "rebuildDataModel(): Smoothing: updated model" );
+	} else {
+		global $summer_solstice, $high_temperature_min, $high_temperature_max, $low_temperature_min, $low_temperature_max, $sunset_max, $sunset_min, $daylight_max, $daylight_min;
+
+		if ($darksky_key == "") {
+			logger ( LL_INFO, "rebuildDataModel(): Simulating data" );
+		} else {
+			logger ( LL_INFO, "rebuildDataModel(): Simulating data (not enough real data yet)" );
+		}
+		$tsnow = timestampNow ();
+		$yr = timestampFormat ( $tsnow, "Y" );
+
+		$high_delta_temperature = ($high_temperature_max - $high_temperature_min) / 2;
+		$high_mid_temperature = $high_temperature_min + $high_delta_temperature;
+
+		$low_delta_temperature = ($low_temperature_max - $low_temperature_min) / 2;
+		$low_mid_temperature = $low_temperature_min + $low_delta_temperature;
+
+		$sunset_delta_offset = ($sunset_max - $sunset_min) / 2;
+		$sunset_mid_offset = $sunset_min + $sunset_delta_offset;
+
+		// echo "Sunset MIN: $sunset_min. MAX: $sunset_max\n";
+		// echo "Sunset AVG: $sunset_mid_offset. delta: $sunset_delta_offset\n";
+
+		$sunrise_min = $sunset_max - $daylight_max; // longest day
+		$sunrise_max = $sunset_min - $daylight_min; // shortesst
+		$sunrise_delta_offset = ($sunrise_max - $sunrise_min) / 2;
+		$sunrise_mid_offset = $sunrise_min + $sunrise_delta_offset;
+
+		// echo "Sunrise MIN: $sunrise_min. MAX: $sunrise_max\n";
+		// echo "Sunrise AVG: $sunrise_mid_offset. delta: $sunrise_delta_offset\n";
+
+		$deg_step = 360 / 365;
+		$tsnow = $yr . $summer_solstice . "000000";
+		$model = array ();
+		for($i = 0; $i < 365; $i ++) {
+			$obj = new StdClass ();
+
+			if (timestampFormat ( $tsnow, "md" ) == "0229") {
+				// Skip leap years
+				$tsnow = timestampAdd ( $tsnow, numDays ( 1 ) );
+			}
+
+			$obj->temperatureHigh = $high_mid_temperature + $high_delta_temperature * cos ( deg2rad ( $i * $deg_step ) );
+			$obj->temperatureLow = $low_mid_temperature + $low_delta_temperature * cos ( deg2rad ( $i * $deg_step ) );
+
+			$obj->sunsetOffset = ($sunset_mid_offset + $sunset_delta_offset * cos ( deg2rad ( $i * $deg_step ) )) * 3600;
+			$obj->sunriseOffset = ($sunrise_mid_offset + $sunrise_delta_offset * cos ( deg2rad ( 180 + $i * $deg_step ) )) * 3600;
+			$obj->daylightHours = ($obj->sunsetOffset - $obj->sunriseOffset) / 3600;
+
+			$model [timestampFormat ( $tsnow, "md" )] = $obj;
+
+			$tsnow = timestampAdd ( $tsnow, numDays ( 1 ) );
 		}
 	}
-	logger ( LL_INFO, "rebuildDataModel(): Smoothing: updated model" );
 
 	// Update the model table
 	foreach ( $model as $k => $v ) {
@@ -562,10 +634,23 @@ function rebuildDataModel() {
 function getModel($ts = null) {
 	$sql = "SELECT * FROM model";
 	if ($ts != null) {
+		if ($ts == "0229") {
+			$ts = "0228"; // No leap years
+		}
 		$sql .= " WHERE id = '" . timestampFormat ( $ts, "md" ) . "'";
 	}
+
 	global $mysql;
 	$rows = $mysql->query ( $sql );
+
+	if (! $rows || count ( $rows ) < 365) {
+		// if we got no data, just make sure we have performed the initialisation
+		logger ( LL_INFO, "getModel(): no model stored" );
+		setupTables ();
+		rebuildDataModel ();
+		$rows = $mysql->query ( $sql );
+	}
+
 	$ret = array ();
 	foreach ( $rows as $row ) {
 		$k = $row ["id"];

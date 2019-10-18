@@ -69,7 +69,7 @@ Log on to the PI
 
     sudo raspi-config
 
-* Network Options -> Hostname (gs-eswatini)
+* Network Options -> Hostname (gstation.local)
 * Interfaceing options -> I2C -> yes
 * Interfaceing options -> serial -> no
 * Update
@@ -77,7 +77,7 @@ Log on to the PI
 
 log back in with the new password
 
-    ssh pi@gs-eswatini.local
+    ssh pi@gstation.local
 
 From: https://howtoraspberrypi.com/how-to-install-web-server-raspberry-pi-lamp/
 

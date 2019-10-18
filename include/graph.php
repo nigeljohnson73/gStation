@@ -3,13 +3,15 @@
 function _graphMinMax($arr, $compfunc, $blankval, $kvfunc) {
 	// echo "<pre>_graphMinMax(\$arr, $compfunc, $blankval, $kvfunc): called\n" . ob_print_r ( $arr ) . "</pre>\n";
 	$ret = $blankval;
-	foreach ( $arr as $legend => $vals ) {
-		if (count ( $vals )) {
-			// echo "&nbsp;&nbsp;&nbsp;&nbsp;_graphMinMax(\$arr, $compfunc, $kvfunc): '$legend': curr: $ret, new: " . $compfunc ( $kvfunc ( $vals ) ) . "</br>";
-			$ret = $compfunc ( $ret, $compfunc ( $kvfunc ( $vals ) ) );
+	if ($arr && count ( $arr )) {
+		foreach ( $arr as $legend => $vals ) {
+			if (count ( $vals )) {
+				// echo "&nbsp;&nbsp;&nbsp;&nbsp;_graphMinMax(\$arr, $compfunc, $kvfunc): '$legend': curr: $ret, new: " . $compfunc ( $kvfunc ( $vals ) ) . "</br>";
+				$ret = $compfunc ( $ret, $compfunc ( $kvfunc ( $vals ) ) );
+			}
 		}
+		$ret = ($ret == $blankval) ? (null) : ($ret);
 	}
-	$ret = ($ret == $blankval) ? (null) : ($ret);
 	// echo "&nbsp;&nbsp;&nbsp;&nbsp;_graphMinMax(\$arr, $compfunc, $kvfunc): return: " . tfn ( $ret ) . "</br>";
 	return $ret;
 }
@@ -104,10 +106,6 @@ function drawTimeGraph($data, $legend, $nmajor_x, $nminor_x, $min_y, $max_y, $nm
 	// Start with background
 	imagefill ( $im, 0, 0, $bg );
 
-	// Days along the bottom
-	$min_x = graphKeyMin ( $data );
-	$max_x = graphKeyMax ( $data );
-
 	// Draw the minor x ticks
 	if (($nmajor_x > 0) && ($nminor_x > 0)) {
 		$steps = $nmajor_x * ($nminor_x + 1);
@@ -143,40 +141,46 @@ function drawTimeGraph($data, $legend, $nmajor_x, $nminor_x, $min_y, $max_y, $nm
 		}
 	}
 
-	// Draw the pin point
-	if ($pinpoint) {
-		if (! is_array ( $pinpoint )) {
-			$pinpoint = array (
-					$pinpoint
-			);
-		}
+	if ($data && count ( $data )) {
+		// Days along the bottom
+		$min_x = graphKeyMin ( $data );
+		$max_x = graphKeyMax ( $data );
 
-		$pinpoint [0]->colors = array (
-				$red,
-				$lorange
-		);
-		if (isset ( $pinpoint [1] )) {
-			$pinpoint [1]->colors = array (
-					$lorange,
-					$yellow
-			);
-		}
+		// Draw the pin point
+		if ($pinpoint) {
+			if (! is_array ( $pinpoint )) {
+				$pinpoint = array (
+						$pinpoint
+				);
+			}
 
-		$pinpoint = array_reverse ( $pinpoint );
-		// echo "<pre>".ob_print_r($pinpoint)."</pre>";
-		foreach ( $pinpoint as $k => $p ) {
-			$xv = (scaleVal ( $p->x, $min_x, $max_x ) * ($x - 2 * $border)) + $border;
-			$yv = $y - ((scaleVal ( $p->y, $min_y, $max_y ) * ($y - 2 * $border)) + $border);
-			$in_x = $xv >= $border && ($xv <= ($x - $border));
-			$in_y = $yv >= $border && ($yv <= ($y - $border));
-			if ($in_x && $in_y) {
-				graphPoint ( $im, $xv, $yv, $p->colors [1], 5 );
+			$pinpoint [0]->colors = array (
+					$red,
+					$lorange
+			);
+			if (isset ( $pinpoint [1] )) {
+				$pinpoint [1]->colors = array (
+						$lorange,
+						$yellow
+				);
 			}
-			if ($in_x) {
-				imageline ( $im, $xv, $border, $xv, $y - $border, $p->colors [0] );
-			}
-			if ($in_y) {
-				imageline ( $im, $border, $yv, $x - $border, $yv, $p->colors [0] );
+
+			$pinpoint = array_reverse ( $pinpoint );
+			// echo "<pre>".ob_print_r($pinpoint)."</pre>";
+			foreach ( $pinpoint as $k => $p ) {
+				$xv = (scaleVal ( $p->x, $min_x, $max_x ) * ($x - 2 * $border)) + $border;
+				$yv = $y - ((scaleVal ( $p->y, $min_y, $max_y ) * ($y - 2 * $border)) + $border);
+				$in_x = $xv >= $border && ($xv <= ($x - $border));
+				$in_y = $yv >= $border && ($yv <= ($y - $border));
+				if ($in_x && $in_y) {
+					graphPoint ( $im, $xv, $yv, $p->colors [1], 5 );
+				}
+				if ($in_x) {
+					imageline ( $im, $xv, $border, $xv, $y - $border, $p->colors [0] );
+				}
+				if ($in_y) {
+					imageline ( $im, $border, $yv, $x - $border, $yv, $p->colors [0] );
+				}
 			}
 		}
 	}
@@ -185,40 +189,45 @@ function drawTimeGraph($data, $legend, $nmajor_x, $nminor_x, $min_y, $max_y, $nm
 	imageline ( $im, $border, $y - $border, $x - $border, $y - $border, $fg );
 	imageline ( $im, $border, $y - $border, $border, $border, $fg );
 
-	// Process in the data graphPoints
-	$col_index = 0;
-	foreach ( $data as $leg => $trace ) {
-		foreach ( $trace as $k => $v ) {
-			$xv = (scaleVal ( $k, $min_x, $max_x ) * ($x - 2 * $border)) + $border;
-			$yv = $y - ((scaleVal ( $v, $min_y, $max_y ) * ($y - 2 * $border)) + $border);
-			graphPoint ( $im, $xv, $yv, $graph_cols [$col_index] );
-			// graphPoint ( $im, $xv, $yvt, $red );
+	if ($data && count ( $data )) {
+		// Days along the bottom
+		$min_x = graphKeyMin ( $data );
+		$max_x = graphKeyMax ( $data );
+
+		// Process in the data graphPoints
+		$col_index = 0;
+		foreach ( $data as $leg => $trace ) {
+			foreach ( $trace as $k => $v ) {
+				$xv = (scaleVal ( $k, $min_x, $max_x ) * ($x - 2 * $border)) + $border;
+				$yv = $y - ((scaleVal ( $v, $min_y, $max_y ) * ($y - 2 * $border)) + $border);
+				graphPoint ( $im, $xv, $yv, $graph_cols [$col_index] );
+				// graphPoint ( $im, $xv, $yvt, $red );
+			}
+			$col_index += 1;
 		}
-		$col_index += 1;
+		// echo "<pre>TICKS: ".ob_print_r(tfn($y_ticks))."</pre>";
+		// range for values
+		if ($y_ticks) {
+			foreach ( $y_ticks as $v => $label ) {
+				$yv = $y - ((scaleVal ( $v, $min_y, $max_y ) * ($y - 2 * $border)) + $border);
+				imagestring ( $im, /*$font*/2, 10, $yv - 7, $label, $fg );
+			}
+		} else {
+			// echo "BOLLOCKS";
+			$yv = $y - ((scaleVal ( $min_y, $min_y, $max_y ) * ($y - 2 * $border)) + $border);
+			imagestring ( $im, /*$font*/2, 10, $yv - 7, $min_y, $fg );
+		}
+		// range for timestamps
+		imagestring ( $im, $font, $border, $y - $border + 5, timestampFormat ( time2Timestamp ( $min_x ), $x_format ), $fg );
+
+		$rhs_label = timestampFormat ( time2Timestamp ( $max_x ), $x_format );
+		// list ( $left, , $right ) = imageftbbox ( 12, 0, $font, $rhs_label );
+		$width = imageFontWidth ( $font ) * strlen ( $rhs_label );
+		imagestring ( $im, $font, $x - $border - $width, $y - $border + 5, $rhs_label, $fg );
 	}
 
 	// Overall legend
 	imagestring ( $im, $font, $border, $border / 2, $legend, $fg );
-
-	// echo "<pre>TICKS: ".ob_print_r(tfn($y_ticks))."</pre>";
-	// range for values
-	if ($y_ticks) {
-		foreach ( $y_ticks as $v => $label ) {
-			$yv = $y - ((scaleVal ( $v, $min_y, $max_y ) * ($y - 2 * $border)) + $border);
-			imagestring ( $im, /*$font*/2, 10, $yv - 7, $label, $fg );
-		}
-	} else {
-		// echo "BOLLOCKS";
-		$yv = $y - ((scaleVal ( $min_y, $min_y, $max_y ) * ($y - 2 * $border)) + $border);
-		imagestring ( $im, /*$font*/2, 10, $yv - 7, $min_y, $fg );
-	}
-	// range for timestamps
-	imagestring ( $im, $font, $border, $y - $border + 5, timestampFormat ( time2Timestamp ( $min_x ), $x_format ), $fg );
-
-	$rhs_label = timestampFormat ( time2Timestamp ( $max_x ), $x_format );
-	// list ( $left, , $right ) = imageftbbox ( 12, 0, $font, $rhs_label );
-	$width = imageFontWidth ( $font ) * strlen ( $rhs_label );
-	imagestring ( $im, $font, $x - $border - $width, $y - $border + 5, $rhs_label, $fg );
 
 	return $im;
 }

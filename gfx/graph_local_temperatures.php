@@ -23,38 +23,58 @@ function getLocalTemps() {
 	return null;
 }
 
-$legend = "Measured Temperature over the last 24 hours";
 $temps = getLocalTemps ();
-foreach ( $temps as $k => $v ) {
-	$temps [$k] = decimateArray ( $v, 5 );
-}
 
-if (! $temps) {
-	$legend = "A pretty little sine wave (as there is no real data yet)";
+// Lets have some axes regardless of data
+$legend = "Not enough local temperature measurements have been gathered";
+$min_y = 0;
+$max_y = 5;
+$y_ticks = array();
 
-	$nmins = 60 * 24;
-	$deg_step = 360 / $nmins;
-	$mid_temp = 22;
-	$delt_temp = 2.2;
-	$tnow = time ();
-	for($i = 0; $i < $nmins; $i ++) {
-		$dem [$tnow - ($i * 60)] = $mid_temp + $delt_temp * sin ( deg2rad ( $i * $deg_step ) );
-		$act [$tnow - ($i * 60)] = $mid_temp + $delt_temp * cos ( deg2rad ( $i * $deg_step ) );
+if ($temps && count ( $temps ) > 2) {
+	$legend = "Measured Temperature over the last 24 hours";
+	foreach ( $temps as $k => $v ) {
+		$temps [$k] = decimateArray ( $v, 5 );
 	}
-	$temps = array (
-			"temperature" => $act,
-			"demanded" => $dem
-	);
+	$min_y = floor ( graphValMin ( $temps ) );
+	$max_y = ceil ( graphValMax ( $temps ) );
+	$y_ticks = array ();
+	for($i = $min_y; $i <= $max_y; $i ++) {
+		$y_ticks [$i] = $i . "C";
+	}
+} else {
+	
+// 	$tsnow = timestampNow ();
+// 	$yr = timestampFormat ( $tsnow, "Y" );
+
+// 	$summer_solstice = "0621";
+// 	$high_temperature_min = 21;
+// 	$high_temperature_max = 33;
+// 	$high_delta_temperature = ($high_temperature_max - $high_temperature_min) / 2;
+// 	$high_mid_temperature = $high_temperature_min + $high_delta_temperature;
+
+// 	$low_temperature_min = 5;
+// 	$low_temperature_max = 10;
+// 	$low_delta_temperature = ($low_temperature_max - $low_temperature_min) / 2;
+// 	$low_mid_temperature = $low_temperature_min + $low_delta_temperature;
+
+// 	$deg_step = 360 / 365;
+// 	$tsnow = $yr . $summer_solstice . "000000";
+// 	for($i = 0; $i < 365; $i ++) {
+// 		if (timestampFormat ( $tsnow, "md" ) == "0229") {
+// 			$tsnow = timestampAdd ( $tsnow, numDays ( 1 ) );
+// 		}
+// 		$hi [timestamp2Time ( $tsnow )] = $high_mid_temperature + $high_delta_temperature * cos ( deg2rad ( $i * $deg_step ) );
+// 		$lo [timestamp2Time ( $tsnow )] = $low_mid_temperature + $low_delta_temperature * cos ( deg2rad ( $i * $deg_step ) );
+// 		$tsnow = timestampAdd ( $tsnow, numDays ( 1 ) );
+// 	}
+// 	$temps = array (
+// 			"high" => $hi,
+// 			"low" => $lo
+// 	);
 }
 
-$min_y = floor ( graphValMin ( $temps ) );
-$max_y = ceil ( graphValMax ( $temps ) );
-$y_ticks = array ();
-for($i = $min_y; $i <= $max_y; $i ++) {
-	$y_ticks [$i] = $i . "C";
-}
-
-$x_ticks = 24;
+$x_ticks = 12;
 $x_subticks = 1;
 $im = drawTimeGraph ( $temps, $legend, $x_ticks, $x_subticks, $min_y, $max_y, $max_y - $min_y, 1, $y_ticks );
 
