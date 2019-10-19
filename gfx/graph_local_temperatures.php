@@ -6,7 +6,7 @@ function getLocalTemps() {
 	global $mysql;
 	// $res = $mysql->query ( "SELECT * FROM temperature_logger where temperature != 999 ORDER BY entered desc limit 10" );
 	$res = $mysql->query ( "SELECT * FROM temperature_logger where temperature != 999" );
-//	echo "Local temp count: ".count($res)."\n";
+	// echo "Local temp count: ".count($res)."\n";
 	// var_dump($res);
 	if (is_array ( $res ) && count ( $res ) > 0) {
 		$dem = array ();
@@ -26,17 +26,32 @@ function getLocalTemps() {
 
 $temps = getLocalTemps ();
 
+function deltaArray($arr, $delta) {
+	$kk = null;
+	$vv = null;
+	$ret = array ();
+	foreach ( $arr as $k => $v ) {
+		if ($kk == null || abs ( $vv - $v ) >= $delta) {
+			$kk = $k;
+			$vv = $v;
+			$ret [$k] = $v;
+		}
+	}
+	return $ret;
+}
 // Lets have some axes regardless of data
 $legend = "Not enough local temperature measurements have been gathered";
 $min_y = 0;
 $max_y = 5;
-$y_ticks = array();
+$y_ticks = array ();
 
-if ($temps && count ( $temps[array_keys($temps)[0]] ) > 2) {
+if ($temps && count ( $temps [array_keys ( $temps ) [0]] ) > 2) {
 	$legend = "Measured Temperature over the last 24 hours";
-	foreach ( $temps as $k => $v ) {
-		$temps [$k] = decimateArray ( $v, 5 );
-	}
+	// foreach ( $temps as $k => $v ) {
+	// $temps [$k] = decimateArray ( $v, 5 );
+	// }
+	$temps ["demanded"] = decimateArray ( $temps ["demanded"], 20 );
+	$temps ["temperature"] = deltaArray(smoothArray ( $temps ["temperature"], 1, 1 ), 0.025);
 	$min_y = floor ( graphValMin ( $temps ) );
 	$max_y = ceil ( graphValMax ( $temps ) );
 	$y_ticks = array ();
@@ -44,35 +59,35 @@ if ($temps && count ( $temps[array_keys($temps)[0]] ) > 2) {
 		$y_ticks [$i] = $i . "C";
 	}
 } else {
-	
-// 	$tsnow = timestampNow ();
-// 	$yr = timestampFormat ( $tsnow, "Y" );
 
-// 	$summer_solstice = "0621";
-// 	$high_temperature_min = 21;
-// 	$high_temperature_max = 33;
-// 	$high_delta_temperature = ($high_temperature_max - $high_temperature_min) / 2;
-// 	$high_mid_temperature = $high_temperature_min + $high_delta_temperature;
+	// $tsnow = timestampNow ();
+	// $yr = timestampFormat ( $tsnow, "Y" );
 
-// 	$low_temperature_min = 5;
-// 	$low_temperature_max = 10;
-// 	$low_delta_temperature = ($low_temperature_max - $low_temperature_min) / 2;
-// 	$low_mid_temperature = $low_temperature_min + $low_delta_temperature;
+	// $summer_solstice = "0621";
+	// $high_temperature_min = 21;
+	// $high_temperature_max = 33;
+	// $high_delta_temperature = ($high_temperature_max - $high_temperature_min) / 2;
+	// $high_mid_temperature = $high_temperature_min + $high_delta_temperature;
 
-// 	$deg_step = 360 / 365;
-// 	$tsnow = $yr . $summer_solstice . "000000";
-// 	for($i = 0; $i < 365; $i ++) {
-// 		if (timestampFormat ( $tsnow, "md" ) == "0229") {
-// 			$tsnow = timestampAdd ( $tsnow, numDays ( 1 ) );
-// 		}
-// 		$hi [timestamp2Time ( $tsnow )] = $high_mid_temperature + $high_delta_temperature * cos ( deg2rad ( $i * $deg_step ) );
-// 		$lo [timestamp2Time ( $tsnow )] = $low_mid_temperature + $low_delta_temperature * cos ( deg2rad ( $i * $deg_step ) );
-// 		$tsnow = timestampAdd ( $tsnow, numDays ( 1 ) );
-// 	}
-// 	$temps = array (
-// 			"high" => $hi,
-// 			"low" => $lo
-// 	);
+	// $low_temperature_min = 5;
+	// $low_temperature_max = 10;
+	// $low_delta_temperature = ($low_temperature_max - $low_temperature_min) / 2;
+	// $low_mid_temperature = $low_temperature_min + $low_delta_temperature;
+
+	// $deg_step = 360 / 365;
+	// $tsnow = $yr . $summer_solstice . "000000";
+	// for($i = 0; $i < 365; $i ++) {
+	// if (timestampFormat ( $tsnow, "md" ) == "0229") {
+	// $tsnow = timestampAdd ( $tsnow, numDays ( 1 ) );
+	// }
+	// $hi [timestamp2Time ( $tsnow )] = $high_mid_temperature + $high_delta_temperature * cos ( deg2rad ( $i * $deg_step ) );
+	// $lo [timestamp2Time ( $tsnow )] = $low_mid_temperature + $low_delta_temperature * cos ( deg2rad ( $i * $deg_step ) );
+	// $tsnow = timestampAdd ( $tsnow, numDays ( 1 ) );
+	// }
+	// $temps = array (
+	// "high" => $hi,
+	// "low" => $lo
+	// );
 }
 
 $x_ticks = 12;

@@ -552,7 +552,7 @@ function rebuildDataModel() {
 		foreach ( $store as $pk => $vals ) {
 			// Sort so they are in the right order. Don't know how they get out of order but still
 			ksort ( $vals );
-			$store [$pk] = smoothValues ( $vals, $smoothing_days, $smoothing_loops );
+			$store [$pk] = smoothArray ( $vals, $smoothing_days, $smoothing_loops );
 		}
 		logger ( LL_INFO, "rebuildDataModel(): Smoothing: performed smoothing" );
 		// echo "Coming out '".array_keys($store)[0]."': ".ob_print_r($store[array_keys($store)[0]])."\n";

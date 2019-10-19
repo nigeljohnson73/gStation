@@ -40,14 +40,14 @@ function decimateArray($arr, $n = 2) {
 	return $ret;
 }
 
-function smoothValues($arr, $n = 1, $l = 1) {
+function smoothArray($arr, $n = 1, $l = 1) {
 	for($i = 0; $i < $l; $i ++) {
-		$arr = _smoothValues ( $arr, $n );
+		$arr = _smoothArray ( $arr, $n );
 	}
 	return $arr;
 }
 
-function _smoothValues($arr, $n = 1) {
+function _smoothArray($arr, $n = 1) {
 	$keys = array_keys ( $arr );
 	$ret = array ();
 	foreach ( $keys as $i => $key ) {
