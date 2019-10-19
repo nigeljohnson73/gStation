@@ -4,6 +4,8 @@ Germination station was originally designed to control the heat and light for a 
 conditions anywhere in the world. The upside is that it will also control the heat and light requirements for full sized plant instalations, 
 hydropnics stations even reptile vivariums. 
 
+Raspberry PI GPIO pin-out: https://raw.githubusercontent.com/DigitalLumberjack/mk_arcade_joystick_rpi/master/wiki/images/mk_joystick_arcade_GPIOsb+.png
+
 ## Possible implementation things to do
 
 An I2C bus temp/humidity sensor

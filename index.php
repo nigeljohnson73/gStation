@@ -93,7 +93,11 @@ Last temp: <?php print_r(tfn(lastTemp())) ?></pre>
 
 	<div class="row">
 		<div class="container-fluid text-center">
+<?php if ($darksky_key !== ""): ?>
 		<a target="DarkSky" href="https://darksky.net/poweredby/"><img src="https://darksky.net/dev/img/attribution/poweredby.png" alt="Powered by Dark Sky" style="width:150px;" /></a>
+<?php else: ?>
+		<a target="DarkSky" href="https://tribalrhino.com/"><img src="gfx/poweredby.png" alt="Powered by Tribal Rhino" style="width:150px;" /></a>
+<?php endif ?>
 		</div>
 	</div>
 </body>

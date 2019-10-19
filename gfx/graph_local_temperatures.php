@@ -26,30 +26,6 @@ function getLocalTemps() {
 
 $temps = getLocalTemps ();
 
-function deltaDecimateArray($arr, $delta, $same_lim) {
-	$debug = false;
-	if ($debug) {
-		echo "Start count: " . count ( $arr ) . "<br>";
-	}
-	$kk = null;
-	$vv = null;
-	$ret = array ();
-	$same = 0;
-	foreach ( $arr as $k => $v ) {
-		if ($kk == null || abs ( $vv - $v ) >= $delta || $same > $same_lim) {
-			$kk = $k;
-			$vv = $v;
-			$ret [$k] = $v;
-			$same = 0;
-		} else {
-			$same ++;
-		}
-	}
-	if ($debug) {
-		echo "Ret count: " . count ( $ret ) . "<br>";
-	}
-	return $ret;
-}
 // Lets have some axes regardless of data
 $legend = "Not enough local temperature measurements have been gathered";
 $min_y = 0;

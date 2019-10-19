@@ -8,6 +8,33 @@ ini_set ( 'display_errors', 'on' );
 // All calcuations are done in UTC
 date_default_timezone_set ( "UTC" );
 
+// decimates up to the limit if the values are within the delta tolerance
+function deltaDecimateArray($arr, $delta, $same_lim) {
+	$debug = false;
+	if ($debug) {
+		echo "Start count: " . count ( $arr ) . "<br>";
+	}
+	$kk = null;
+	$vv = null;
+	$ret = array ();
+	$same = 0;
+	foreach ( $arr as $k => $v ) {
+		if ($kk == null || abs ( $vv - $v ) >= $delta || $same > $same_lim) {
+			$kk = $k;
+			$vv = $v;
+			$ret [$k] = $v;
+			$same = 0;
+		} else {
+			$same ++;
+		}
+	}
+	if ($debug) {
+		echo "Ret count: " . count ( $ret ) . "<br>";
+	}
+	return $ret;
+}
+
+// removes valused from the array and averages the repalcements (keys are the first value)
 function decimateArray($arr, $n = 2) {
 	$i = 0;
 	$k = null;
