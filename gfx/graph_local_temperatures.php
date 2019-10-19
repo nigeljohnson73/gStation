@@ -26,16 +26,27 @@ function getLocalTemps() {
 
 $temps = getLocalTemps ();
 
-function deltaArray($arr, $delta) {
+function deltaDecimateArray($arr, $delta, $same_lim) {
+	$debug = false;
+	if ($debug) {
+		echo "Start count: " . count ( $arr ) . "<br>";
+	}
 	$kk = null;
 	$vv = null;
 	$ret = array ();
+	$same = 0;
 	foreach ( $arr as $k => $v ) {
-		if ($kk == null || abs ( $vv - $v ) >= $delta) {
+		if ($kk == null || abs ( $vv - $v ) >= $delta || $same > $same_lim) {
 			$kk = $k;
 			$vv = $v;
 			$ret [$k] = $v;
+			$same = 0;
+		} else {
+			$same ++;
 		}
+	}
+	if ($debug) {
+		echo "Ret count: " . count ( $ret ) . "<br>";
 	}
 	return $ret;
 }
@@ -50,8 +61,10 @@ if ($temps && count ( $temps [array_keys ( $temps ) [0]] ) > 2) {
 	// foreach ( $temps as $k => $v ) {
 	// $temps [$k] = decimateArray ( $v, 5 );
 	// }
-	$temps ["demanded"] = decimateArray ( $temps ["demanded"], 20 );
-	$temps ["temperature"] = deltaArray(smoothArray ( $temps ["temperature"], 1, 1 ), 0.025);
+	$temps ["demanded"] = decimateArray ( $temps ["demanded"], 30 );
+	//$temps ["temperature"] = deltaDecimateArray ( smoothArray ( $temps ["temperature"], 1, 1 ), 0.1, 30 );
+	//$temps ["temperature"] = smoothArray ( deltaDecimateArray ( $temps ["temperature"], 0.1, 20 ), 1, 1 );
+	$temps ["temperature"] = deltaDecimateArray ( $temps ["temperature"], 0.1, 30 );
 	$min_y = floor ( graphValMin ( $temps ) );
 	$max_y = ceil ( graphValMax ( $temps ) );
 	$y_ticks = array ();
