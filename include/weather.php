@@ -184,12 +184,14 @@ function readSensors($quiet = false) {
 		}
 	} else {
 		$temperature = ($temperature + 0) / 1000;
-		$demand_temperature = getConfig ( "temperature_demand", 999999 );
+		$demand_temperature = getConfig ( "temperature_demand", null );
 
-		$mysql->query ( "REPLACE INTO temperature_logger (temperature, demanded) VALUES (?, ?)", "dd", array (
-				$temperature,
-				$demand_temperature
-		) );
+		if ($demand_temperature !== null) {
+			$mysql->query ( "REPLACE INTO temperature_logger (temperature, demanded) VALUES (?, ?)", "dd", array (
+					$temperature,
+					$demand_temperature
+			) );
+		}
 
 		$msg = "tick(): Local temperature: " . $temperature . "C";
 		logger ( LL_DEBUG, $msg );

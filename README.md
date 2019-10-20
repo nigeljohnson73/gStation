@@ -74,6 +74,7 @@ Log on to the PI
 * Network Options -> Hostname (gstation.local)
 * Interfaceing options -> I2C -> yes
 * Interfaceing options -> serial -> no
+* Interfaceing options -> One wire -> yes
 * Update
 * Finish (will reboot)
 
@@ -126,34 +127,33 @@ Test that from a remote browser
     FLUSH PRIVILEGES;
     quit
     
-    sudo phpenmod mysqli -y
+    sudo phpenmod mysqli
     
     sudo mkdir /logs
     sudo chown -R pi:www-data /logs
     sudo chmod -R g+w /logs
     
-    apt install git -y
+    sudo mkdir /webroot
+    sudo chown -R pi:www-data /webroot
+    sudo chmod -R g+w /webroot
+    
+    sudo apt install git -y
     cd /webroot
     git config --global credential.helper store
     sudo git clone https://github.com/nigeljohnson73/gStation.git
     sudo chown -R pi:www-data /webroot
     sudo chmod -R g+w /webroot
-    cd gstation
-    cp config.php config_override.php
+    cd gStation
+    cat config.php | grep -v "^$" | grep -v "^//" > config_override.php
     ###php sh/gstation_update.php
     
     cd /var/www/
     sudo mv html html_orig
-    sudo ln -s /webroot/gstation html
+    sudo ln -s /webroot/gStation html
     
     sudo /etc/init.d/apache2 restart
     
-    crontab -e
-    #Add these lines:
-    1 0 * * * /usr/bin/php /webroot/gstation/sh/gstation_update.php
-    * * * * * /usr/bin/php /webroot/gstation/sh/gstation_tick.php
-    
-    sudo apt-get install python3-dev python3-pip
+    sudo apt-get install python3-dev python3-pip -y
     sudo python3 -m pip install --upgrade pip setuptools wheel
     sudo pip3 install Adafruit_DHT
     sudo pip3 install datetime
@@ -167,11 +167,11 @@ Test that from a remote browser
     dtparam=i2c_baudrate=1000000
     
     #button stuff
-    sudo apt install python3-gpiozero
+    sudo apt install python3-gpiozero -y
 
-Finally the rc.local
+Edit the rc.local for booting up
 
-    vi /etc/rc.local
+    sudo vi /etc/rc.local
     ## add to the bottom
 
 	# Set up the GPIO pins for the heat/light
@@ -196,5 +196,17 @@ Finally the rc.local
     
 	# Start the OLED display
     sh /webroot/gStation/sh/oledmonitor.sh &
+
+Add a login handler to the bottom:
+
+    vi ~/.bashrc
+    source /webroot/gStation/sh/bashrc
+
+Finally set up cron to do the ticking and updating
+
+    crontab -e
+    #Add these lines:
+    1 0 * * * /usr/bin/php /webroot/gstation/sh/gstation_update.php
+    * * * * * /usr/bin/php /webroot/gstation/sh/gstation_tick.php
     
 That should do it for now. Reboot and watch the beauty unfold.

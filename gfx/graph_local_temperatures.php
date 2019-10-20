@@ -5,7 +5,7 @@ include_once (dirname ( __FILE__ ) . "/../functions.php");
 function getLocalTemps() {
 	global $mysql;
 	// $res = $mysql->query ( "SELECT * FROM temperature_logger where temperature != 999 ORDER BY entered desc limit 10" );
-	$res = $mysql->query ( "SELECT * FROM temperature_logger where temperature != 999" );
+	$res = $mysql->query ( "SELECT * FROM temperature_logger where temperature != 999999 and demanded != 999999" );
 	// echo "Local temp count: ".count($res)."\n";
 	// var_dump($res);
 	if (is_array ( $res ) && count ( $res ) > 0) {
@@ -25,7 +25,7 @@ function getLocalTemps() {
 }
 
 $temps = getLocalTemps ();
-
+//echo "<pre>".ob_print_r($temps)."</pre>";
 // Lets have some axes regardless of data
 $legend = "Not enough local temperature measurements have been gathered";
 $min_y = 0;
