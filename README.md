@@ -122,7 +122,7 @@ Test that from a remote browser
     CREATE DATABASE gs;
     DROP USER IF EXISTS 'gs'@'localhost';
     CREATE USER 'gs_user'@'localhost' IDENTIFIED BY 'gs_passwd';
-    ALTER USER 'gs_user'@'localhost' IDENTIFIED WITH mysql_native_password BY 'gs_passwd';
+    ALTER USER 'gs_user'@'localhost' IDENTIFIED WITH mysql_native_password BY 'gs_passwd'; # may not work on the pi
     GRANT ALL PRIVILEGES ON gs.* TO 'gs_user'@'localhost';
     FLUSH PRIVILEGES;
     quit
@@ -140,6 +140,8 @@ Test that from a remote browser
     sudo apt install git -y
     cd /webroot
     git config --global credential.helper store
+    git config --global user.email "nigel@nigeljohnson.net"
+    git config --global user.name "Nigel Johnson"
     sudo git clone https://github.com/nigeljohnson73/gStation.git
     sudo chown -R pi:www-data /webroot
     sudo chmod -R g+w /webroot

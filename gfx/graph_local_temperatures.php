@@ -4,7 +4,7 @@ include_once (dirname ( __FILE__ ) . "/../functions.php");
 
 function getLocalTemps() {
 	global $mysql;
-	// $res = $mysql->query ( "SELECT * FROM temperature_logger where temperature != 999 ORDER BY entered desc limit 10" );
+	// $res = $mysql->query ( "SELECT * FROM temperature_logger where temperature != 999999 and demanded != 999999 and entered >= DATE_SUB(NOW(), INTERVAL 12 HOUR)" );
 	$res = $mysql->query ( "SELECT * FROM temperature_logger where temperature != 999999 and demanded != 999999" );
 	// echo "Local temp count: ".count($res)."\n";
 	// var_dump($res);
@@ -24,8 +24,9 @@ function getLocalTemps() {
 	return null;
 }
 
+$dbg = false;
 $temps = getLocalTemps ();
-//echo "<pre>".ob_print_r($temps)."</pre>";
+// echo "<pre>".ob_print_r($temps)."</pre>";
 // Lets have some axes regardless of data
 $legend = "Not enough local temperature measurements have been gathered";
 $min_y = 0;
@@ -37,10 +38,32 @@ if ($temps && count ( $temps [array_keys ( $temps ) [0]] ) > 2) {
 	// foreach ( $temps as $k => $v ) {
 	// $temps [$k] = decimateArray ( $v, 5 );
 	// }
-	$temps ["demanded"] = decimateArray ( $temps ["demanded"], 30 );
-	//$temps ["temperature"] = deltaDecimateArray ( smoothArray ( $temps ["temperature"], 1, 1 ), 0.1, 30 );
-	//$temps ["temperature"] = smoothArray ( deltaDecimateArray ( $temps ["temperature"], 0.1, 20 ), 1, 1 );
-	$temps ["temperature"] = deltaDecimateArray ( $temps ["temperature"], 0.1, 30 );
+	$dcount = count ( $temps ["demanded"] );
+	logger ( LL_INFO, "graphLocalTemps(): Got demanded count: " . count ( $temps ["demanded"] ) );
+
+	$dcount_max = 100;
+	if ($dcount >= (2 * $dcount_max)) {
+		logger ( LL_INFO, "graphLocalTemps(): calling decimateArray()" );
+		$temps ["demanded"] = decimateArray ( $temps ["demanded"], floor ( $dcount / $dcount_max ) );
+	}
+	logger ( LL_INFO, "graphLocalTemps(): Rendering demanded count: " . count ( $temps ["demanded"] ) );
+
+	// $temps ["temperature"] = deltaDecimateArray ( smoothArray ( $temps ["temperature"], 1, 1 ), 0.1, 30 );
+	// $temps ["temperature"] = smoothArray ( deltaDecimateArray ( $temps ["temperature"], 0.1, 20 ), 1, 1 );
+	$tcount = count ( $temps ["temperature"] );
+	logger ( LL_INFO, "graphLocalTemps(): Got temp count: " . count ( $temps ["temperature"] ) );
+
+	$tcount_max = 400;
+	if ($tcount >= (2 * $tcount_max)) {
+		logger ( LL_INFO, "graphLocalTemps(): calling deltaDecimateArray()" );
+		$temps ["temperature"] = deltaDecimateArray ( $temps ["temperature"], 0.1, floor ( $tcount / $tcount_max ) );
+	} else {
+		logger ( LL_INFO, "graphLocalTemps(): calling smoothArray()" );
+		$temps ["temperature"] = smoothArray ( $temps ["temperature"], 1, 1 );
+	}
+	logger ( LL_INFO, "graphLocalTemps(): Rendering temp count: " . count ( $temps ["temperature"] ) );
+	;
+
 	$min_y = floor ( graphValMin ( $temps ) );
 	$max_y = ceil ( graphValMax ( $temps ) );
 	$y_ticks = array ();

@@ -39,8 +39,7 @@ function setupTables() {
 function clearSensorLogger() {
 	global $mysql;
 	setupTables ();
-	$mysql->query ( "DELETE FROM temperature_logger where entered < '" . timestampFormat ( timestampAdd ( timestampNow (), numDays ( - 1 ) ), "Y-m-d H:i:s" ) . "'" );
-	// $mysql->query ( "DELETE FROM temperature_gradient_logger where entered < '" . timestampFormat ( timestampAdd ( timestampNow (), numDays ( - 1 ) ), "Y-m-d H:i:s" ) . "'" );
+	$mysql->query ( "DELETE FROM temperature_logger where entered < DATE_SUB(NOW(), INTERVAL 24 HOUR)" );
 }
 
 function lastTemp() {
