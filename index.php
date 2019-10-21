@@ -57,7 +57,11 @@ $mon = timestampFormat ( timestampNow (), "m" ); // 10;
 					// tick();
 					// $status = getConfig("STATUS", "NIGHT");
 					echo "Processing weather at " . timestampFormat ( timestampNow (), "Y-m-d\TH:i:s T" ) . "\n";
-					echo "Location: " . $loc . " (" . latToDms ( $lat ) . ", " . lngToDms ( $lng ) . ")\n";
+					if($darksky_key) {
+						echo "Location: " . $loc . " (" . latToDms ( $lat ) . ", " . lngToDms ( $lng ) . ")\n";
+					} else {
+						echo "Location: SIMULATED ENVIRONMENT\n";
+					}
 					echo "Current status: '" . getConfig ( "STATUS", "---" ) . "'\n";
 ?>
 Current data: <?php print_r(getModel(timestampNow())) ?>
