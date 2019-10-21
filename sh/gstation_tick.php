@@ -48,7 +48,7 @@ foreach ( $secs as $k => $s ) {
 	if (isset ( $secs [$k + 1] )) {
 		$wake = $secs [$k + 1];
 		$sleep = ($wake - $now);
-		echo "need to sleep " . $sleep . " seconds\n";
+		echo "need to sleep " . sprintf("%0.2f", $sleep) . " seconds\n";
 		usleep ( $sleep * 1000000 );
 	} else {
 		echo "Job done\n";

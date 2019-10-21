@@ -208,7 +208,7 @@ Finally set up cron to do the ticking and updating
 
     crontab -e
     #Add these lines:
-    1 0 * * * /usr/bin/php /webroot/gstation/sh/gstation_update.php
-    * * * * * /usr/bin/php /webroot/gstation/sh/gstation_tick.php
+    1 0 * * * /usr/bin/php /webroot/gStation/sh/gstation_update.php > /tmp/gstation_update.txt 2>/dev/null
+    * * * * * /usr/bin/php /webroot/gStation/sh/gstation_tick.php > /tmp/gstation_tick.txt 2>/dev/null
     
 That should do it for now. Reboot and watch the beauty unfold.
