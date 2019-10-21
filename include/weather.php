@@ -43,17 +43,18 @@ function clearSensorLogger() {
 }
 
 function lastTemp() {
-	$n = 2;
+	$n = 4;
 	global $mysql, $temperature_buffer;
 	$rows = $mysql->query ( "SELECT * FROM temperature_logger ORDER BY entered DESC LIMIT " . $n );
 	$ret = null;
 	if (is_array ( $rows ) && count ( $rows ) > 0) {
-		$ret ["demanded"] = $rows [0] ["demanded"];
+		$dems = array();
 		$temps = array ();
 		// $times = array ();
 		foreach ( $rows as $row ) {
 			$row = ( object ) $row;
 			$temps [] = $row->temperature;
+			$dems [] = $row->demanded;
 			$times [] = timestamp2Time ( $row->entered );
 		}
 		// $temps_raw = $temps;
@@ -61,15 +62,17 @@ function lastTemp() {
 		$crawl = $times [0] - $times [count ( $times ) - 1];
 		$m = $fall / $crawl;
 
+		$ret ["demanded"] = $dems [count ( $dems ) - 1];
 		$ret ["temperature"] = $temps [count ( $temps ) - 1];
 		$ret ["direction"] = ($m == 0) ? (0) : (($m > 0) ? (1) : (0));
 
 		$str = "lastTemp($n):";
-		$str .= ", F:" . sprintf ( "%02.3f", $fall ) . "° ";
-		$str .= ", C:" . sprintf ( "%02.3f", $crawl ) . "s ";
-		$str .= ", M:" . sprintf ( "%02.3f", $m );
-		$str .= ", T:" . sprintf ( "%02.3f", $ret ["temperature"] );
-		$str .= ", DIR:" . $ret ["direction"];
+		$str .= ", Fall:" . sprintf ( "%02.3f", $fall ) . "° ";
+		$str .= ", Crawl:" . sprintf ( "%02.3f", $crawl ) . "s ";
+		$str .= ", Grad:" . sprintf ( "%02.3f", $m );
+		$str .= ", Dem:" . sprintf ( "%02.3f", $ret ["demanded"] );
+		$str .= ", Temp:" . sprintf ( "%02.3f", $ret ["temperature"] );
+		$str .= ", Dir:" . $ret ["direction"];
 		logger ( LL_INFO, $str );
 	}
 	return ( object ) $ret;
@@ -633,15 +636,32 @@ function rebuildDataModel() {
 }
 
 function getModel($ts = null) {
+	if ($ts != null && ! is_array ( $ts )) {
+		$ts = array (
+				$ts
+		);
+	}
 	$expected = 365;
 	$sql = "SELECT * FROM model";
 
 	if ($ts != null) {
-		$expected = 1;
-		if ($ts == "0229") {
-			$ts = "0228"; // No leap years
+		$esql = "";
+		if (count ( $ts ) == 1) {
+			$sql .= " WHERE id = ";
+		} else {
+			$sql .= " WHERE id IN (";
+			$esql = ")";
 		}
-		$sql .= " WHERE id = '" . timestampFormat ( $ts, "md" ) . "'";
+		$expected = count ( $ts );
+		$comma = "";
+		foreach ( $ts as $t ) {
+			if ($t == "0229") {
+				$t = "0228"; // No leap years
+			}
+			$sql .= $comma . "'" . timestampFormat ( $t, "md" ) . "'";
+			$comma = ", ";
+		}
+		$sql .= $esql;
 	}
 
 	global $mysql;
@@ -687,14 +707,19 @@ function modelStatus() {
 	global $mysql;
 
 	$ret = new StdClass ();
-	$raw = getDarkSkyDataPoints ( null, true );
-	$valid = getDarkSkyDataPoints ( null, false );
 
-	$ret->dataPointTotal = count ( $raw );
-	$ret->dataPointValid = count ( $valid );
-	$ret->dataPointInvalid = count ( $raw ) - count ( $valid );
-	$ret->dataPointPerDay = floor ( count ( $raw ) / 365 );
-
+	global $darksky_key;
+	if ($darksky_key !== "") {
+		$ret->modelUsed = "DarkSky";
+		$raw = getDarkSkyDataPoints ( null, true );
+		$valid = getDarkSkyDataPoints ( null, false );
+		$ret->dataPointTotal = count ( $raw );
+		$ret->dataPointValid = count ( $valid );
+		$ret->dataPointInvalid = count ( $raw ) - count ( $valid );
+		$ret->dataPointPerDay = floor ( count ( $raw ) / 365 );
+	} else {
+		$ret->modelUsed = "Simulation";
+	}
 	$rows = $mysql->query ( "select max(last_updated) as ud from model" );
 	if ($rows && count ( $rows )) {
 		$ret->lastModelRebuild = $rows [0] ["ud"];

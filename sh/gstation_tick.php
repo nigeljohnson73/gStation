@@ -11,7 +11,7 @@ clearSensorLogger();
 
 logger ( LL_INFO, "tick(): started" );
 $call_delay = 5;
-$last_tick = 55;
+$last_tick = 57;
 
 function nowSecond() {
 	return timestampFormat ( timestampNow (), "s" ) + 0;

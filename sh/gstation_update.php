@@ -20,10 +20,20 @@ echo "\n";
 echo "Update complete\n\n";
 
 $model = getModel ();
+echo "Rows in Model: ".count($model)."\n";
 echo "June 21:\n" . ob_print_r ( $model ["0621"] );
 echo "\n";
 echo "December 21:\n" . ob_print_r ( $model ["1221"] );
 echo "\n";
+
+$model = getModel ("2019-07-07");
+echo "August 07:\n" . ob_print_r ( $model );
+echo "\n";
+
+$model = getModel (array("2019-03-23", "2019-08-29"));
+echo "March 23, and August 29:\n" . ob_print_r ( $model );
+echo "\n";
+
 
 $str = $logger->getString ();
 if (strlen ( trim ( $str ) ) == 0) {
