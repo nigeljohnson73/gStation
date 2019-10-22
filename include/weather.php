@@ -44,7 +44,7 @@ function clearSensorLogger() {
 
 function lastTemp() {
 	$n = 4;
-	$sig_temp_diff = 0;// anything is good for now
+	$sig_temp_diff = 0.001;// anything is good for now
 	global $mysql, $temperature_buffer;
 	$rows = $mysql->query ( "SELECT * FROM temperature_logger ORDER BY entered DESC LIMIT " . $n );
 	$ret = null;
@@ -65,7 +65,7 @@ function lastTemp() {
 
 		$ret ["demanded"] = $dems [count ( $dems ) - 1];
 		$ret ["temperature"] = $temps [count ( $temps ) - 1];
-		$ret ["direction"] = (abs($m) < $sig_temp_diff) ? (0) : (($m > 0) ? (1) : (-1));
+		$ret ["direction"] = (abs($m) <= $sig_temp_diff) ? (0) : (($m > 0) ? (1) : (-1));
 
 		$str = "lastTemp($n):";
 		$str .= ", Fall:" . sprintf ( "%02.3f", $fall ) . "° ";
