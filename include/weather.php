@@ -43,13 +43,13 @@ function clearSensorLogger() {
 }
 
 function lastTemp() {
-	$n = 4;
-	$sig_temp_diff = 0.001;// anything is good for now
+	$n = 7;
+	$sig_temp_diff = 0.001; // anything is good for now
 	global $mysql, $temperature_buffer;
 	$rows = $mysql->query ( "SELECT * FROM temperature_logger ORDER BY entered DESC LIMIT " . $n );
 	$ret = null;
 	if (is_array ( $rows ) && count ( $rows ) > 0) {
-		$dems = array();
+		$dems = array ();
 		$temps = array ();
 		// $times = array ();
 		foreach ( $rows as $row ) {
@@ -58,23 +58,27 @@ function lastTemp() {
 			$dems [] = $row->demanded;
 			$times [] = timestamp2Time ( $row->entered );
 		}
+		// print_r($temps);
 		// $temps_raw = $temps;
 		$fall = $temps [0] - $temps [count ( $temps ) - 1];
 		$crawl = $times [0] - $times [count ( $times ) - 1];
 		$m = $fall / $crawl;
 
-		$ret ["demanded"] = $dems [count ( $dems ) - 1];
-		$ret ["temperature"] = $temps [count ( $temps ) - 1];
-		$ret ["direction"] = (abs($m) <= $sig_temp_diff) ? (0) : (($m > 0) ? (1) : (-1));
+		$ret ["demanded"] = sprintf ( "%02.03f", $dems [count ( $dems ) - 1] );
+		$ret ["temperature"] = sprintf ( "%02.03f", $temps [count ( $temps ) - 1] );
+		$ret ["direction"] = (abs ( $m ) <= $sig_temp_diff) ? (0) : (($m > 0) ? (1) : (- 1));
+		$ret ["dbg_fall"] = sprintf ( "%02.03f", $fall );
+		$ret ["dbg_crawl"] = sprintf ( "%02.03f", $crawl );
+		$ret ["dbg_grad"] = sprintf ( "%02.03f", $m );
 
 		$str = "lastTemp($n):";
-		$str .= ", Fall:" . sprintf ( "%02.3f", $fall ) . "° ";
-		$str .= ", Crawl:" . sprintf ( "%02.3f", $crawl ) . "s ";
-		$str .= ", Grad:" . sprintf ( "%02.3f", $m );
-		$str .= ", Dem:" . sprintf ( "%02.3f", $ret ["demanded"] );
-		$str .= ", Temp:" . sprintf ( "%02.3f", $ret ["temperature"] );
+		$str .= ", Fall:" . sprintf ( "%0.3d", $fall ) . "° ";
+		$str .= ", Crawl:" . sprintf ( "%0.1d", $crawl ) . "s ";
+		$str .= ", Grad:" . sprintf ( "%0.3d", $m );
+		$str .= ", Dem:" . sprintf ( "%0.2d", $ret ["demanded"] );
+		$str .= ", Temp:" . sprintf ( "%0.2d", $ret ["temperature"] );
 		$str .= ", Dir:" . $ret ["direction"];
-		logger ( LL_INFO, $str );
+		logger ( LL_DBG, $str );
 	}
 	return ( object ) $ret;
 }
@@ -254,14 +258,14 @@ function tick($quiet = false) {
 	$demand_temperature = ($status == "DAY") ? ($data->temperatureHigh) : ($data->temperatureLow);
 	setConfig ( "temperature_demand", $demand_temperature );
 
-	$temperature = lastTemp ();
+	$lt = lastTemp ();
 	if (! $quiet) {
-		echo "Last temp: " . ob_print_r ( $temperature ) . "\n";
+		echo "Last temp: " . ob_print_r ( $lt ) . "\n";
 	}
-	$direction_temperature = $temperature->direction;
+	$direction_temperature = $lt->direction;
 	setConfig ( "temperature_direction", $direction_temperature );
 
-	$temperature = $temperature->temperature;
+	$temperature = $lt->temperature;
 	setConfig ( "temperature", $temperature );
 
 	// Work out whether we need to switch the heater on
@@ -273,18 +277,27 @@ function tick($quiet = false) {
 	 * Send the sumary to the OLED display
 	 */
 	// $str = round ( $temperature, 2 ) . "° " . $status . " " . (($heat) ? ("(#)") : ("(_)"));
-	$str = "" . sprintf ( "%02.1f", $temperature ) . "° ";
-	$str .= ($direction_temperature == 0) ? ("-") : (($direction_temperature > 0) ? ("^") : ("v"));
+	$ostr = "" . sprintf ( "%02.1f", $temperature ) . "° ";
+	$ostr .= ($direction_temperature == 0) ? ("-") : (($direction_temperature > 0) ? ("^") : ("v"));
 	// $str .= ($direction_temperature == 0) ? ("--") : (($direction_temperature > 0) ? ("/\\") : ("\\/"));
-	$str .= " " . sprintf ( "%02.1f", $demand_temperature ) . "°";
-	$str .= "|";
-	$str .= (($heat) ? ("H[#]") : ("H[ ]")) . " " . (($status == "DAY") ? ("[#]L") : ("[ ]L"));
+	$ostr .= " " . sprintf ( "%02.1f", $demand_temperature ) . "°";
+	$ostr .= "|";
+	$ostr .= (($heat) ? ("H[#]") : ("H[ ]")) . " " . (($status == "DAY") ? ("[#]L") : ("[ ]L"));
 
 	// $status . " " . (($heat) ? ("(#)") : ("(_)"));
-	$log = timestampFormat ( timestampNow (), "H:i:s" ) . "; dem: " . round ( $demand_temperature, 2 ) . ", act: " . round ( $temperature, 2 ) . ", dir: $direction_temperature, OLED: '$str'";
-	logger ( LL_INFO, $log );
-	echo "$log\n";
-	setOled ( $str );
+	$lstr = "";
+	$lstr .= "Temp: " . sprintf ( "%0.02f", $lt->temperature ) . "°";
+	$lstr .= ", Dem: " . sprintf ( "%0.02f", $lt->demanded ) . "°";
+	$lstr .= ", Dir: " . (($lt->direction == 0) ? ("-") : (($lt->direction > 0) ? ("U") : ("D")));
+	$lstr .= " (Fall: " . sprintf ( "%0.03f", $lt->dbg_fall ) . "°";
+	$lstr .= ", Crawl: " . sprintf ( "%0.01f", $lt->dbg_crawl ) . "s";
+	$lstr .= ", Grad: " . sprintf ( "%0.03f", $lt->dbg_grad );
+	$lstr .= ")";
+	$lstr .= ", OLED: '" . $ostr."'";
+	// $log = timestampFormat ( timestampNow (), "H:i:s" ) . "; dem: " . round ( $demand_temperature, 2 ) . ", act: " . round ( $temperature, 2 ) . ", dir: $direction_temperature, OLED: '$str'";
+	logger ( LL_INFO, $lstr );
+	echo "$lstr\n";
+	setOled ( $ostr );
 }
 
 function darkSkyObj($data, $id = null) {
