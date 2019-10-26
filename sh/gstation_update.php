@@ -1,7 +1,7 @@
 <?php
 include_once (dirname ( __FILE__ ) . "/../functions.php");
 
-$ts = timestampNow ();
+$tsnow = timestampNow ();
 
 echo "\nChecking status at " . timestampFormat ( $tsnow, "Y-m-d\TH:i:s T" ) . "\n";
 if ($darksky_key != "") {
