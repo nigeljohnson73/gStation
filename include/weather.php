@@ -277,10 +277,13 @@ function tick($quiet = false) {
 	 * Send the sumary to the OLED display
 	 */
 	// $str = round ( $temperature, 2 ) . "° " . $status . " " . (($heat) ? ("(#)") : ("(_)"));
-	$ostr = "" . sprintf ( "%02.1f", $temperature ) . "° ";
-	$ostr .= ($direction_temperature == 0) ? ("-") : (($direction_temperature > 0) ? ("^") : ("v"));
-	// $str .= ($direction_temperature == 0) ? ("--") : (($direction_temperature > 0) ? ("/\\") : ("\\/"));
-	$ostr .= " " . sprintf ( "%02.1f", $demand_temperature ) . "°";
+	$ostr = "";
+	$ostr .= "" . sprintf ( "%02.1f", $temperature ) . "°";
+	//$ostr .= $direction_temperature. " ";
+	$ostr .= " D" . (($direction_temperature == 0) ? ("-") : (($direction_temperature > 0) ? ("^") : ("v")));
+	//$ostr .= " " . sprintf ( "%02.1f", $demand_temperature ) . "°";
+	$ostr .= " H" .(($heat) ? ("X") : ("_"));
+	$ostr .= " L" .(($status == "DAY") ? ("X") : ("_"));
 	$ostr .= "|";
 	$ostr .= (($heat) ? ("H[#]") : ("H[ ]")) . " " . (($status == "DAY") ? ("[#]L") : ("[ ]L"));
 
