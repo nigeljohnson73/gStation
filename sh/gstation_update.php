@@ -1,6 +1,5 @@
 <?php
 include_once (dirname ( __FILE__ ) . "/../functions.php");
-
 $tsnow = timestampNow ();
 
 echo "\nChecking status at " . timestampFormat ( $tsnow, "Y-m-d\TH:i:s T" ) . "\n";
@@ -35,8 +34,8 @@ echo "\n";
 // echo "\n";
 
 // $model = getModel ( array (
-// 		"2019-03-23",
-// 		"2019-08-29"
+// "2019-03-23",
+// "2019-08-29"
 // ) );
 // echo "March 23, and August 29:\n" . ob_print_r ( $model );
 // echo "\n";

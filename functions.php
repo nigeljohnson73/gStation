@@ -276,20 +276,24 @@ function timestampDay($ts) {
 	return timestampFormat ( $ts, "Ymd" ) . "000000";
 }
 
-function periodFormat($secs) {
+function periodFormat($secs, $short = false) {
 	$h = $secs / 3600;
+	$hflag = ($short) ? ("h") : (" hour");
+	$mflag = ($short) ? ("m") : (" min");
 	// this takes a duration in seconds and outputs in hours and
 	// minutes to the nearest minute - is use is for kind of "about" times.
 	$estr = "";
 	$hours = floor ( $h );
 	if ($hours) {
 		$hours = number_format ( $hours, 0 );
-		$estr .= $hours . " hour";
-		$pl = "s";
-		if ($hours == 1) {
-			$pl = "";
+		$estr .= $hours . $hflag;
+		if (! $short) {
+			$pl = "s";
+			if ($hours == 1) {
+				$pl = "";
+			}
+			$estr .= $pl;
 		}
-		$estr .= $pl;
 	}
 
 	$mins = $h - $hours;
@@ -299,12 +303,14 @@ function periodFormat($secs) {
 		if (strlen ( $estr )) {
 			$estr .= " ";
 		}
-		$estr .= $mins . " min";
-		$pl = "s";
-		if ($mins == 1) {
-			$pl = "";
+		$estr .= $mins . $mflag;
+		if (! $short) {
+			$pl = "s";
+			if ($mins == 1) {
+				$pl = "";
+			}
+			$estr .= $pl;
 		}
-		$estr .= $pl;
 	}
 	return $estr;
 }
