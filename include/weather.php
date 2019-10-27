@@ -763,13 +763,25 @@ function nextSunChange() {
 	$ret = "";
 	if ($nowoffset < $model [timestampFormat ( $today, "md" )]->sunriseOffset) {
 		$secs = $model [timestampFormat ( $today, "md" )]->sunriseOffset - $nowoffset;
-		$ret = "Sunrise " . periodFormat ( $secs, true );
+		if($secs>60) {
+			$ret = "Sunrise " . periodFormat ( $secs, true );
+		} else {
+			$ret = "Sunrise < 1m";
+		}
 	} elseif ($nowoffset < $model [timestampFormat ( $today, "md" )]->sunsetOffset) {
 		$secs = $model [timestampFormat ( $today, "md" )]->sunsetOffset - $nowoffset;
-		$ret = "Sunset " . periodFormat ( $secs, true );
+		if($secs >60) {
+			$ret = "Sunset " . periodFormat ( $secs, true );
+		} else {
+			$ret = "Sunset < 1m";
+		}
 	} else {
 		$secs = $model [timestampFormat ( $tomorrow, "md" )]->sunriseOffset - $nowoffset + (24 * 60 * 60);
-		$ret = "Sunrise " . periodFormat ( $secs, true );
+		if($secs >60) {
+			$ret = "Sunrise " . periodFormat ( $secs, true );
+		} else {
+			$ret = "Sunrise < 1m";
+		}
 	}
 	return $ret;
 }
