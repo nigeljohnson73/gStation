@@ -22,7 +22,7 @@ holdTime = 1
 # Use the big display
 WIDTH = 128
 HEIGHT = 64
-BORDER = 1
+BORDER = 0
 
 # Loop ender... When done, halt the system!!
 done = False
@@ -47,16 +47,16 @@ def drawText(text):
 	# Draw Some Text
 	font = ImageFont.truetype(os.path.dirname(os.path.abspath(__file__))+"/../fonts/andalemo.ttf", 14)
 	(font_width, font_height) = font.getsize(lines[0])
-	draw.text((oled.width // 2 - font_width // 2, oled.height // 2 - font_height-14 ), lines[0], font=font, fill=255)
+	draw.text((oled.width // 2 - font_width // 2, oled.height // 2 - font_height-12 ), lines[0], font=font, fill=255)
 
 	(font_width, font_height) = font.getsize(lines[1])
-	draw.text((oled.width // 2 - font_width // 2, oled.height // 2 - font_height+7 ), lines[1], font=font, fill=255)
+	draw.text((oled.width // 2 - font_width // 2, oled.height // 2 - font_height+6 ), lines[1], font=font, fill=255)
 
 	now = datetime.now()
 	ts = now.strftime('%Y-%m-%d %H:%M')
 	font = ImageFont.truetype(os.path.dirname(os.path.abspath(__file__))+"/../fonts/andalemo.ttf", 10)
 	(font_width, font_height) = font.getsize(ts)
-	draw.text((oled.width // 2 - font_width // 2, oled.height // 2 + font_height+3 ), ts, font=font, fill=255)
+	draw.text((oled.width // 2 - font_width // 2, oled.height // 2 + font_height+4 ), ts, font=font, fill=255)
     
 	# Display image
 	oled.image(image)

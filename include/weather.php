@@ -282,8 +282,8 @@ function tick($quiet = false) {
 	// $ostr .= $direction_temperature. " ";
 	$ostr .= " D" . (($direction_temperature == 0) ? ("-") : (($direction_temperature > 0) ? ("^") : ("v")));
 	// $ostr .= " " . sprintf ( "%02.1f", $demand_temperature ) . "°";
-	$ostr .= " H" . (($heat) ? ("X") : ("_"));
-	$ostr .= " L" . (($status == "DAY") ? ("X") : ("_"));
+	$ostr .= " H" . (($heat) ? ("X") : ("-"));
+	$ostr .= " L" . (($status == "DAY") ? ("X") : ("-"));
 	$ostr .= "|";
 	$ostr .= nextSunChange ();
 	// $ostr .= (($heat) ? ("H[#]") : ("H[ ]")) . " " . (($status == "DAY") ? ("[#]L") : ("[ ]L"));
@@ -763,13 +763,13 @@ function nextSunChange() {
 	$ret = "";
 	if ($nowoffset < $model [timestampFormat ( $today, "md" )]->sunriseOffset) {
 		$secs = $model [timestampFormat ( $today, "md" )]->sunriseOffset - $nowoffset;
-		$ret = "Sunrise: " . periodFormat ( $secs, true );
+		$ret = "Sunrise " . periodFormat ( $secs, true );
 	} elseif ($nowoffset < $model [timestampFormat ( $today, "md" )]->sunsetOffset) {
 		$secs = $model [timestampFormat ( $today, "md" )]->sunsetOffset - $nowoffset;
-		$ret = "Sunset: " . periodFormat ( $secs, true );
+		$ret = "Sunset " . periodFormat ( $secs, true );
 	} else {
 		$secs = $model [timestampFormat ( $tomorrow, "md" )]->sunriseOffset - $nowoffset + (24 * 60 * 60);
-		$ret = "Sunrise: " . periodFormat ( $secs, true );
+		$ret = "Sunrise " . periodFormat ( $secs, true );
 	}
 	return $ret;
 }
