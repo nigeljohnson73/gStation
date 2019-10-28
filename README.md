@@ -4,27 +4,30 @@
 * Drop wpa_supplicant.conf into the boot disk
 * Drop ssh into the boot disk
 
-Boot the PI and log in
+Boot the PI and log in (password will initally be raspberry)
 
-    rm -rf ~/known_hosts
-    ssh pi@raspberrypi.local (password will be raspberry)
-    passwd (change pi password)
+    rm -rf ~/.ssh/known_hosts
+    ssh pi@raspberrypi.local
+
+Change the password and run the configurator
+
+    passwd
     sudo raspi-config
 
-* Network Options -> Hostname (gstation.local)
+Make the folllowing changes
+
+* Network Options -> Hostname
 * Interfaceing options -> I2C -> yes
 * Interfaceing options -> serial -> no
 * Interfaceing options -> One wire -> yes
 * Exit (will reboot)
 
-Next, log back in with the new password, update Raspian and install all the software we need
+Next, log back in to the new hostname with the new password, update Raspian and install all the software we need
 
     sudo apt update -y
     sudo apt upgrade -y
-    sudo apt update -y
     sudo apt install -y apache2 php php-mbstring mariadb-server php-mysql git python3-dev python3-pip python3-pil i2c-tools python3-gpiozero
-    sudo python3 -m pip install --upgrade pip setuptools wheel
-    sudo pip3 install Adafruit_DHT datetime adafruit-circuitpython-ssd1306
+    sudo pip3 install --upgrade pip setuptools wheel Adafruit_DHT datetime adafruit-circuitpython-ssd1306
     sudo phpenmod mysqli
 
 Make the directories we require
@@ -57,28 +60,11 @@ Move the webroot stuff around
 
 Set up MySQL with the correct root account and a user for the application
 
-    sudo mysql --user=root
-
-Run this SQL
-
-    DROP USER 'root'@'localhost';
-    CREATE USER 'root'@'localhost' IDENTIFIED BY 'Earl1er2day';
-    GRANT ALL PRIVILEGES ON *.* TO 'root'@'localhost' WITH GRANT OPTION;
-    CREATE DATABASE gs;
-    DROP USER IF EXISTS 'gs'@'localhost';
-    CREATE USER 'gs_user'@'localhost' IDENTIFIED BY 'gs_passwd';
-    ALTER USER 'gs_user'@'localhost' IDENTIFIED WITH mysql_native_password BY 'gs_passwd'; # may not work on the pi
-    GRANT ALL PRIVILEGES ON gs.* TO 'gs_user'@'localhost';
-    FLUSH PRIVILEGES;
-    quit
+    sudo mysql --user=root < /webroot/gStation/sh/install.sql
 
 Next, change the I2C refresh rate
 
-    sudo vi /boot/config.txt
-
-Add This line to the end of the file
-
-    dtparam=i2c_baudrate=1000000
+    echo "dtparam=i2c_baudrate=1000000" | sudo tee -a /boot/config.txt
 
 Edit the rc.local for booting up setup
 
