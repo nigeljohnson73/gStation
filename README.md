@@ -75,8 +75,6 @@ Configure the system to set GPIOs up on boot. Fix the rc.local file
     cat /etc/rc.local | grep -v 'exit 0' | sudo tee /etc/rc.local
     cat /webroot/gStation/res/localrc | sudo tee -a /etc/rc.local
 
-
-
 Update the crontab
 
     crontab -e
