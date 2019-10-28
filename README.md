@@ -26,7 +26,7 @@ Next, log back in to the new hostname with the new password, update Raspian and 
 
     sudo apt update -y
     sudo apt upgrade -y
-    sudo apt install -y apache2 php php-mbstring mariadb-server php-mysql git python3-dev python3-pip python3-pil i2c-tools python3-gpiozero
+    sudo apt install -y apache2 php php-mbstring php-gd mariadb-server php-mysql git python3-dev python3-pip python3-pil i2c-tools python3-gpiozero
     sudo pip3 install --upgrade pip setuptools wheel Adafruit_DHT datetime adafruit-circuitpython-ssd1306
     sudo phpenmod mysqli
 
