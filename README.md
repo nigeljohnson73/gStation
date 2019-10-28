@@ -1,8 +1,9 @@
 ## Setting up the Pi
 
 * Burn the latest Raspian image to an SD card
-* Drop wpa_supplicant.conf into the boot disk
-* Drop ssh into the boot disk
+* Drop res/wpa_supplicant.conf into the boot disk
+* Update that file with the details from your router
+* Drop res/ssh file from here into the boot disk
 
 Boot the PI and log in (password will initally be raspberry)
 
