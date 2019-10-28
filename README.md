@@ -60,7 +60,7 @@ Move the webroot stuff around
 
 Set up MySQL with the correct root account and a user for the application
 
-    sudo mysql --user=root < /webroot/gStation/sh/install.sql
+    sudo mysql --user=root < /webroot/gStation/res/install.sql
 
 Next, change the I2C refresh rate
 
@@ -101,7 +101,7 @@ Update the login script so it has a pretty banner and stuff.
 
 At the bottom of the file add this line
 
-    source /webroot/gStation/sh/bashrc
+    source /webroot/gStation/res/bashrc
 
 Update the crontab
 
