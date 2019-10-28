@@ -62,46 +62,20 @@ Set up MySQL with the correct root account and a user for the application
 
     sudo mysql --user=root < /webroot/gStation/res/install.sql
 
-Next, change the I2C refresh rate
+Update the user login script so it has a pretty banner and stuff.
+
+    echo "source /webroot/gStation/res/bashrc" | tee -a ~/.bashrc
+
+Change the I2C refresh rate
 
     echo "dtparam=i2c_baudrate=1000000" | sudo tee -a /boot/config.txt
 
-Edit the rc.local for booting up setup
+Configure the system to set GPIOs up on boot. Fix the rc.local file
 
-    sudo vi /etc/rc.local
+    cat /etc/rc.local | grep -v 'exit 0' | sudo tee /etc/rc.local
+    cat /webroot/gStation/res/localrc | sudo tee -a /etc/rc.local
 
-Add the following to the bottom of the file, above the exit call
 
-    # Set up the GPIO pins for the heat/light
-    if [ ! -d /sys/class/gpio/gpio17 ]
-    then
-        echo 17 > /sys/class/gpio/export
-        sleep 1 ;# Short delay while GPIO permissions are set up
-    fi
-    if [ ! -d /sys/class/gpio/gpio18 ]
-    then
-        echo 18 > /sys/class/gpio/export
-        sleep 1 ;# Short delay while GPIO permissions are set up
-    fi
-    
-    # Set up the GPIO pins for output
-    echo out > /sys/class/gpio/gpio17/direction
-    echo out > /sys/class/gpio/gpio18/direction
-    
-    # Switch them off for now
-    echo 1 > /sys/class/gpio/gpio17/value
-    echo 1 > /sys/class/gpio/gpio18/value
-    
-    # Start the OLED display
-    sh /webroot/gStation/sh/oledmonitor.sh &
-
-Update the login script so it has a pretty banner and stuff.
-
-    vi ~/.bashrc
-
-At the bottom of the file add this line
-
-    source /webroot/gStation/res/bashrc
 
 Update the crontab
 
