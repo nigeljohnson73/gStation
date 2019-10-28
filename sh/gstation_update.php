@@ -22,12 +22,12 @@ echo "\n";
 
 echo "Update complete\n\n";
 
-$model = getModel ();
-echo "Rows in Model: " . count ( $model ) . "\n";
-echo "June 21:\n" . ob_print_r ( $model ["0621"] );
-echo "\n";
-echo "December 21:\n" . ob_print_r ( $model ["1221"] );
-echo "\n";
+// $model = getModel ();
+// echo "Rows in Model: " . count ( $model ) . "\n";
+// echo "June 21:\n" . ob_print_r ( $model ["0621"] );
+// echo "\n";
+// echo "December 21:\n" . ob_print_r ( $model ["1221"] );
+// echo "\n";
 
 // $model = getModel ( "2019-07-07" );
 // echo "August 07:\n" . ob_print_r ( $model );
