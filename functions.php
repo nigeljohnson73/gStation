@@ -600,9 +600,9 @@ function directoryListing($dirname, $extensoes = null) {
 	return $files;
 }
 
-function includeDirectory($d) {
+function includeDirectory($d, $ext="php") {
 	$ret = array ();
-	$files = directoryListing ( $d, "php" );
+	$files = directoryListing ( $d, $ext );
 	foreach ( $files as $file ) {
 		// echo "loading $file<br />";
 		if (! preg_match ( '/index.php$/', $file )) {

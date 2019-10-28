@@ -37,9 +37,10 @@ function setupTables() {
 }
 
 function clearSensorLogger() {
-	global $mysql;
+	global $mysql, $logger;
 	setupTables ();
 	$mysql->query ( "DELETE FROM temperature_logger where entered < DATE_SUB(NOW(), INTERVAL 24 HOUR)" );
+	$logger->clearLogs();
 }
 
 function lastTemp() {

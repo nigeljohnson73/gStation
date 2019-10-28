@@ -91,7 +91,25 @@ class Logger {
 		}
 	}
 
-	function tidy() {
+	function clearLogs($days = 7) {
+		//echo "Dir: " . $this->_path . "\n";
+		$inc = array ();
+		// $inc [] = dirname ( __FILE__ ) . "/config.php";
+		// $inc [] = dirname ( __FILE__ ) . "/config_override.php";
+		$inc = array_merge ( $inc, includeDirectory ( $this->_path, "txt" ) );
+		$tnow = time ();
+		foreach ( $inc as $file ) {
+			if (file_exists ( $file ) && ! is_dir ( $file )) {
+				$tfile = filemtime ( $file );
+				$delta = $tnow - $tfile;
+				if ($delta > numDays ( $days )) {
+					unlink ( $file );
+					// echo " deleted $file: (".durationFormat($delta)." old)\n";
+					// } else {
+					// echo " ignoring $file: (".durationFormat($delta)." old)\n";
+				}
+			}
+		}
 	}
 
 	function setLevel($level) {

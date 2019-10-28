@@ -9,6 +9,7 @@ if ($darksky_key != "") {
 	echo "Location: SIMULATED ENVIRONMENT\n\n";
 }
 
+
 clearSensorLogger ();
 
 echo "Retrieving historic data from Dark Sky\n";
