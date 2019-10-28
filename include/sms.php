@@ -20,7 +20,7 @@ function raw_send_sms($tag, $message, $recip, $route) {
 				"concat_text_sms_max_parts" => 5
 		);
 		if ($sms->send_sms ( $vars ) == SUCCESS) {
-			logger ( LL_INFO, "Sent SMS to '$r'" );
+			logger ( LL_INFO, "Sent SMS to '$r' from '$tag'" );
 		} else {
 			$ret = false;
 			logger ( LL_ERROR, "BulkSMS: There was an error sending text to '" . $r . "': " . trim ( $sms->get_status () ) );
@@ -43,43 +43,51 @@ function raw_send_sms($tag, $message, $recip, $route) {
 }
 
 function sendSms($message, $recip, $route = 2) {
+	global $bulksms_username;
+	if ($bulksms_username == "") {
+		return null;
+	}
+
 	if (! is_array ( $recip )) {
-		$x = $recip;
-		$recip = array ();
-		$recip [] = $x;
+		$recip = array (
+				$recip
+		);
 	}
 
+	// global $bulksms_sender;
+	// global $bulksms_notify;
+	// // global $bulksms_low_warning;
+	// $bulksms_tag = $bulksms_sender;
+	// $owner_sms = $bulksms_notify;
+	// // $low_warning = $bulksms_low_warning; // tParameters::get ( "BULK_SMS_LOW_WARNING" );
+	// $ret = true;
+
+	// $sms = new BulkSms ();
+
+	// $credit = 0;
+	// if ($sms->get_credits () == SUCCESS) {
+	// $credit = trim ( $sms->get_response () );
+	// } else {
+	// logger ( LL_SYS, "BulkSMS: failed to get credits:\n" . $sms->_debug );
+	// return false;
+	// }
+
+	// Not required since Bulksms will do the alerting based on profile
+	// if ($credit <= $low_warning) {
+	// logger ( LL_SYS, "BulkSMS: paging owner about low credit level" );
+	// raw_send_sms ( $bulksms_tag, "BulkSMS credit low (" . $credit . ")", $owner_sms, $route );
+	// if ($sms->get_credits () == SUCCESS) {
+	// $credit = trim ( $sms->get_response () );
+	// }
+	// }
+
+	// if ($credit > 5) {
 	global $bulksms_sender;
-	global $bulksms_owner_sms;
-	global $bulksms_low_warning;
-	$bulksms_tag = $bulksms_sender; // tParameters::get ( "BULK_SMS_TAG" );
-	$owner_sms = $bulksms_owner_sms; // "447517528741";//tParameters::get ( "BULK_SMS_OWNER_NUMBER" );
-	$low_warning = $bulksms_low_warning; // tParameters::get ( "BULK_SMS_LOW_WARNING" );
-	$ret = true;
-
-	$sms = new BulkSms ();
-
-	$credit = 0;
-	if ($sms->get_credits () == SUCCESS) {
-		$credit = trim ( $sms->get_response () );
-	} else {
-		logger ( LL_SYS, "BulkSMS: failed to get credits:\n" . $sms->_debug );
-		return false;
-	}
-
-	if ($credit <= $low_warning) {
-		logger ( LL_SYS, "BulkSMS: paging owner about low credit level" );
-		raw_send_sms ( $bulksms_tag, "BulkSMS credit low (" . $credit . ")", $owner_sms, $route );
-		if ($sms->get_credits () == SUCCESS) {
-			$credit = trim ( $sms->get_response () );
-		}
-	}
-
-	if ($credit > 5) {
-		$ret = raw_send_sms ( $bulksms_tag, $message, $recip, $route );
-	} else {
-		logger ( LL_ERROR, "BulkSMS: There were insufficient credits to send an SMS message" );
-	}
+	$ret = raw_send_sms ( $bulksms_sender, $message, $recip, $route );
+	// } else {
+	// logger ( LL_ERROR, "BulkSMS: There were insufficient credits to send an SMS message" );
+	// return false;
+	// }
 	return $ret;
 }
 ?>

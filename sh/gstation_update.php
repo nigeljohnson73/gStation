@@ -9,19 +9,20 @@ if ($darksky_key != "") {
 	echo "Location: SIMULATED ENVIRONMENT\n\n";
 }
 
+if (1) {
+	clearSensorLogger ();
 
-clearSensorLogger ();
+	echo "Retrieving historic data from Dark Sky\n";
+	getDarkSkyApiData ( $force_api_history );
+	echo "\n";
 
-echo "Retrieving historic data from Dark Sky\n";
-getDarkSkyApiData ( $force_api_history );
-echo "\n";
+	echo "Rebuilding data model\n";
+	rebuildDataModel ();
 
-echo "Rebuilding data model\n";
-rebuildDataModel ();
+	echo "\n";
 
-echo "\n";
-
-echo "Update complete\n\n";
+	echo "Update complete\n\n";
+}
 
 // $model = getModel ();
 // echo "Rows in Model: " . count ( $model ) . "\n";
