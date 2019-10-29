@@ -1,7 +1,7 @@
 ## Overview
 
-At it's core this is simply a controller for a heat and light pad. Out of the box it will use a northern hemisphere concept
-of when summer is (solstice in June) and a 28.8°C high. You can also sign up for a [DarkSky](https://darksky.net/dev) account
+At it's core this is simply a controller for a heat pad and light of up to 2amps each. Out of the box it will use a northern hemisphere 
+concept of when summer is (solstice in June) and a 28.8°C high. You can also sign up for a [DarkSky](https://darksky.net/dev) account
 which will let you configure your experience to a place on the earth. 
 
 There is also a web interface which provides some feedback about how the temperature has been over the last 24 hours and 
@@ -14,6 +14,8 @@ graphs on what is being planned.
 This app and everything in it are so pre-release that there isn't a version number yet.
 
 This application is not designed to be exposed to the internet and be secure.
+
+You're stuck with temperatures in Centigrade.
 
 This app uses a solid state relay to control the lights and heat pad. The one I have found reasonbably cheaply
 is only rated at 2 amps per channel.
@@ -32,8 +34,14 @@ to warant a version number.
 
 The next key ingredient will be the ability to control the existing control parameters via the web interface.
 
-The final step before an acrtual release version will be the ability to control the length of the growing season for hydroponics.
+The final step before an actual release version will be the ability to control the length of the growing season for hydroponics.
 The idea is that you can set a cold period to start for X days, then ramp up a veg season for Y days and then flower until we stop.
+
+I am also building some 3D printed parts to hold things and provide a box for all the electronics... but a maplin box and hot-glue
+will do just as good a job.
+
+I will probably make up some kits at some point for sale on my website. I can also assemble things, but a fully ferrule and heat-wrapped
+install takes me over a day, so that will be an expensive option.
 
 ## Hardware requirements
 
@@ -44,7 +52,7 @@ if you want to reduce cost and can get things outside of  Amazon Prime for examp
 custom PCB to route wires, but I'll outline where things are plugged in so you can do this in your favourite way.
 
  * [Mains power input socket][PARTPOWERIN]. this one needs a [250v 6.3A fuse][PARTFUSE], but you can simplify this a lot.
- * [5v PSU][PARTPSU]. You can substutute a Pi power cable instead.
+ * [5v PSU][PARTPSU]. You can substutute a Pi power cable instead. Attach to the 5v power pin - pin 2 or 4.
  * [Solid state relay pair][PARTSSR]. Heat trigger on GPIO17 - pin 11, Light on GPIO18 - pin 12, 5v for Vcc.
  * [OLED screen][PARTOLED] . Uses the I2C connections and 3.3v for VCC.
  * [Momentary push button][PARTBUTTON]. Bridge ground to GPIO14 - pin 8, or GPIO21 - pin 40.
@@ -145,12 +153,11 @@ Add these lines:
 
 ## Resources used
 
+Here is a list of things I found useful on my journey.
+
 * [Configure wireless before booting][SUPLICANT]
 * [Enable SSH before booting][SSH]
 * [LAMP on a Raspberry PI][LAMP]
-
-## Software guides used
-
 * [Button press off][BUTTON]
 * [Solid State Relay tutorial][SSR]
 * [Solid State Relay video][SSRVIDEO]
@@ -171,6 +178,8 @@ PID tuned Heat controller for stopping the oscilation in the heater.
 * [PhD Thesis on PID tuning][PIDTUNE]
 
 ## Software discarded
+
+I incorporated some of this stuff, but then moved on a bit. I thought I'd keep it in case I need it again later.
 
 ### DHT22 Humidity and temperature module
 
