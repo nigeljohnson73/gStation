@@ -1,7 +1,39 @@
+## Overview
+
+At it's core this is simply a controller for a heat and light pad. Out of the box it will use a northern hemisphere concept
+of when summer is (solstice in June) and a 28.8°C high. You can also sign up for a [DarkSky](https://darksky.net/dev) account
+which will let you configure your experience to a place on the earth. 
+
+There is also a web interface which provides some feedback about how the temperature has been over the last 24 hours and 
+graphs on what is being planned.
+
+![Screenshot](res/_web_interface.jpg)
+
 ## Limitations
+
+This app and everything in it are so pre-release that there isn't a version number yet.
+
+This application is not designed to be exposed to the internet and be secure.
 
 This app uses a solid state relay to control the lights and heat pad. The one I have found reasonbably cheaply
 is only rated at 2 amps per channel.
+
+The control is all done through a config file on the pi. This will move to the web interface in time. If you can install
+everything then this will not be a poblem for you. The config file is located at `/webroot/gStation/config_override.php`.
+
+The web interface is very limited and needs to be refreshed manually. This will change to automatically updating and 
+allowing for some parameter control in the future.
+
+## Roadmap
+
+Once on the journey, the key focus for me will be to work on the web interface. It just needs some sheduling to get the 
+graph image files in the background and update them in the browser. Once this is in place then the tool will be useful enough
+to warant a version number.
+
+The next key ingredient will be the ability to control the existing control parameters via the web interface.
+
+The final step before an acrtual release version will be the ability to control the length of the growing season for hydroponics.
+The idea is that you can set a cold period to start for X days, then ramp up a veg season for Y days and then flower until we stop.
 
 ## Hardware requirements
 
@@ -29,7 +61,7 @@ There are a couple of assumptions if you want to use this stuff. First is that y
 youre doing with regard to Installing an operating system on a raspberry pi (Zero in this case). It is also assumed 
 that you have command line access to ssh (mac/linux for example) or know how to configure something like PuTTY on 
 windows. How you write images to SD cards is also highly dependant on your operating system, but you can find out 
-more information in the [Raspian documentation][RASIBIANINSTALL] and google is your friend.
+more information in the [Raspian documentation][RASPBIANINSTALL] and google is your friend.
 
  * Burn the latest [Raspian **Lite**][RASPIAN] image to an Micro/SD card (8GB is more than enough).
  * Drop res/wpa_supplicant.conf from here into the boot disk
@@ -133,7 +165,6 @@ Add these lines:
 
 An I2C bus temp/humidity sensor for environmental monitoring.
 
-* [AM2315 code on google][AM2315CODE]
 * [AM2315 on Amazon][AM2315]
 * [HDC1080 on Amazon][HDC1080]
 * [BME280 on Amazon][BME280]
@@ -168,7 +199,7 @@ PID tuned Heat controller for stopping the oscilation in the heater.
 [BME280]: https://smile.amazon.co.uk/dp/B07KY8WY4M
 [PIDTUNE]: https://studentnet.cs.manchester.ac.uk/resources/library/thesis_abstracts/MSc14/FullText/Ioannidis-Feidias-fulltext.pdf
 [RASPIAN]: https://www.raspberrypi.org/downloads/raspbian/
-[RASIBIANINSTALL]:https://www.raspberrypi.org/documentation/installation/installing-images/README.md
+[RASPBIANINSTALL]:https://www.raspberrypi.org/documentation/installation/installing-images/README.md
 [PARTPOWERIN]: https://uk.rs-online.com/web/p/iec-connectors/3521831/
 [PARTFUSE]: https://smile.amazon.co.uk/dp/B07DS3X4XT
 [PARTSSR]: https://smile.amazon.co.uk/dp/B07BVXT8L5
@@ -180,3 +211,4 @@ PID tuned Heat controller for stopping the oscilation in the heater.
 [PARTLIGHT]: https://smile.amazon.co.uk/dp/B07L57Z5TP
 [PARTPI]: https://thepihut.com/products/raspberry-pi-zero-w?variant=547421782033
 [PARTSDCARD]: https://smile.amazon.co.uk/dp/B073K14CVB
+[PARTBUTTON]: https://smile.amazon.co.uk/dp/B075WT4T75
