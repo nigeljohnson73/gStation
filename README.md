@@ -104,9 +104,6 @@ Make the directories we require for our software
 Clone the software into its home.
 
     cd /webroot
-    git config --global credential.helper store
-    git config --global user.email "nigel@nigeljohnson.net"
-    git config --global user.name "Nigel Johnson"
     sudo git clone https://github.com/nigeljohnson73/gStation.git
     sudo chown -R pi:www-data /webroot
     sudo chmod -R g+w /webroot
