@@ -1,25 +1,31 @@
-    # Set up the GPIO pins for the heat/light
-    if [ ! -d /sys/class/gpio/gpio17 ]
-    then
-        echo 17 > /sys/class/gpio/export
-        sleep 1 ;# Short delay while GPIO permissions are set up
-    fi
-    if [ ! -d /sys/class/gpio/gpio18 ]
-    then
-        echo 18 > /sys/class/gpio/export
-        sleep 1 ;# Short delay while GPIO permissions are set up
-    fi
-    
-    # Set up the GPIO pins for output
-    echo out > /sys/class/gpio/gpio17/direction
-    echo out > /sys/class/gpio/gpio18/direction
-    
-    # Switch them off for now
-    echo 1 > /sys/class/gpio/gpio17/value
-    echo 1 > /sys/class/gpio/gpio18/value
-    
-    # Start the OLED display
-    sh /webroot/gStation/sh/oledmonitor.sh &
+# Set up the GPIO pins for the heat/light and status LED
+if [ ! -d /sys/class/gpio/gpio15 ]
+then
+    echo 15 > /sys/class/gpio/export
+    sleep 1 ;# Short delay while GPIO permissions are set up
+fi
+if [ ! -d /sys/class/gpio/gpio17 ]
+then
+    echo 17 > /sys/class/gpio/export
+    sleep 1 ;# Short delay while GPIO permissions are set up
+fi
+if [ ! -d /sys/class/gpio/gpio18 ]
+then
+    echo 18 > /sys/class/gpio/export
+    sleep 1 ;# Short delay while GPIO permissions are set up
+fi
 
-    exit 0
-    
+# Set up the GPIO pins for output
+echo out > /sys/class/gpio/gpio15/direction
+echo out > /sys/class/gpio/gpio17/direction
+echo out > /sys/class/gpio/gpio18/direction
+
+# Switch the status light on, and the SSR stuff off for now
+echo 1 > /sys/class/gpio/gpio15/value
+echo 1 > /sys/class/gpio/gpio17/value
+echo 1 > /sys/class/gpio/gpio18/value
+
+# Start the OLED display
+sh /webroot/gStation/sh/oledmonitor.sh &
+
+exit 0
