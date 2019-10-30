@@ -47,16 +47,19 @@ def drawText(text):
 	# Draw Some Text
 	font = ImageFont.truetype(os.path.dirname(os.path.abspath(__file__))+"/../fonts/andalemo.ttf", 14)
 	(font_width, font_height) = font.getsize(lines[0])
-	draw.text((oled.width // 2 - font_width // 2, oled.height // 2 - font_height-14 ), lines[0], font=font, fill=255)
+	#draw.text((oled.width // 2 - font_width // 2, oled.height // 2 - font_height-14-5 ), lines[0], font=font, fill=255)
+	draw.text((oled.width // 2 - font_width // 2, 0), lines[0], font=font, fill=255)
 
 	(font_width, font_height) = font.getsize(lines[1])
-	draw.text((oled.width // 2 - font_width // 2, oled.height // 2 - font_height+7 ), lines[1], font=font, fill=255)
+	#draw.text((oled.width // 2 - font_width // 2, oled.height // 2 - font_height+6 ), lines[1], font=font, fill=255)
+	draw.text((oled.width // 2 - font_width // 2, oled.height // 2 - font_height // 2 ), lines[1], font=font, fill=255)
 
 	now = datetime.now()
 	ts = now.strftime('%Y-%m-%d %H:%M')
 	font = ImageFont.truetype(os.path.dirname(os.path.abspath(__file__))+"/../fonts/andalemo.ttf", 10)
 	(font_width, font_height) = font.getsize(ts)
-	draw.text((oled.width // 2 - font_width // 2, oled.height // 2 + font_height+9 ), ts, font=font, fill=255)
+	#draw.text((oled.width // 2 - font_width // 2, oled.height // 2 + font_height+12 ), ts, font=font, fill=255)
+	draw.text((oled.width // 2 - font_width // 2, oled.height - font_height ), ts, font=font, fill=255)
     
 	# Display image
 	oled.image(image)
