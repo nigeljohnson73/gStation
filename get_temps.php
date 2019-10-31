@@ -10,6 +10,7 @@ include_once ("functions.php");
 
 <link rel="icon" href="gfx/rhino.png">
 
+<link href="https://fonts.googleapis.com/css?family=Architects+Daughter|Lato&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
 <link rel="stylesheet" href="css/app.<?php stylesheetPayload() ?>.css">
 
