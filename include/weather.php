@@ -588,7 +588,7 @@ function rebuildDataModel() {
 		}
 		logger ( LL_INFO, "rebuildDataModel(): Smoothing: updated model" );
 	} else {
-		global $summer_solstice, $high_temperature_min, $high_temperature_max, $low_temperature_min, $low_temperature_max, $sunset_max, $sunset_min, $daylight_max, $daylight_min;
+		global $summer_solstice, $day_temperature_min, $day_temperature_max, $night_temperature_min, $night_temperature_max, $sunset_max, $sunset_min, $daylight_max, $daylight_min;
 
 		if ($darksky_key == "") {
 			logger ( LL_INFO, "rebuildDataModel(): Simulating data" );
@@ -598,11 +598,11 @@ function rebuildDataModel() {
 		$tsnow = timestampNow ();
 		$yr = timestampFormat ( $tsnow, "Y" );
 
-		$high_delta_temperature = ($high_temperature_max - $high_temperature_min) / 2;
-		$high_mid_temperature = $high_temperature_min + $high_delta_temperature;
+		$high_delta_temperature = ($day_temperature_max - $day_temperature_min) / 2;
+		$high_mid_temperature = $day_temperature_min + $high_delta_temperature;
 
-		$low_delta_temperature = ($low_temperature_max - $low_temperature_min) / 2;
-		$low_mid_temperature = $low_temperature_min + $low_delta_temperature;
+		$low_delta_temperature = ($night_temperature_max - $night_temperature_min) / 2;
+		$low_mid_temperature = $night_temperature_min + $low_delta_temperature;
 
 		$sunset_delta_offset = ($sunset_max - $sunset_min) / 2;
 		$sunset_mid_offset = $sunset_min + $sunset_delta_offset;

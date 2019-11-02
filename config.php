@@ -5,10 +5,10 @@ $local_timezone = "Europe/London"; // Where are you locally based for time refer
  * START SIMULATION ENVIRONMENT
  */
 $summer_solstice = "0621"; // June 21 is summer solstice in the northern hemisphere
-$high_temperature_max = 28.5; // In the summer, this is the max temp
-$high_temperature_min = 21.5; // In the winter, this is the max temp
-$low_temperature_max = 12.5; // In the summer, this is the lowest temperature
-$low_temperature_min = 9.5; // In the winter, this is the lowest temperature
+$day_temperature_max = 28.5; // In the summer, this is the max temp
+$day_temperature_min = 21.5; // In the winter, this is the max temp
+$night_temperature_max = 12.5; // In the summer, this is the lowest temperature
+$night_temperature_min = 9.5; // In the winter, this is the lowest temperature
 $sunset_min = 15 + (55 / 60); // In the winter, this is the time of sunset 17:32 UTC
 $sunset_max = 20 + (21 / 60); // In the summer, this is the time of sunset 19:21 UTC
 $daylight_max = 16 + (38/60); // In the summer, this is how many hours of daylight there will be

@@ -76,15 +76,15 @@ if ($temps && count ( $temps [array_keys ( $temps ) [0]] ) > 2) {
 	// $yr = timestampFormat ( $tsnow, "Y" );
 
 	// $summer_solstice = "0621";
-	// $high_temperature_min = 21;
-	// $high_temperature_max = 33;
-	// $high_delta_temperature = ($high_temperature_max - $high_temperature_min) / 2;
-	// $high_mid_temperature = $high_temperature_min + $high_delta_temperature;
+	// $day_temperature_min = 21;
+	// $day_temperature_max = 33;
+	// $high_delta_temperature = ($day_temperature_max - $day_temperature_min) / 2;
+	// $high_mid_temperature = $day_temperature_min + $high_delta_temperature;
 
-	// $low_temperature_min = 5;
-	// $low_temperature_max = 10;
-	// $low_delta_temperature = ($low_temperature_max - $low_temperature_min) / 2;
-	// $low_mid_temperature = $low_temperature_min + $low_delta_temperature;
+	// $night_temperature_min = 5;
+	// $night_temperature_max = 10;
+	// $low_delta_temperature = ($night_temperature_max - $night_temperature_min) / 2;
+	// $low_mid_temperature = $night_temperature_min + $low_delta_temperature;
 
 	// $deg_step = 360 / 365;
 	// $tsnow = $yr . $summer_solstice . "000000";
