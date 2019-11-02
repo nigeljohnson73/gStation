@@ -299,7 +299,7 @@ function periodFormat($secs, $short = false) {
 	$mins = $h - $hours;
 	$mins *= 60;
 	if ($mins) {
-		$mins = number_format ( $mins, 0 );
+		$mins = ceil ( $mins, 0 );
 		if (strlen ( $estr )) {
 			$estr .= " ";
 		}
