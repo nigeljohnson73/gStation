@@ -45,6 +45,7 @@ function raw_send_sms($tag, $message, $recip, $route) {
 function sendSms($message, $recip, $route = 2) {
 	global $bulksms_username;
 	if ($bulksms_username == "") {
+		logger ( LL_INFO, "BulkSMS: Not enabled" );
 		return null;
 	}
 

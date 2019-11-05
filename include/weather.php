@@ -211,7 +211,7 @@ function readSensors($quiet = false) {
 }
 
 function tick($quiet = false) {
-	global $lat, $lng, $day, $mon, $bulksms_owner_sms, $bulksms_alert_sunrise, $bulksms_alert_sunset;
+	global $lat, $lng, $day, $mon, $bulksms_notify, $bulksms_alert_sunrise, $bulksms_alert_sunset;
 	global $hl_high_value, $hl_low_value;
 	global $mysql;
 	global $temperature_buffer;
@@ -239,7 +239,7 @@ function tick($quiet = false) {
 		logger ( LL_INFO, "tick(): " . $msg );
 		setConfig ( "status", $status );
 		if (($status == "DAY" && $bulksms_alert_sunrise) || ($status == "NIGHT" && $bulksms_alert_sunset)) {
-			sendSms ( $msg, $bulksms_owner_sms );
+			sendSms ( $msg, $bulksms_notify );
 		}
 	} else {
 		logger ( LL_DEBUG, "tick(): " . $msg );
