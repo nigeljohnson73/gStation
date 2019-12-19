@@ -1,22 +1,21 @@
-# Set up the LED and SSR GPIO pins as outputs
-gpio -g mode 15 out
-gpio -g mode 17 out
-gpio -g mode 18 out
+fn=/webroot/gStation/sh/start_sensors.sh
+if [ -f "$fn" ]; then
+        echo "Starting gStation sensors"
+        source "$fn"
+else
+        echo "Skipping gStation sensor setup"
+fi
 
-# Enable the pull down resistors
-gpio -g mode 15 down
-# The logic is inverted for the current SSRs
-gpio -g mode 17 up
-gpio -g mode 18 up
-
-# switch the LED on
-gpio -g write 15 1
-
-# Switch the SSRs off - this will need to change if we get different SSRs
-gpio -g write 17 1
-gpio -g write 18 1
+fn=/webroot/gStation/sh/start_triggers.sh
+if [ -f "$fn" ]; then
+        echo "Starting gStation triggers"
+        source "$fn"
+else 
+        echo "Skipping gStation trigger setup"
+fi
 
 # Start the OLED display
+echo "Starting gStation display"
 sh /webroot/gStation/sh/oledmonitor.sh &
 
 exit 0

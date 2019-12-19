@@ -1,6 +1,11 @@
 <?php
 $local_timezone = "Europe/London"; // Where are you locally based for time references
 
+$zone = array();
+$zone[] = (object) ["name"=>"zone1_t", "type"=>"DS18B20", "pin"=>4];
+$zone[] = (object) ["name"=>"zone2_th", "type"=>"DHT22", "pin"=>24];
+$zone[] = (object) ["name"=>"zone3_th", "type"=>"DHT22", "pin"=>18];
+
 /**
  * START SIMULATION ENVIRONMENT
  */
