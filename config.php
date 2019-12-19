@@ -1,10 +1,20 @@
 <?php
 $local_timezone = "Europe/London"; // Where are you locally based for time references
 
+$sensor_1_pin = 4;
+$sensor_2_pin = 24;
+$sensor_3_pin = 18;
+
+$trigger_1_pin = 17;
+$trigger_2_pin = 18;
+$trigger_3_pin = 19;
+$trigger_4_pin = 20;
+$trigger_5_pin = 21;
+
 $zone = array();
-$zone[] = (object) ["name"=>"zone1_t", "type"=>"DS18B20", "pin"=>4];
-$zone[] = (object) ["name"=>"zone2_th", "type"=>"DHT22", "pin"=>24];
-$zone[] = (object) ["name"=>"zone3_th", "type"=>"DHT22", "pin"=>18];
+$zone[] = (object) ["name"=>"zone1_t", "type"=>"DS18B20", "pin"=>$sensor_1_pin];
+$zone[] = (object) ["name"=>"zone2_th", "type"=>"DHT22", "pin"=>$sensor_2_pin];
+$zone[] = (object) ["name"=>"zone3_th", "type"=>"DHT22", "pin"=>$sensor_3_pin];
 
 /**
  * START SIMULATION ENVIRONMENT
