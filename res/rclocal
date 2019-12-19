@@ -1,7 +1,7 @@
 fn=/webroot/gStation/sh/start_sensors.sh
 if [ -f "$fn" ]; then
         echo "Starting gStation sensors"
-        source "$fn"
+        . "$fn"
 else
         echo "Skipping gStation sensor setup"
 fi
@@ -9,7 +9,7 @@ fi
 fn=/webroot/gStation/sh/start_triggers.sh
 if [ -f "$fn" ]; then
         echo "Starting gStation triggers"
-        source "$fn"
+        . "$fn"
 else 
         echo "Skipping gStation trigger setup"
 fi
