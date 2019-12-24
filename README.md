@@ -140,7 +140,8 @@ Change the I2C refresh rate.
 Configure the system to set up the GPIOs on boot in the rc.local file.
 
     cat /etc/rc.local | grep -v 'exit 0' | sudo tee /etc/rc.local
-    cat /webroot/gStation/res/rclocal | sudo tee -a /etc/rc.local
+    echo ". /webroot/gStation/res/rc.local" | sudo tee -a /etc/rc.local
+    echo "exit 0" | sudo tee -a /etc/rc.local
 
 Update the crontab to have our update commands.
 
