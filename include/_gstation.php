@@ -210,13 +210,16 @@ function readSensorRaw_DHT22($sensor) {
 }
 
 function checkSensors($type, $pin) {
-	// TODO: Check dtoverlay has a $type on gpiopin=$pin $pin
 	$output = null;
 	$retvar = 0;
 	$cmd = "sudo dtoverlay -l 2>&1";
 
 	exec ( $cmd, $output, $retvar );
+	$output = implode("\n", $output)."\n";
 	print_r ( $output );
+	if(preg_match('/'.overlay($type).'\s+gpiopin='.$pin.'/', $output)) {	
+		return true;
+	}
 	return false;
 }
 
@@ -237,7 +240,7 @@ function readSensor($i) {
 	$pin = $sensor->pin;
 
 	while ( checkSensors ( $type, $pin ) == false ) {
-		echo "No sensor overaly setup\n";
+		echo "No sensor overlay setup for a ".$type." on pin ".$pin."\n";
 		sleep ( 30 );
 		echo "retrying...\n";
 	}
