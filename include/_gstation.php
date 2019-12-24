@@ -32,7 +32,7 @@ function enumeration($type) {
 			$ret = array ();
 			$obj = new stdClass ();
 			$obj->name = "temperature";
-			$obj->file = $bn . "/in_temp_input";
+			$obj->file = $bn;
 			$ret [] = $obj;
 			break;
 			
@@ -49,6 +49,20 @@ function enumeration($type) {
 			$obj->name = "humidity";
 			$obj->file = $bn . "/in_humidityrelative_input";
 			$ret [] = $obj;
+			break;
+	}
+	
+	return $ret;
+}
+
+// How long to give the sensor time to refresh
+function sensorCooloff($type) {
+	$ret = 2;
+	
+	switch ($type) {
+		case "DHT11" :
+		case "DHT22" :
+			$ret = 3;
 			break;
 	}
 	
@@ -85,26 +99,106 @@ function createSensorSetupScript() {
 
 function readSensorRaw_DS18B20($sensor) {
 	$ret = new StdClass();
+
 	foreach($sensor->enumeration as $e) {
-		$c = file_get_contents($e->file);
-//		echo $c;
-		$param = $e->$name;
-		$ret->$param = $c;
+		$output = null;
+		$retvar = 0;
+		$cmd = "cat ".$e->file;
+		$val = null;
+
+		$retry_count = 0;
+		$retry_limit = 10;
+		$retry = false;
+		do {
+			if($retry) {
+				echo ("Read $retry_count failed, pausing and retrying\n");
+				sleep(1);
+			}
+			$retry_count = $retry_count + 1;
+			$retry = true;
+
+			exec($cmd, $output, $retvar);
+			if(is_array($output) && count($output) == 2) {
+				echo ("Got correct line count:\n".ob_print_r($output)."\n");
+				if(preg_match('/crc=[a-f0-9]{2} YES/', $output[0])) {
+					echo ("CRC passed\n");
+					list($dummy, $temp) = explode("t=", $output[1]);
+					echo ("Got temp: ".$temp."\n");
+					$val = ((double)$temp)/1000.0;
+					echo ("Set val: ".$val."\n");
+					$output=null;
+				} else {
+					echo ("CRC check failed\n");
+				}
+			} else {
+				echo ("Got incorrect line count:\n".ob_print_r($output)."\n");
+			}
+		} while ($val == null && $retry_count < $retry_limit);
+
+		if($val == null) {
+			echo "Read sensor failed.\n";
+			return null;
+		}
+		$param = $e->name;
+		$ret->$param = $val;
 	}
 	return $ret;
 }
+
 function readSensorRaw_DHT11($sensor) {
 	$ret = new StdClass();
+
 	foreach($sensor->enumeration as $e) {
-		$c = file_get_contents($e->file);
-		$param = $e->$name;
-		$ret->$param = $c;
+		$output = null;
+		$retvar = 0;
+		$cmd = "cat ".$e->file;
+		$val = null;
+
+		$retry_count = 0;
+		$retry_limit = 10;
+		$retry = false;
+		do {
+			if($retry) {
+				echo ("Read $retry_count failed, pausing and retrying\n");
+				sleep(1);
+			}
+			$retry_count = $retry_count + 1;
+			$retry = true;
+
+			exec($cmd, $output, $retvar);
+			echo ("Got:\n".ob_print_r($output)."\n");
+
+			//if(is_array($output) && count($output) == 2) {
+				//echo ("Got correct line count:\n".ob_print_r($output)."\n");
+				//if(preg_match('/crc=[a-f0-9]{2} YES/', $output[0])) {
+					//echo ("CRC passed\n");
+					//list($dummy, $temp) = explode("t=", $output[1]);
+					//echo ("Got temp: ".$temp."\n");
+					//$val = ((double)$temp)/1000.0;
+					//echo ("Set val: ".$val."\n");
+					//$output=null;
+				//} else {
+					//echo ("CRC check failed\n");
+				//}
+			//} else {
+				//echo ("Got incorrect line count:\n".ob_print_r($output)."\n");
+			//}
+		} while ($val == null && $retry_count < $retry_limit);
+
+		if($val == null) {
+			echo "Read sensor failed.\n";
+			return null;
+		}
+		$param = $e->name;
+		$ret->$param = $val;
 	}
 	return $ret;
 }
+
 function readSensorRaw_DHT22($sensor) {
 	return readSensorRaw_DHT11($sensor);
 }
+
 function readSensor($i) {
 	global $sensors;
 
