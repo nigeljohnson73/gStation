@@ -16,6 +16,6 @@ fi
 
 # Start the OLED display
 echo "Starting gStation display"
-sh /webroot/gStation/sh/oledmonitor.sh &
+sh /webroot/gStation/sh/oled_monitor.sh &
 
 exit 0
