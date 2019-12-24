@@ -113,7 +113,7 @@ function readSensorRaw_DS18B20($sensor) {
 	foreach ( $sensor->enumeration as $e ) {
 		$output = null;
 		$retvar = 0;
-		$cmd = "cat " . $e->file;
+		$cmd = "cat " . $e->file . " 2>&1";
 		$val = null;
 
 		$retry_count = 0;
@@ -122,7 +122,7 @@ function readSensorRaw_DS18B20($sensor) {
 		do {
 			if ($retry) {
 				echo ("Read $retry_count failed, pausing and retrying\n");
-				sleep ( 1 );
+				sleep ( 1 );  
 			}
 			$retry_count = $retry_count + 1;
 			$retry = true;
@@ -161,7 +161,7 @@ function readSensorRaw_DHT11($sensor) {
 	foreach ( $sensor->enumeration as $e ) {
 		$output = null;
 		$retvar = 0;
-		$cmd = "cat " . $e->file;
+		$cmd = "cat " . $e->file . " 2>&1";
 		$val = null;
 
 		$retry_count = 0;
@@ -186,7 +186,7 @@ function readSensorRaw_DHT11($sensor) {
 			// echo ("Got temp: ".$temp."\n");
 			// $val = ((double)$temp)/1000.0;
 			// echo ("Set val: ".$val."\n");
-			// $output=null;
+			$output=null;
 			// } else {
 			// echo ("CRC check failed\n");
 			// }
