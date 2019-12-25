@@ -4,20 +4,31 @@ $local_timezone = "Europe/London"; // Where are you locally based for time refer
 $sensors = array();
 //$sensors[] = (object) ["name"=>"zone1", "type"=>"DS18B20"];
 $sensors[] = (object) ["name"=>"zone2", "type"=>"DHT22"];
-$sensors[] = (object) ["name"=>"zone3", "type"=>"DHT22"];
+$sensors[] = (object) ["name"=>"zone3", "type"=>"EMPTY"];
+$sensors[] = (object) ["name"=>"zone4", "type"=>"EMPTY"];
+$sensors[] = (object) ["name"=>"zone4", "type"=>"MH-Z19B"];
+
+$triggers = [];
+$triggers[] = (object) ["name"=>"T1", "type"=>"SSR"];
+$triggers[] = (object) ["name"=>"T2", "type"=>"SSR"];
+$triggers[] = (object) ["name"=>"T3", "type"=>"EMPTY"];
+$triggers[] = (object) ["name"=>"T4", "type"=>"EMPTY"];
+$triggers[] = (object) ["name"=>"T5", "type"=>"EMPTY"];
+$triggers[] = (object) ["name"=>"T6", "type"=>"iSSR"];
+$triggers[] = (object) ["name"=>"T7", "type"=>"LED"];
 
 $sensor_pin_1 = 4;
 $sensor_pin_2 = 24;
-$sensor_pin_3 = 18;
-$sensor_pin_4 = 99;
+$sensor_pin_3 = 25;
+$sensor_pin_4 = 26;
 
 $trigger_pin_1 = 17;
 $trigger_pin_2 = 18;
 $trigger_pin_3 = 19;
 $trigger_pin_4 = 20;
 $trigger_pin_5 = 21;
-$trigger_pin_6 = 21;
-$trigger_pin_7 = 21;
+$trigger_pin_6 = 22;
+$trigger_pin_7 = 23;
 
 /**
  * START SIMULATION ENVIRONMENT
@@ -27,6 +38,10 @@ $day_temperature_max = 28.5; // In the summer, this is the max temp
 $day_temperature_min = 21.5; // In the winter, this is the max temp
 $night_temperature_max = 12.5; // In the summer, this is the lowest temperature
 $night_temperature_min = 9.5; // In the winter, this is the lowest temperature
+$day_humidity_max = 55; // In the winter, this is the max humidity
+$day_humidity_min = 45; // In the summer, this is the max humidity
+$night_humidity_max = 60; // In the winter, this is the lowest humidity
+$night_humidity_min = 50; // In the summer, this is the lowest humidity
 $sunset_min = 15 + (55 / 60); // In the winter, this is the time of sunset 17:32 UTC
 $sunset_max = 20 + (21 / 60); // In the summer, this is the time of sunset 19:21 UTC
 $daylight_max = 16 + (38/60); // In the summer, this is how many hours of daylight there will be

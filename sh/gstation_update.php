@@ -10,7 +10,7 @@ if ($darksky_key != "") {
 }
 
 if (1) {
-	clearSensorLogger ();
+	setupTables ();
 
 	echo "Retrieving historic data from Dark Sky\n";
 	getDarkSkyApiData ( $force_api_history );
@@ -18,7 +18,13 @@ if (1) {
 
 	echo "Rebuilding data model\n";
 	rebuildDataModel ();
-
+	
+	echo "\n";
+	
+	echo "Rebuilding sensor and trigger configurations\n";
+	setupSensorScript();
+	setupTriggerScript();
+	
 	echo "\n";
 
 	echo "Update complete\n\n";

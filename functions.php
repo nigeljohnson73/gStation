@@ -8,6 +8,14 @@ ini_set ( 'display_errors', 'on' );
 // All calcuations are done in UTC
 date_default_timezone_set ( "UTC" );
 
+function GUID() {
+	if (function_exists ( 'com_create_guid' ) === true) {
+		return trim ( com_create_guid (), '{}' );
+	}
+
+	return sprintf ( '%04X%04X-%04X-%04X-%04X-%04X%04X%04X', mt_rand ( 0, 65535 ), mt_rand ( 0, 65535 ), mt_rand ( 0, 65535 ), mt_rand ( 16384, 20479 ), mt_rand ( 32768, 49151 ), mt_rand ( 0, 65535 ), mt_rand ( 0, 65535 ), mt_rand ( 0, 65535 ) );
+}
+
 // decimates up to the limit if the values are within the delta tolerance
 function deltaDecimateArray($arr, $delta, $same_lim) {
 	$debug = false;
@@ -600,7 +608,7 @@ function directoryListing($dirname, $extensoes = null) {
 	return $files;
 }
 
-function includeDirectory($d, $ext="php") {
+function includeDirectory($d, $ext = "php") {
 	$ret = array ();
 	$files = directoryListing ( $d, $ext );
 	foreach ( $files as $file ) {
