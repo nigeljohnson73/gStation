@@ -185,7 +185,7 @@ This started out as a pile of wires and some gaffer tape.
 
 With the introduction of a couple of custom PCB's the wires were tidied up nicely and there were no worrying hot spots.
 
-![Version 0.2](res/_journey_v0p2.jpg) ![Version 0.2 infrared](res/journey_v0p2_flir.jpg)
+![Version 0.2](res/_journey_v0p2.jpg) ![Version 0.2 infrared](res/_journey_v0p2_flir.jpg)
 
 Finally a single case, a new PCB and it's mostly done.
 
