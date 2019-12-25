@@ -2,7 +2,7 @@
 $local_timezone = "Europe/London"; // Where are you locally based for time references
 
 $sensors = array();
-$sensors[] = (object) ["name"=>"zone1", "type"=>"DS18B20"];
+//$sensors[] = (object) ["name"=>"zone1", "type"=>"DS18B20"];
 $sensors[] = (object) ["name"=>"zone2", "type"=>"DHT22"];
 $sensors[] = (object) ["name"=>"zone3", "type"=>"DHT22"];
 

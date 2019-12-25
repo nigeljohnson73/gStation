@@ -113,7 +113,7 @@ function readSensorRaw_DS18B20($sensor) {
 	foreach ( $sensor->enumeration as $e ) {
 		$output = null;
 		$retvar = 0;
-		$cmd = "cat " . $e->file;
+		$cmd = "cat " . $e->file . " 2>&1";
 		$val = null;
 
 		$retry_count = 0;
@@ -122,7 +122,7 @@ function readSensorRaw_DS18B20($sensor) {
 		do {
 			if ($retry) {
 				echo ("Read $retry_count failed, pausing and retrying\n");
-				sleep ( 1 );
+				sleep ( 1 );  
 			}
 			$retry_count = $retry_count + 1;
 			$retry = true;
@@ -161,7 +161,7 @@ function readSensorRaw_DHT11($sensor) {
 	foreach ( $sensor->enumeration as $e ) {
 		$output = null;
 		$retvar = 0;
-		$cmd = "cat " . $e->file;
+		$cmd = "cat " . $e->file . " 2>&1";
 		$val = null;
 
 		$retry_count = 0;
@@ -176,7 +176,19 @@ function readSensorRaw_DHT11($sensor) {
 			$retry = true;
 
 			exec ( $cmd, $output, $retvar );
-			echo ("Got:\n" . ob_print_r ( $output ) . "\n");
+			if(strlen($output[0]) == 5) {
+				echo ("Got correct character count '".$output[0]."'\n");
+				if(is_numeric($output[0])) {
+					echo ("Integer conversion works\n");
+					$val = ((double)$output[0])/1000.00;
+				} else {
+					echo ("Integer conversion failed '".$output[0]."'\n");
+				}
+			} else {
+				echo ("Got incorrect character count:\n".ob_print_r($output)."\n");
+			}
+//echo("length: ".strlen($output[0])."\n");
+			//echo ("Got:\n" . ob_print_r ( $output ) . "\n");
 
 			// if(is_array($output) && count($output) == 2) {
 			// echo ("Got correct line count:\n".ob_print_r($output)."\n");
@@ -186,7 +198,7 @@ function readSensorRaw_DHT11($sensor) {
 			// echo ("Got temp: ".$temp."\n");
 			// $val = ((double)$temp)/1000.0;
 			// echo ("Set val: ".$val."\n");
-			// $output=null;
+			$output=null;
 			// } else {
 			// echo ("CRC check failed\n");
 			// }
@@ -251,6 +263,10 @@ function readSensor($i) {
 		if ($ret == null) {
 			echo "Garbage sensor??\n";
 		} else {
+			$ret->name = $sensor->name;
+			$jstr = json_encode($ret);
+			file_put_contents($sensor->ofn, $jstr);
+			echo "Writing to '".$sensor->ofn."'\n";
 			print_r ( $ret );
 		}
 		sleep ( sensorCooloff ( $type ) );
