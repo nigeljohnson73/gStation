@@ -490,7 +490,7 @@ function getModel($ts = null) {
 function setupTriggersScript() {
 	$ofn = dirname ( __FILE__ ) . "/../sh/start_triggers.sh";
 	$str = "";
-	$str .= "#!/bin/sh\n";
+	$str .= "#!/bin/sh\n\n";
 	$str .= trim ( createTriggersSetupScript () );
 
 	file_put_contents ( $ofn, $str );
@@ -499,24 +499,10 @@ function setupTriggersScript() {
 function setupSensorScript() {
 	$ofn = dirname ( __FILE__ ) . "/../sh/start_sensors.sh";
 	$str = "";
-	$str .= "#!/bin/sh\n";
+	$str .= "#!/bin/sh\n\n";
 	$str .= createSensorSetupScript ();
 
 	file_put_contents ( $ofn, $str );
-}
-
-// How long to give the sensor time to refresh
-function sensorCooloff($type) {
-	$ret = 2;
-
-	switch ($type) {
-		case "DHT11" :
-		case "DHT22" :
-			$ret = 3;
-			break;
-	}
-
-	return $ret;
 }
 
 $triggers_enumerated = false;
@@ -531,6 +517,7 @@ function enumerateTriggers() {
 
 	foreach ( $triggers as $pin => $t ) {
 		$gpio_pin = "trigger_pin_" . ($pin + 1);
+		global $$gpio_pin;
 		$t->pin = $$gpio_pin;
 	}
 }
@@ -546,6 +533,7 @@ function enumerateSensors() {
 	foreach ( $sensors as $pin => $s ) {
 		$s->enumeration = enumeration ( $s->type );
 		$gpio_pin = "sensor_pin_" . ($pin + 1);
+		global $$gpio_pin;
 		$s->pin = $$gpio_pin;
 		$s->ofn = "/tmp/gs_sensor_" . ($pin + 1) . ".json";
 	}
@@ -641,13 +629,14 @@ function isGpio($type) {
 }
 
 function createTriggersSetupScript() {
-	global $sensors;
+	global $triggers;
 	enumerateTriggers ();
 
 	$ret = "";
 
 	foreach ( $triggers as $t ) {
 		if (isGpio ( $t->type )) {
+			$ret .= "# " . $t->name . " (" . $t->type . ")\n";
 			$ret .= "gpio -g mode " . $t->pin . " out\n";
 			$ret .= "gpio -g mode " . $t->pin . " " . triggerPullUpDown ( $t->type ) . "\n";
 			$ret .= "gpio -g write " . $t->pin . " " . triggerDefaultState ( $t->type ) . "\n";
@@ -787,6 +776,20 @@ function readSensorRaw_DHT11($sensor) {
 
 function readSensorRaw_DHT22($sensor) {
 	return readSensorRaw_DHT11 ( $sensor );
+}
+
+// How long to give the sensor time to refresh
+function sensorCooloff($type) {
+	$ret = 2;
+
+	switch ($type) {
+		case "DHT11" :
+		case "DHT22" :
+			$ret = 3;
+			break;
+	}
+
+	return $ret;
 }
 
 function checkSensors($type, $pin) {
