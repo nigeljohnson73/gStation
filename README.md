@@ -1,10 +1,10 @@
 ## Contents
 
-* [Overview](##Overview)
-* [Limitations](##Limitations)
-* [Setting up the Pi](##Setting%20up%20the%20Pi)
-* [Roadmap](##Roadmap)
-* [Hardware Requirements and other useful bits](##Hardware%20requirements)
+* [Overview](#Overview)
+* [Limitations](#Limitations)
+* [Setting up the Pi](#Setting-up-the-Pi)
+* [Roadmap](#Roadmap)
+* [Hardware Requirements and other useful bits](#Hardware-requirements)
 
 ## Overview
 
