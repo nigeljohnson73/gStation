@@ -22,8 +22,8 @@ if (1) {
 	echo "\n";
 	
 	echo "Rebuilding sensor and trigger configurations\n";
-	setupSensorScript();
-	setupTriggerScript();
+	setupSensorsScript();
+	setupTriggersScript();
 	
 	echo "\n";
 

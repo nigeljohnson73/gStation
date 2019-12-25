@@ -2,11 +2,12 @@
 include_once (dirname ( __FILE__ ) . "/../functions.php");
 
 function tick() {
-	global $mysql;
+	global $mysql, $bulksms_alert_sunset, $bulksms_alert_sunrise, $triggers, $conditions;
 
 	// Set the parameters for the tick
 	$tsnow = timestampNow ();
-	
+	$nowOffset = timestampFormat ( $tsnow, "H" ) * 60 * 60 + timestampFormat ( $tsnow, "i" ) * 60 + timestampFormat ( $tsnow, "s" );
+
 	// Prepare the storage for later
 	$data = array (); // Whre we will store sensors and trigger data
 
@@ -26,7 +27,61 @@ function tick() {
 				$val
 		) );
 	}
-	print_r ( $trig );
+
+	$model = getModel ( $tsnow );
+
+	print_r ( $model );
+	/**
+	 * *************************************************************************************************************************************
+	 * Calculate the sunset/rise times.
+	 */
+	$last_status = getConfig ( "status", "NIGHT" );
+	$status = (( int ) ($nowOffset) >= ( int ) ($model->sunriseOffset) && ( int ) ($nowOffset) <= ( int ) ($model->sunsetOffset)) ? ("DAY") : ("NIGHT");
+
+	$msg = "status is still '" . $last_status . "'";
+	if ($last_status != $status) {
+		$msg = "status changed from '" . $last_status . "' to '" . $status . "'";
+		logger ( LL_INFO, "tick(): " . $msg );
+		setConfig ( "status", $status );
+		if (($status == "DAY" && $bulksms_alert_sunrise) || ($status == "NIGHT" && $bulksms_alert_sunset)) {
+			sendSms ( $msg, $bulksms_notify );
+		}
+	} else {
+		logger ( LL_DEBUG, "tick(): " . $msg );
+	}
+
+	$status = "DAY";
+	$hl = ($status == "DAY") ? ("High") : ("Low");
+	$temp = "temperature" . $hl;
+	$humd = "humidity" . $hl;
+	$data ["DEMAND.TOD"] = "'" . $status . "'";
+	$data ["DEMAND.TEMPERATURE"] = $model->$temp;
+	$data ["DEMAND.HUMIDITY"] = $model->$humd;
+
+	// Now we get the triggers and see what we need to set
+
+	$fires = array ();
+	enumerateTriggers();
+	foreach ( $triggers as $t ) {
+		if(isGpio($t->type)) {
+			$t->demand = 0;
+			$fires [$t->name] = $t;
+		}
+	}
+
+	foreach ( $conditions as $c ) {
+		foreach ( $data as $k => $v ) {
+			$c = str_replace ( "[[" . $k . "]]", $v, $c );
+		}
+		list ( $k, $expr ) = explode ( " IF ", $c );
+		$eval = '$fires[$k]->demand = (' . $expr . ')?(1):(0);';
+		echo "\$k = '".$k."', \$expr = '".$expr."': ".$c . " - '" . $eval . "'\n";
+		eval ( $eval );
+	}
+	// setLight ( ($status == "DAY") ? ($hl_high_value) : ($hl_low_value) );
+
+	print_r ( $data );
+	print_r ( $fires );
 }
 
 // $guid = GUID();

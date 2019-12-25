@@ -2,20 +2,25 @@
 $local_timezone = "Europe/London"; // Where are you locally based for time references
 
 $sensors = array();
-//$sensors[] = (object) ["name"=>"zone1", "type"=>"DS18B20"];
-$sensors[] = (object) ["name"=>"zone2", "type"=>"DHT22"];
-$sensors[] = (object) ["name"=>"zone3", "type"=>"EMPTY"];
-$sensors[] = (object) ["name"=>"zone4", "type"=>"EMPTY"];
-$sensors[] = (object) ["name"=>"zone4", "type"=>"MH-Z19B"];
+//$sensors[] = (object) ["name"=>"Zone1", "type"=>"DS18B20"];
+$sensors[] = (object) ["name"=>"Zone2", "type"=>"DHT22"];
+$sensors[] = (object) ["name"=>"Zone3", "type"=>"EMPTY"];
+$sensors[] = (object) ["name"=>"Zone4", "type"=>"EMPTY"];
+$sensors[] = (object) ["name"=>"Zone4", "type"=>"MH-Z19B"];
 
 $triggers = [];
-$triggers[] = (object) ["name"=>"T1", "type"=>"SSR"];
-$triggers[] = (object) ["name"=>"T2", "type"=>"SSR"];
+$triggers[] = (object) ["name"=>"HT", "type"=>"SSR"];
+$triggers[] = (object) ["name"=>"LT", "type"=>"SSR"];
 $triggers[] = (object) ["name"=>"T3", "type"=>"EMPTY"];
 $triggers[] = (object) ["name"=>"T4", "type"=>"EMPTY"];
 $triggers[] = (object) ["name"=>"T5", "type"=>"EMPTY"];
-$triggers[] = (object) ["name"=>"T6", "type"=>"iSSR"];
-$triggers[] = (object) ["name"=>"T7", "type"=>"LED"];
+$triggers[] = (object) ["name"=>"T6", "type"=>"EMPTY"];
+$triggers[] = (object) ["name"=>"LED1", "type"=>"LED"];
+
+$conditions = [];
+$conditions[] = "HT IF [[ZONE2.TEMPERATURE]] < [[DEMAND.TEMPERATURE]]";
+$conditions[] = "LT IF [[DEMAND.TOD]] == 'DAY'";
+$conditions[] = "LED1 IF true";
 
 $sensor_pin_1 = 4;
 $sensor_pin_2 = 24;

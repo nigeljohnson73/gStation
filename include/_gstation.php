@@ -496,11 +496,11 @@ function setupTriggersScript() {
 	file_put_contents ( $ofn, $str );
 }
 
-function setupSensorScript() {
+function setupSensorsScript() {
 	$ofn = dirname ( __FILE__ ) . "/../sh/start_sensors.sh";
 	$str = "";
 	$str .= "#!/bin/sh\n\n";
-	$str .= createSensorSetupScript ();
+	$str .= createSensorsSetupScript ();
 
 	file_put_contents ( $ofn, $str );
 }
@@ -647,7 +647,7 @@ function createTriggersSetupScript() {
 	return $ret;
 }
 
-function createSensorSetupScript() {
+function createSensorsSetupScript() {
 	global $sensors;
 	enumerateSensors ();
 
