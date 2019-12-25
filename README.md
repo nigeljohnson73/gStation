@@ -1,36 +1,56 @@
 ## Overview
 
-At it's core this is simply a controller for a heat pad and light of up to 2amps each. Out of the box it will use a northern hemisphere 
+At it's core this is simply (currently) a controller for a heat pad and a light. Out of the box it will use a northern hemisphere 
 concept of when summer is (solstice in June) and a 28.8°C high. You can also sign up for a [DarkSky](https://darksky.net/dev) account
 which will let you configure your experience to a place on the earth. 
 
 There is also a web interface which provides some feedback about how the temperature has been over the last 24 hours and 
 graphs on what is being planned.
 
+The project is currently adequate for running a single Deep Water Culture (DWC) bucket in a grow tent or maybe mushrooms if you replace 
+the heat with a humidifier. It is also suitable for a single reptile vivarium. This project is being worked on in my spare time, but the 
+plan is to allow up to 4 sensors and 7 triggers meaning you can have up to 4 reptile vivariums or DWC buckets (Assuming they have the
+same envirnomental requirements), or maybe a much more complex single growing environment, requiring heating/cooling/dehumidfying/humidifying/venting
+in 3 zones and lighting across the whole environment... or a combination of any of that.
+
 ![Screenshot](res/_web_interface.jpg)
 
 ## Limitations
 
-This app and everything in it are so pre-release that there isn't a version number yet.
+This app and everything in it are so pre-release that there isn't a version number yet, but it is affectionately referred to as 
+Version 1 or 'the beast'.
 
 This application is not designed to be exposed to the internet and be secure.
 
-You're stuck with temperatures in Centigrade.
+You're stuck with temperatures in Centigrade for now and quite some time.
 
 This app uses a solid state relay to control the lights and heat pad. The one I have found reasonbably cheaply
-is only rated at 2 amps per channel.
+is only rated at 2 amps per channel. Version 2 of teh beast will handle 5A per channel.
 
-The control is all done through a config file on the pi. This will move to the web interface in time. If you can install
-everything then this will not be a poblem for you. The config file is located at `/webroot/gStation/config_override.php`.
+There is only 1 sensor and 2 output triggers. Version 2 of the beast will allow up to 4 one-wire sensors and a serial CO2 sensor
+as well as up to 7 triggers. The sensors supported are the DS18B20 for temerature, the DHT11, and DHT22 for temperature and humidity, 
+and I'm adding the MH-Z19B for Carbon Dioxide.
+
+There is only 1 'environment' modelled. This means the demands for heat and light are across all of the 'zones' you set up, so you cannot 
+have a temperature plan for a root zone as a separate plan for the air zone. I do not expect this to change in the foreseable future.
+You can have separate triggers run heaters in different zones based on the sensors you assign to that zone but the demanded temps 
+will be the same. I may add a delta in the command structure so you can set things to be -2 degrees of the demanded value for example.
 
 The web interface is very limited and needs to be refreshed manually. This will change to automatically updating and 
 allowing for some parameter control in the future.
 
+The control (sensor definition, trigger logic and environmental modelling) is handled  through a config file on the pi. This will move 
+to the web interface in time. If you can install everything then this will not be a poblem for you. The config file is located at 
+`/webroot/gStation/config_override.php`.
+
 ## Roadmap
+
+The first thing I am doing is upgrading the sensor and trigger capability. The sensors need to report asychronously to the trigger 
+controlling part of the application.
 
 Once on the journey, the key focus for me will be to work on the web interface. It just needs some sheduling to get the 
 graph image files in the background and update them in the browser. Once this is in place then the tool will be useful enough
-to warant a version number.
+to warant a proper version number.
 
 The next key ingredient will be the ability to control the existing control parameters via the web interface.
 
@@ -40,10 +60,12 @@ The idea is that you can set a cold period to start for X days, then ramp up a v
 I am also building some 3D printed parts to hold things and provide a box for all the electronics... but a maplin box and hot-glue
 will do just as good a job.
 
-I will probably make up some kits at some point for sale on my website. I can also assemble things, but a fully ferrule and heat-wrapped
-install takes me over a day, so that will be an expensive option.
+I will probably make up some kits at some point for sale on my website. I can also assemble things, but a full assembly takes me about a day
+so is a very expensive option, and limited to the spare time I have available.
 
 ## Hardware requirements
+
+Version 2 is completely different and will have more details soon, but version 1 is as follows:
 
 This is quite a list if you want to get into the nitty gritty. But if you have 20AWG for the 240v side and 
 optionally 24AWG for the  5v side, ferrules if you're using them, as well as all the tools (soldering iron etc),
@@ -90,8 +112,6 @@ Make the folllowing changes.
 
  * Network Options -> Hostname
  * Interfaceing options -> I2C -> yes
- * Interfaceing options -> serial -> no
- * Interfaceing options -> One wire -> yes
  * Exit (and do the reboot)
 
 Next, log back in to the new hostname with the new password, then, update Raspian and install all the software packages we need.
@@ -117,6 +137,11 @@ Clone the software into its home.
     sudo chmod -R g+w /webroot
     cd gStation
     cat config.php | grep -v "^$" | grep -v "^//" > config_override.php
+
+Move the new DHT11 overlay into the correct place.
+
+    sudo rm -f /boot/overlays/dht11.dtbo
+    sudo cp res/dht11.dtbo /boot/overlays
 
 Move the webroot stuff around.
 
@@ -151,6 +176,28 @@ Add these lines:
 
     1 0 * * * /usr/bin/php /webroot/gStation/sh/gstation_update.php > /tmp/gstation_update.txt 2>/dev/null
     * * * * * /usr/bin/php /webroot/gStation/sh/gstation_tick.php > /tmp/gstation_tick.txt 2>/dev/null
+
+## The journey so far
+
+This started out as a pile of wires and some gaffer tape.
+
+![Version 0.1](res/_journey_v0p1.jpg)
+
+With the introduction of a couple of custom PCB's the wires were tidied up nicely and there were no worrying hot spots.
+
+![Version 0.2](res/_journey_v0p2.jpg) ![Version 0.2 infrared](res/journey_v0p2_flir.jpg)
+
+Finally a single case, a new PCB and it's mostly done.
+
+![Version 0.3](res/_journey_v0p3.jpg)
+
+The design was a little disappointing and didn't warrant the exposure of the painful electrical bits, so a big box was 
+called for. and a HUGE blue LED.
+
+![Version 1 test rig](res/_journey_v1p0_testrig.jpg)
+![Version 1 fully assembled](res/_journey_v1p0_assembled.jpg)
+![Version 1 in situ](res/_journey_v1p0_insitu.jpg)
+
 
 ## Resources used
 
