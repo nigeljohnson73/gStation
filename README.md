@@ -1,3 +1,11 @@
+## Contents
+
+* [Overview](##Overview)
+* [Limitations](##Limitations)
+* [Setting up the Pi](##Setting%20up%20the%20Pi)
+* [Roadmap](##Roadmap)
+* [Hardware Requirements and other useful bits](##Hardware%20requirements)
+
 ## Overview
 
 At it's core this is simply (currently) a controller for a heat pad and a light. Out of the box it will use a northern hemisphere 
@@ -40,51 +48,11 @@ The web interface is very limited and needs to be refreshed manually. This will 
 allowing for some parameter control in the future.
 
 The control (sensor definition, trigger logic and environmental modelling) is handled  through a config file on the pi. This will move 
-to the web interface in time. If you can install everything then this will not be a poblem for you. The config file is located at 
+to the web interface in time. If you can install everything then this will not be a problem for you. The config file is located at 
 `/webroot/gStation/config_override.php`.
 
-## Roadmap
+Please see the [Roadmap](##Roadmap) section for details on some of things that will come and fix some of these points.
 
-The first thing I am doing is upgrading the sensor and trigger capability. The sensors need to report asychronously to the trigger 
-controlling part of the application.
-
-Once on the journey, the key focus for me will be to work on the web interface. It just needs some sheduling to get the 
-graph image files in the background and update them in the browser. Once this is in place then the tool will be useful enough
-to warant a proper version number.
-
-The next key ingredient will be the ability to control the existing control parameters via the web interface.
-
-The final step before an actual release version will be the ability to control the length of the growing season for hydroponics.
-The idea is that you can set a cold period to start for X days, then ramp up a veg season for Y days and then flower until we stop.
-
-I am also building some 3D printed parts to hold things and provide a box for all the electronics... but a maplin box and hot-glue
-will do just as good a job.
-
-I will probably make up some kits at some point for sale on my website. I can also assemble things, but a full assembly takes me about a day
-so is a very expensive option, and limited to the spare time I have available.
-
-## Hardware requirements
-
-Version 2 is completely different and will have more details soon, but version 1 is as follows:
-
-This is quite a list if you want to get into the nitty gritty. But if you have 20AWG for the 240v side and 
-optionally 24AWG for the  5v side, ferrules if you're using them, as well as all the tools (soldering iron etc),
-then there is less to work out. You will need to substitute parts below if you live outside the UK... and you can 
-if you want to reduce cost and can get things outside of  Amazon Prime for example. I have also built my own 
-custom PCB to route wires, but I'll outline where things are plugged in so you can do this in your favourite way.
-
- * [Mains power input socket][PARTPOWERIN]. this one needs a [250v 6.3A fuse][PARTFUSE], but you can simplify this a lot.
- * [5v PSU][PARTPSU]. You can substutute a Pi power cable instead. Attach to the 5v power pin - pin 2 or 4.
- * [Solid state relay pair][PARTSSR]. Heat trigger on GPIO17 - pin 11, Light on GPIO18 - pin 12, 5v for Vcc.
- * [OLED screen][PARTOLED] . Uses the I2C connections and 3.3v for VCC.
- * [Momentary push button][PARTBUTTON]. Bridge ground to GPIO14 - pin 8, or GPIO21 - pin 40.
- * [Temperature sensor][PARTTEMP]. Data wire to GPIO4 - pin 7, vcc is 3.3v.
- * [Plug socket][PARTPLUG] (x2) to run the power to the heat pad and light, attach in part to the solid state relay and 240v side.
- * [A heat pad][PARTHEAT]
- * [A light][PARTLIGHT]
- * [A Raspberry Pi Zero][PARTPI]
- * [An SD card][PARTSDCARD]
- 
 ## Setting up the Pi
 
 There are a couple of assumptions if you want to use this stuff. First is that you have a bit of knowledge about what
@@ -183,22 +151,74 @@ This started out as a pile of wires and some gaffer tape.
 
 ![Version 0.1](res/_journey_v0p1.jpg)
 
-With the introduction of a couple of custom PCB's the wires were tidied up nicely and there were no worrying hot spots.
+With the introduction of a couple of custom PCB's the wires were tidied up nicely. Gaffer tape was still obligatory at this point.
 
-![Version 0.2](res/_journey_v0p2.jpg) ![Version 0.2 infrared](res/_journey_v0p2_flir.jpg)
+![Version 0.2](res/_journey_v0p2.jpg)
 
-Finally a single case, a new PCB and it's mostly done.
+Running 1.8 amps through one of the channels and there are no significant hot spots on the far right.
+
+![Version 0.2 infrared](res/_journey_v0p2_flir.jpg)
+
+Finally a single case with a new 'for-show' PCB and it's mostly done and pretty.
 
 ![Version 0.3](res/_journey_v0p3.jpg)
 
 The design was a little disappointing and didn't warrant the exposure of the painful electrical bits, so a big box was 
-called for. and a HUGE blue LED.
+called for.
 
 ![Version 1 test rig](res/_journey_v1p0_testrig.jpg)
+
+Saddened by the lack of gaffer tape... the next best thing was called for: a HUGE blue LED.
+
 ![Version 1 fully assembled](res/_journey_v1p0_assembled.jpg)
+
+Finally, here it is installed under my succulent care station.
+
 ![Version 1 in situ](res/_journey_v1p0_insitu.jpg)
 
 
+## Roadmap
+
+The first thing I am doing is upgrading the sensor and trigger capability. The sensors need to report asychronously to the trigger 
+controlling part of the application.
+
+Once on the actual journey, the key focus for me will be to work on the web interface. It just needs some sheduling to get the 
+graph image files in the background and update them in the browser. Once this is in place then the tool will be useful enough
+to warant a proper version number.
+
+The next key ingredient will be the ability to control the existing control parameters via the web interface.
+
+The final step before an actual release version will be the ability to control the dynamics of a growing season for hydroponics.
+The idea is that you can set a cold period to start for X days, then ramp up a veg season for Y days and then flower until we stop.
+
+I am also building some 3D printed parts to hold things and provide a box for all the electronics... but a maplin box and hot-glue
+will do just as good a job.
+
+I will probably make up some kits at some point for sale on my website. I can also assemble things, but a full assembly takes me about 
+a day so is a very expensive option, and limited to the spare time I have available.
+
+## Hardware requirements
+
+Version 2 is completely different and will have more details soon, but version 1 is as follows:
+
+This is quite a list if you want to get into the nitty gritty. But if you have 20AWG for the 240v side and 
+optionally 24AWG for the  5v side, ferrules if you're using them, as well as all the tools (soldering iron etc),
+then there is less to work out. You will need to substitute parts below if you live outside the UK... and you can 
+if you want to reduce cost and can get things outside of  Amazon Prime for example. I have also built my own 
+custom PCB to route wires, but I'll outline where things are plugged in so you can do this in your favourite way.
+
+ * [Mains power input socket][PARTPOWERIN]. this one needs a [250v 6.3A fuse][PARTFUSE], but you can simplify this a lot.
+ * [5v PSU][PARTPSU]. You can substutute a Pi power cable instead. Attach to the 5v power pin - pin 2 or 4.
+ * [Solid state relay pair][PARTSSR]. Heat trigger on GPIO17 - pin 11, Light on GPIO18 - pin 12, 5v for Vcc.
+ * [OLED screen][PARTOLED] . Uses the I2C connections and 3.3v for VCC.
+ * [Momentary push button][PARTBUTTON]. Bridge ground to GPIO14 - pin 8, or GPIO21 - pin 40.
+ * [Temperature sensor][PARTTEMP]. Data wire to GPIO4 - pin 7, vcc is 3.3v.
+ * [Plug socket][PARTPLUG] (x2) to run the power to the heat pad and light, attach in part to the solid state relay and 240v side.
+ * [A heat pad][PARTHEAT]
+ * [A light][PARTLIGHT]
+ * [A Raspberry Pi Zero][PARTPI]
+ * [An SD card][PARTSDCARD]
+ 
 ## Resources used
 
 Here is a list of things I found useful on my journey.
