@@ -50,7 +50,7 @@ function tick() {
 		logger ( LL_DEBUG, "tick(): " . $msg );
 	}
 
-	$status = "DAY";
+	//$status = "DAY";
 	$hl = ($status == "DAY") ? ("High") : ("Low");
 	$temp = "temperature" . $hl;
 	$humd = "humidity" . $hl;
@@ -82,6 +82,11 @@ function tick() {
 
 	print_r ( $data );
 	print_r ( $fires );
+	
+	foreach($fires as $f) {
+		$cmd = "gpio -g write ".$f->pin." ".$f->demand;
+		system($cmd. " > /dev/null 2>&1");
+	}
 }
 
 // $guid = GUID();
