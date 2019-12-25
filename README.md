@@ -1,25 +1,24 @@
 ## Contents
 
-* [Overview](#Overview)
-* [Limitations](#Limitations)
-* [Setting up the Pi](#Setting-up-the-Pi)
-* [Roadmap](#Roadmap)
-* [Hardware Requirements and other useful bits](#Hardware-requirements)
+ * [Overview](#Overview)
+ * [Limitations](#Limitations)
+ * [Setting up the Pi](#Setting-up-the-Pi)
+ * [The Journey so far (with pictures)](#The-journey-so-far)
+ * [Roadmap](#Roadmap)
+ * [Other stuff](#Hardware-requirements)
 
 ## Overview
 
-At it's core this is simply (currently) a controller for a heat pad and a light. Out of the box it will use a northern hemisphere 
+Being designed to read 5 sensors and control 7 triggers meaning you can have up to 4 reptile vivariums or Deep Water Culture (DWC) buckets 
+(Assuming they have the same envirnomental requirements), or maybe a much more complex single growing environment, requiring 
+heating/cooling/dehumidfying/humidifying/venting in 3 zones and lighting across the whole environment... or a combination of any of that.
+
+Currently, at it's core this is simply a controller for a heat pad and a light. Out of the box it will use a northern hemisphere 
 concept of when summer is (solstice in June) and a 28.8°C high. You can also sign up for a [DarkSky](https://darksky.net/dev) account
-which will let you configure your experience to a place on the earth. 
+which will let you configure your environment to a place on the earth. The project currently controls a single vivarium/DWC/germination station.
 
 There is also a web interface which provides some feedback about how the temperature has been over the last 24 hours and 
-graphs on what is being planned.
-
-The project is currently adequate for running a single Deep Water Culture (DWC) bucket in a grow tent or maybe mushrooms if you replace 
-the heat with a humidifier. It is also suitable for a single reptile vivarium. This project is being worked on in my spare time, but the 
-plan is to allow up to 4 sensors and 7 triggers meaning you can have up to 4 reptile vivariums or DWC buckets (Assuming they have the
-same envirnomental requirements), or maybe a much more complex single growing environment, requiring heating/cooling/dehumidfying/humidifying/venting
-in 3 zones and lighting across the whole environment... or a combination of any of that.
+graphs on what is being planned for the environment.
 
 ![Screenshot](res/_web_interface.jpg)
 
@@ -51,7 +50,7 @@ The control (sensor definition, trigger logic and environmental modelling) is ha
 to the web interface in time. If you can install everything then this will not be a problem for you. The config file is located at 
 `/webroot/gStation/config_override.php`.
 
-Please see the [Roadmap](##Roadmap) section for details on some of things that will come and fix some of these points.
+Please see the [Roadmap](#Roadmap) section for details on some of things that will come and fix some of these points.
 
 ## Setting up the Pi
 
