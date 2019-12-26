@@ -1,15 +1,15 @@
 <?php
 include_once (dirname ( __FILE__ ) . "/../functions.php");
 
-// Delete from here
-$tsnow = timestampNow ();
-echo "Normalising Database\n";
-setupTables ();
-echo "Setting up GPIO\n";
-setupGpio ();
-tick ();
-exit ( 0 );
-// Delete to here
+// // Delete from here
+// $tsnow = timestampNow ();
+// echo "Normalising Database\n";
+// setupTables ();
+// echo "Setting up GPIO\n";
+// setupGpio ();
+// tick ();
+// exit ( 0 );
+// // Delete to here
 
 logger ( LL_INFO, "tick(): started" );
 $call_delay = 5;

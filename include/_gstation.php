@@ -68,8 +68,8 @@ function timeOfDay($offset) {
 	$m = floor ( $offset / (60) );
 	$offset -= $m * 60;
 	$s = floor ( $offset );
-	
-	return sprintf("%02d:%02d:%02d", $h, $m, $s);
+
+	return sprintf ( "%02d:%02d:%02d", $h, $m, $s );
 }
 
 function getConfig($id, $default = false) {
@@ -783,6 +783,7 @@ function readSensorRaw_DHT22($sensor) {
 
 function readSensorRaw_MH_Z19B($sensor) {
 	// Coming soon
+	echo "readSensorRaw_MH_Z19B(): Coming soon\n";
 	return null;
 }
 
@@ -853,14 +854,30 @@ function readSensor($i) {
 	$sensor = $sensors [$i - 1];
 	$type = $sensor->type;
 	$pin = $sensor->pin;
-
-	while ( checkSensors ( $type, $pin ) == false ) {
-		echo "No sensor overlay setup for a " . $type . " on pin " . $pin . " - will retry in 30 seconds\n";
-		sleep ( 30 );
-		// echo "retrying...\n";
+	$func = "readSensorRaw_" . str_replace ( "-", "_", $sensor->type );
+	
+	if ($type == "EMPTY" || $pin == 99) {
+		echo ("Sensor slot #" . $i . " is not configured - endless looping required\n");
+		while ( true ) {
+			// Endless loop
+			sleep ( 30 );
+		}
 	}
 
-	$func = "readSensorRaw_" . str_replace ( "-", "_", $sensor->type );
+	if (isGpio ( $type )) {
+		while ( checkSensors ( $type, $pin ) == false ) {
+			echo "No sensor overlay setup for a " . $type . " on pin " . $pin . " - will retry in 30 seconds\n";
+			sleep ( 30 );
+			// echo "retrying...\n";
+		}
+	} else if (! function_exists ( $func )) {
+		echo ("Sensor slot #" . $i . " is not readable - endless looping required\n");
+		while ( true ) {
+			// Endless loop
+			sleep ( 30 );
+		}
+	}
+
 	while ( true ) {
 		$ret = $func ( $sensor );
 		if ($ret == null) {
@@ -1102,7 +1119,7 @@ function tick() {
 
 	echo "\nEnvironmental data:\n";
 	print_r ( $data );
-	setConfig("env", json_encode($data));
+	setConfig ( "env", json_encode ( $data ) );
 
 	// Now we get the triggers and see what we need to set
 
