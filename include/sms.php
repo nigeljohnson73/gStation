@@ -43,7 +43,7 @@ function raw_send_sms($tag, $message, $recip, $route) {
 }
 
 function sendSms($message, $recip, $route = 2) {
-	global $bulksms_username;
+	global $bulksms_username, $loc;
 	if ($bulksms_username == "") {
 		logger ( LL_INFO, "BulkSMS: Not enabled" );
 		return null;
@@ -84,7 +84,7 @@ function sendSms($message, $recip, $route = 2) {
 
 	// if ($credit > 5) {
 	global $bulksms_sender;
-	$ret = raw_send_sms ( $bulksms_sender, $message, $recip, $route );
+	$ret = raw_send_sms ( $bulksms_sender, $loc . ": " . $message, $recip, $route );
 	// } else {
 	// logger ( LL_ERROR, "BulkSMS: There were insufficient credits to send an SMS message" );
 	// return false;

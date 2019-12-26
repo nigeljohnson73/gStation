@@ -96,7 +96,7 @@ $api_call_cap = 370; // If you have a free account, leave this under 900 and don
 // The place you want your station to be remotely located at
 $lat = "-26.549711"; // the latitude of the place you want to mimic (Malkerns/SZ)
 $lng = "31.197664"; // the longitude of the place you want to mimic (Malkerns/SZ)
-$loc = "gStation"; // Just to give it a name in the browser could be the name of the actual place
+$loc = "gStationDev"; // Just to give it a name in the browser could be the name of the actual place
 
 $season_adjust_days = 0; // If you want to move forward in the season, add this many days to the actual forcast. if set to 31, Real January 1 will be like February 1 at your location.
 $timeszone_adjust_hours = 0; // If you want to move forward in the day (because your location is suitably ahead of you) add this many hours. If set to 2, Real 07:30 will be like 09:30 at your location.
