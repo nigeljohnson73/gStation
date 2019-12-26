@@ -1171,6 +1171,26 @@ function tick() {
 		echo "Executing (" . $f->name . ") '" . $cmd . "'\n";
 		system ( $cmd . " > /dev/null 2>&1" );
 	}
+	
+	$retvar = 0;
+	$ouput = "";
+	$cmd = "hostname -I";
+	$val = null;
+	exec ( $cmd, $output, $retvar );
+	list($output, $dummy) = explode(" ", $output);
+	$ostr = "";
+	$ostr.=$output;
+// 	$ostr .= "" . sprintf ( "%02.1f", $temperature ) . "°";
+// 	// $ostr .= $direction_temperature. " ";
+// 	$ostr .= " D" . (($direction_temperature == 0) ? ("-") : (($direction_temperature > 0) ? ("^") : ("v")));
+// 	// $ostr .= " " . sprintf ( "%02.1f", $demand_temperature ) . "°";
+// 	$ostr .= " H" . (($heat) ? ("X") : ("-"));
+// 	$ostr .= " L" . (($status == "DAY") ? ("X") : ("-"));
+	
+	$ostr .= "|";
+	$ostr .= nextSunChange ();
+	file_put_contents("/tmp/oled.txt", $ostr);
+
 }
 
 ?>
