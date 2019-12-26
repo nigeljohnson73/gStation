@@ -1076,14 +1076,14 @@ function tick() {
 		$ll = LL_INFO;
 		setConfig ( "status", $status );
 		if (($status == "DAY" && $bulksms_alert_sunrise) || ($status == "NIGHT" && $bulksms_alert_sunset)) {
+echo "############################### SMS ##### $msg\n";
 			sendSms ( $msg, $bulksms_notify );
 		}
 	} else {
 		if ($last_tod != $tod) {
 			$msg = "Time of day changed from '" . $last_tod . "' to '" . $tod . "'";
-			if ($bulksms_alert_tod)
-				;
-			{
+			if ($bulksms_alert_tod) {
+echo "############################### SMS ##### $msg\n";
 				sendSms ( $msg, $bulksms_notify );
 			}
 		}
@@ -1177,7 +1177,7 @@ function tick() {
 	$cmd = "hostname -I";
 	$val = null;
 	exec ( $cmd, $output, $retvar );
-	list($output, $dummy) = explode(" ", $output);
+	list($output, $dummy) = explode(" ", $output[0]);
 	$ostr = "";
 	$ostr.=$output;
 // 	$ostr .= "" . sprintf ( "%02.1f", $temperature ) . "°";
