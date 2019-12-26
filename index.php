@@ -73,9 +73,11 @@ Current environment: <?php print_r(json_decode(getConfig("env"))) ?></pre>
 	
 		<div class="col-sm-8 text-center">
 				<!-- <img src="gfx/graph_local_temperatures.php?<?php echo randomQuery() ?>" alt="Local actual temperature graph" class="img-thumbnail" style="margin-bottom:8px; margin-right:5px;" /> --> 
-				<img src="gfx/graph_schedule_temperatures.php" alt="Temperature schedue graph" class="img-thumbnail" style="margin-bottom:8px; margin-right:5px;" />
+				<img src="gfx/static_graph_temperature_ZONE1.png" alt="Measured temperature graph for the last 24 hours" class="img-thumbnail" style="margin-bottom:8px; margin-right:5px;" />
+				<img src="gfx/static_graph_humidity_ZONE1.png" alt="Measured humidity graph for the last 24 hours" class="img-thumbnail" style="margin-bottom:8px; margin-right:5px;" />
+				<img src="gfx/graph_schedule_temperature.php" alt="Temperature schedule graph" class="img-thumbnail" style="margin-bottom:8px; margin-right:5px;" />
 				<img src="gfx/graph_schedule_humidity.php" alt="Humidity schedule graph" class="img-thumbnail" style="margin-bottom:8px; margin-right:5px;" />
-				<img src="gfx/graph_schedule_sun.php" alt="Sunrise and sunset graph" class="img-thumbnail" style="margin-bottom:8px; margin-right:5px;" />
+				<img src="gfx/graph_schedule_sun.php" alt="Sunrise and sunset schedule graph" class="img-thumbnail" style="margin-bottom:8px; margin-right:5px;" />
 				<img src="gfx/graph_schedule_daylight.php" alt="Scheduled day length graph" class="img-thumbnail" style="margin-bottom:8px; margin-right:5px;" />
 		</div>
 	</div> <!-- ROW --> 

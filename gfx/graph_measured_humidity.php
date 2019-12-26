@@ -2,32 +2,38 @@
 $quiet = true;
 include_once (dirname ( __FILE__ ) . "/../functions.php");
 
-$zone = "ZONE1";
+global $zone;
+if ($zone == "") {
+	$zone = "ZONE1";
+}
 
-function getLocalHums($name) {
-	global $mysql;
-	// $res = $mysql->query ( "SELECT * FROM humidity_logger where humidity != 999999 and demanded != 999999 and entered >= DATE_SUB(NOW(), INTERVAL 12 HOUR)" );
-	$res = $mysql->query ( "SELECT * FROM sensors where name = '$name' and param = 'humidity'" );
-	// echo "Local temp count: ".count($res)."\n";
-	// var_dump($res);
-	if (is_array ( $res ) && count ( $res ) > 0) {
-		$dem = array ();
-		$act = array ();
-		foreach ( $res as $r ) {
-			// echo ob_print_r($r);
-//			$dem [timestamp2Time ( $r ["entered"] )] = $r ["demanded"];
-			$act [timestamp2Time ( $r ["event"] )] = $r ["value"];
+if (! function_exists ( "getLocalHums" )) {
+
+	function getLocalHums($name) {
+		global $mysql;
+		// $res = $mysql->query ( "SELECT * FROM humidity_logger where humidity != 999999 and demanded != 999999 and entered >= DATE_SUB(NOW(), INTERVAL 12 HOUR)" );
+		$res = $mysql->query ( "SELECT * FROM sensors where name = '$name' and param = 'humidity'" );
+		// echo "Local temp count: ".count($res)."\n";
+		// var_dump($res);
+		if (is_array ( $res ) && count ( $res ) > 0) {
+			$dem = array ();
+			$act = array ();
+			foreach ( $res as $r ) {
+				// echo ob_print_r($r);
+				// $dem [timestamp2Time ( $r ["entered"] )] = $r ["demanded"];
+				$act [timestamp2Time ( $r ["event"] )] = $r ["value"];
+			}
+			return array (
+					"humidity" => $act
+				// "demanded" => $dem
+			);
 		}
-		return array (
-				"humidity" => $act,
-				//"demanded" => $dem
-		);
+		return null;
 	}
-	return null;
 }
 
 $dbg = false;
-$hums = getLocalHums ($zone);
+$hums = getLocalHums ( $zone );
 // echo "<pre>".ob_print_r($hums)."</pre>";
 // Lets have some axes regardless of data
 $legend = "Not enough local humidity measurements have been gathered";
@@ -40,15 +46,15 @@ if ($hums && count ( $hums [array_keys ( $hums ) [0]] ) > 2) {
 	// foreach ( $hums as $k => $v ) {
 	// $hums [$k] = decimateArray ( $v, 5 );
 	// }
-	//$dcount = count ( $hums ["demanded"] );
-	//logger ( LL_INFO, "graphLocalHums(): Got demanded count: " . count ( $hums ["demanded"] ) );
+	// $dcount = count ( $hums ["demanded"] );
+	// logger ( LL_INFO, "graphLocalHums(): Got demanded count: " . count ( $hums ["demanded"] ) );
 
-// 	$dcount_max = 100;
-// 	if ($dcount >= (2 * $dcount_max)) {
-// 		logger ( LL_INFO, "graphLocalHums(): calling decimateArray()" );
-// 		$hums ["demanded"] = decimateArray ( $hums ["demanded"], floor ( $dcount / $dcount_max ) );
-// 	}
-// 	logger ( LL_INFO, "graphLocalHums(): Rendering demanded count: " . count ( $hums ["demanded"] ) );
+	// $dcount_max = 100;
+	// if ($dcount >= (2 * $dcount_max)) {
+	// logger ( LL_INFO, "graphLocalHums(): calling decimateArray()" );
+	// $hums ["demanded"] = decimateArray ( $hums ["demanded"], floor ( $dcount / $dcount_max ) );
+	// }
+	// logger ( LL_INFO, "graphLocalHums(): Rendering demanded count: " . count ( $hums ["demanded"] ) );
 
 	// $hums ["humidity"] = deltaDecimateArray ( smoothArray ( $hums ["humidity"], 1, 1 ), 0.1, 30 );
 	// $hums ["humidity"] = smoothArray ( deltaDecimateArray ( $hums ["humidity"], 0.1, 20 ), 1, 1 );
