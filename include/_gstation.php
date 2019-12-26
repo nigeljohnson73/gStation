@@ -1218,7 +1218,7 @@ echo "############################### SMS ##### $msg\n";
 	// TODO: Get OLED Working correctly
 	$retvar = 0;
 	$ouput = "";
-	$cmd = "hostname -I > /dev/null 2>&1";
+	$cmd = "hostname -I 2>/dev/null";
 	$val = null;
 	exec ( $cmd, $output, $retvar );
 	@list($ipaddress, $dummy) = explode(" ", $output[0]);
