@@ -42,7 +42,7 @@ if ($darksky_key != "") {
 } else {
 	echo "Location: SIMULATED ENVIRONMENT\n\n";
 }
-clearSensorLogger ();
+//clearSensorLogger ();
 
 $quiet = false;
 foreach ( $secs as $k => $s ) {
