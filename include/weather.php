@@ -285,45 +285,4 @@ function modelStatus() {
 	return $ret;
 }
 
-function nextSunChange() {
-	$tsnow = timestampNow ();
-	$midnight = timestamp2Time ( timestampFormat ( $tsnow, "Ymd" ) . "000000" );
-	$nowoffset = timestamp2Time ( $tsnow ) - $midnight;
-	$today = timestampFormat ( $tsnow, "Ymd" );
-	$tomorrow = timestampFormat ( timestampAdd ( $tsnow, numDays ( 1 ) ), "Ymd" );
-	echo "Today: $today\n";
-	echo "Tomorrow: $tomorrow\n";
-
-	$model = getModel ( array (
-			$today,
-			$tomorrow
-	) );
-	// print_r ( $model );
-
-	$ret = "";
-	if ($nowoffset < $model [timestampFormat ( $today, "md" )]->sunriseOffset) {
-		$secs = $model [timestampFormat ( $today, "md" )]->sunriseOffset - $nowoffset;
-		if ($secs > 59) {
-			$ret = "Sunrise " . periodFormat ( $secs, true );
-		} else {
-			$ret = "Sunrise < 1m";
-		}
-	} elseif ($nowoffset < $model [timestampFormat ( $today, "md" )]->sunsetOffset) {
-		$secs = $model [timestampFormat ( $today, "md" )]->sunsetOffset - $nowoffset;
-		if ($secs > 59) {
-			$ret = "Sunset " . periodFormat ( $secs, true );
-		} else {
-			$ret = "Sunset < 1m";
-		}
-	} else {
-		$secs = $model [timestampFormat ( $tomorrow, "md" )]->sunriseOffset - $nowoffset + (24 * 60 * 60);
-		if ($secs > 59) {
-			$ret = "Sunrise " . periodFormat ( $secs, true );
-		} else {
-			$ret = "Sunrise < 1m";
-		}
-	}
-	return $ret;
-}
-
 ?>

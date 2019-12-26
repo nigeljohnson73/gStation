@@ -62,6 +62,47 @@ function clearLogs() {
 	$logger->clearLogs ();
 }
 
+function nextSunChange() {
+	$tsnow = timestampNow ();
+	$midnight = timestamp2Time ( timestampFormat ( $tsnow, "Ymd" ) . "000000" );
+	$nowoffset = timestamp2Time ( $tsnow ) - $midnight;
+	$today = timestampFormat ( $tsnow, "Ymd" );
+	$tomorrow = timestampFormat ( timestampAdd ( $tsnow, numDays ( 1 ) ), "Ymd" );
+// 	echo "Today: $today\n";
+// 	echo "Tomorrow: $tomorrow\n";
+	
+	$model = getModel ( array (
+			$today,
+			$tomorrow
+	) );
+	// print_r ( $model );
+	
+	$ret = "";
+	if ($nowoffset < $model [timestampFormat ( $today, "md" )]->sunriseOffset) {
+		$secs = $model [timestampFormat ( $today, "md" )]->sunriseOffset - $nowoffset;
+		if ($secs > 59) {
+			$ret = "Sunrise " . periodFormat ( $secs, true );
+		} else {
+			$ret = "Sunrise < 1m";
+		}
+	} elseif ($nowoffset < $model [timestampFormat ( $today, "md" )]->sunsetOffset) {
+		$secs = $model [timestampFormat ( $today, "md" )]->sunsetOffset - $nowoffset;
+		if ($secs > 59) {
+			$ret = "Sunset " . periodFormat ( $secs, true );
+		} else {
+			$ret = "Sunset < 1m";
+		}
+	} else {
+		$secs = $model [timestampFormat ( $tomorrow, "md" )]->sunriseOffset - $nowoffset + (24 * 60 * 60);
+		if ($secs > 59) {
+			$ret = "Sunrise " . periodFormat ( $secs, true );
+		} else {
+			$ret = "Sunrise < 1m";
+		}
+	}
+	return $ret;
+}
+
 function timeOfDay($offset) {
 	$h = floor ( $offset / (60 * 60) );
 	$offset -= $h * 60 * 60;
@@ -421,12 +462,15 @@ function rebuildDataModel() {
 				$tsnow = timestampAdd ( $tsnow, numDays ( 1 ) );
 			}
 
-			$obj->temperatureHigh = $high_mid_temperature + $high_delta_temperature * cos ( deg2rad ( $i * $deg_step ) );
-			$obj->temperatureLow = $low_mid_temperature + $low_delta_temperature * cos ( deg2rad ( $i * $deg_step ) );
+			// Highest temps happen about 60 days after the solstice
+			$obj->temperatureHigh = $high_mid_temperature + $high_delta_temperature * cos ( deg2rad ( ($i -60) * $deg_step ) );
+			$obj->temperatureLow = $low_mid_temperature + $low_delta_temperature * cos ( deg2rad ( ($i -60) * $deg_step ) );
 
-			$obj->humidityHigh = $high_mid_humidity + $high_delta_humidity * cos ( deg2rad ( 180 + $i * $deg_step ) );
-			$obj->humidityLow = $low_mid_humidity + $low_delta_humidity * cos ( deg2rad ( 180 + $i * $deg_step ) );
+			// Humidity is also offset from the solstice
+			$obj->humidityHigh = $high_mid_humidity + $high_delta_humidity * cos ( deg2rad ( 180 + ($i -60) * $deg_step ) );
+			$obj->humidityLow = $low_mid_humidity + $low_delta_humidity * cos ( deg2rad ( 180 + ($i -60) * $deg_step ) );
 
+			// Daylength is the only real thing that is bount to the solstices
 			$obj->sunsetOffset = ($sunset_mid_offset + $sunset_delta_offset * cos ( deg2rad ( $i * $deg_step ) )) * 3600;
 			$obj->sunriseOffset = ($sunrise_mid_offset + $sunrise_delta_offset * cos ( deg2rad ( 180 + $i * $deg_step ) )) * 3600;
 			$obj->daylightHours = ($obj->sunsetOffset - $obj->sunriseOffset) / 3600;
@@ -1001,7 +1045,7 @@ function tick() {
 	 * Calculate the sunset/rise times.
 	 */
 	$last_status = getConfig ( "status", "NIGHT" );
-	$last_tod = getConfig ( "status", "NIGHT" );
+	$last_tod = getConfig ( "tod", "NIGHT" );
 	$tod = "NIGHT";
 	$status = (( int ) ($nowOffset) >= ( int ) ($model->sunriseOffset) && ( int ) ($nowOffset) <= ( int ) ($model->sunsetOffset)) ? ("DAY") : ("NIGHT");
 	if ($status == "DAY") {
@@ -1119,7 +1163,6 @@ echo "############################### SMS ##### $msg\n";
 
 	echo "\nEnvironmental data:\n";
 	print_r ( $data );
-	setConfig ( "env", json_encode ( $data ) );
 
 	// Now we get the triggers and see what we need to set
 
@@ -1167,30 +1210,33 @@ echo "############################### SMS ##### $msg\n";
 
 	echo "\nExecuting triggers\n";
 	foreach ( $fires as $f ) {
+		$data["TRIGGER.".$f->name] = $f->demand == highValue($f->type);
 		$cmd = "gpio -g write " . $f->pin . " " . $f->demand;
 		echo "Executing (" . $f->name . ") '" . $cmd . "'\n";
 		system ( $cmd . " > /dev/null 2>&1" );
 	}
-	
+	// TODO: Get OLED Working correctly
 	$retvar = 0;
 	$ouput = "";
-	$cmd = "hostname -I";
+	$cmd = "hostname -I > /dev/null 2>&1";
 	$val = null;
 	exec ( $cmd, $output, $retvar );
-	list($output, $dummy) = explode(" ", $output[0]);
+	@list($ipaddress, $dummy) = explode(" ", $output[0]);
+	$next_sun = nextSunChange ();
+	$data["INFO.IPADDR"] = $ipaddress;
+	$data["INFO.NEXTSUN"] = $next_sun;
+
 	$ostr = "";
-	$ostr.=$output;
-// 	$ostr .= "" . sprintf ( "%02.1f", $temperature ) . "°";
-// 	// $ostr .= $direction_temperature. " ";
-// 	$ostr .= " D" . (($direction_temperature == 0) ? ("-") : (($direction_temperature > 0) ? ("^") : ("v")));
-// 	// $ostr .= " " . sprintf ( "%02.1f", $demand_temperature ) . "°";
-// 	$ostr .= " H" . (($heat) ? ("X") : ("-"));
-// 	$ostr .= " L" . (($status == "DAY") ? ("X") : ("-"));
-	
+	$ostr.=$ipaddress;
 	$ostr .= "|";
-	$ostr .= nextSunChange ();
+	$ostr .= $next_sun;
 	file_put_contents("/tmp/oled.txt", $ostr);
 
+	// 	echo "\nEnvironmental data:\n";
+	// 	print_r ( $data );
+	// Wite this to the config so I can pull trigger data. TODO: Make INFO section
+	setConfig ( "env", json_encode ( $data ) );
+	
 }
 
 ?>

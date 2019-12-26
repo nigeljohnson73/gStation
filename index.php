@@ -56,19 +56,19 @@ $mon = timestampFormat ( timestampNow (), "m" ); // 10;
 				<pre><?php
 					// tick();
 					// $status = getConfig("STATUS", "NIGHT");
-					echo "Processing weather at " . timestampFormat ( timestampNow (), "Y-m-d\TH:i:s T" ) . "\n";
-					if($darksky_key) {
-						echo "Location: " . $loc . " (" . latToDms ( $lat ) . ", " . lngToDms ( $lng ) . ")\n";
-					} else {
-						echo "Location: SIMULATED ENVIRONMENT\n";
-					}
-					echo "Current status: '" . getConfig ( "STATUS", "---" ) . "'\n";
+					echo "Processing environment at " . timestampFormat ( timestampNow (), "Y-m-d\TH:i:s T" ) . "\n";
+// 					if($darksky_key) {
+// 						echo "Location: " . $loc . " (" . latToDms ( $lat ) . ", " . lngToDms ( $lng ) . ")\n";
+// 					} else {
+// 						echo "Location: SIMULATED ENVIRONMENT\n";
+// 					}
+// 					echo "Current status: '" . getConfig ( "STATUS", "---" ) . "'\n";
 ?>
-Current data: <?php print_r(getModel(timestampNow())) ?>
-
 Model status: <?php print_r(modelStatus()) ?>
 
-Last environment: <?php print_r(json_decode(getConfig("env"))) ?></pre>
+Current model: <?php print_r(getModel(timestampNow())) ?>
+
+Current environment: <?php print_r(json_decode(getConfig("env"))) ?></pre>
 		</div>
 	
 		<div class="col-sm-8 text-center">
