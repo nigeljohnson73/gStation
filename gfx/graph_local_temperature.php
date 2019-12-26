@@ -2,10 +2,12 @@
 $quiet = true;
 include_once (dirname ( __FILE__ ) . "/../functions.php");
 
-function getLocalTemps() {
+$zone = "ZONE1";
+
+function getLocalTemps($name) {
 	global $mysql;
 	// $res = $mysql->query ( "SELECT * FROM temperature_logger where temperature != 999999 and demanded != 999999 and entered >= DATE_SUB(NOW(), INTERVAL 12 HOUR)" );
-	$res = $mysql->query ( "SELECT * FROM temperature_logger where temperature != 999999 and demanded != 999999" );
+	$res = $mysql->query ( "SELECT * FROM sensors where name = '$name' and param = 'temperature'" );
 	// echo "Local temp count: ".count($res)."\n";
 	// var_dump($res);
 	if (is_array ( $res ) && count ( $res ) > 0) {
@@ -13,19 +15,19 @@ function getLocalTemps() {
 		$act = array ();
 		foreach ( $res as $r ) {
 			// echo ob_print_r($r);
-			$dem [timestamp2Time ( $r ["entered"] )] = $r ["demanded"];
-			$act [timestamp2Time ( $r ["entered"] )] = $r ["temperature"];
+//			$dem [timestamp2Time ( $r ["entered"] )] = $r ["demanded"];
+			$act [timestamp2Time ( $r ["event"] )] = $r ["value"];
 		}
 		return array (
 				"temperature" => $act,
-				"demanded" => $dem
+				//"demanded" => $dem
 		);
 	}
 	return null;
 }
 
 $dbg = false;
-$temps = getLocalTemps ();
+$temps = getLocalTemps ($zone);
 // echo "<pre>".ob_print_r($temps)."</pre>";
 // Lets have some axes regardless of data
 $legend = "Not enough local temperature measurements have been gathered";
@@ -34,19 +36,19 @@ $max_y = 5;
 $y_ticks = array ();
 
 if ($temps && count ( $temps [array_keys ( $temps ) [0]] ) > 2) {
-	$legend = "Measured Temperature over the last 24 hours";
+	$legend = "Measured $zone temperature over the last 24 hours";
 	// foreach ( $temps as $k => $v ) {
 	// $temps [$k] = decimateArray ( $v, 5 );
 	// }
-	$dcount = count ( $temps ["demanded"] );
-	logger ( LL_INFO, "graphLocalTemps(): Got demanded count: " . count ( $temps ["demanded"] ) );
+	//$dcount = count ( $temps ["demanded"] );
+	//logger ( LL_INFO, "graphLocalTemps(): Got demanded count: " . count ( $temps ["demanded"] ) );
 
-	$dcount_max = 100;
-	if ($dcount >= (2 * $dcount_max)) {
-		logger ( LL_INFO, "graphLocalTemps(): calling decimateArray()" );
-		$temps ["demanded"] = decimateArray ( $temps ["demanded"], floor ( $dcount / $dcount_max ) );
-	}
-	logger ( LL_INFO, "graphLocalTemps(): Rendering demanded count: " . count ( $temps ["demanded"] ) );
+// 	$dcount_max = 100;
+// 	if ($dcount >= (2 * $dcount_max)) {
+// 		logger ( LL_INFO, "graphLocalTemps(): calling decimateArray()" );
+// 		$temps ["demanded"] = decimateArray ( $temps ["demanded"], floor ( $dcount / $dcount_max ) );
+// 	}
+// 	logger ( LL_INFO, "graphLocalTemps(): Rendering demanded count: " . count ( $temps ["demanded"] ) );
 
 	// $temps ["temperature"] = deltaDecimateArray ( smoothArray ( $temps ["temperature"], 1, 1 ), 0.1, 30 );
 	// $temps ["temperature"] = smoothArray ( deltaDecimateArray ( $temps ["temperature"], 0.1, 20 ), 1, 1 );
@@ -57,9 +59,11 @@ if ($temps && count ( $temps [array_keys ( $temps ) [0]] ) > 2) {
 	if ($tcount >= (2 * $tcount_max)) {
 		logger ( LL_INFO, "graphLocalTemps(): calling deltaDecimateArray()" );
 		$temps ["temperature"] = deltaDecimateArray ( $temps ["temperature"], 0.1, floor ( $tcount / $tcount_max ) );
-	} else {
+	} else if ($tcount >= ($tcount_max)) {
 		logger ( LL_INFO, "graphLocalTemps(): calling smoothArray()" );
 		$temps ["temperature"] = smoothArray ( $temps ["temperature"], 1, 1 );
+	} else {
+		// leave it
 	}
 	logger ( LL_INFO, "graphLocalTemps(): Rendering temp count: " . count ( $temps ["temperature"] ) );
 	;

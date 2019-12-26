@@ -8,23 +8,7 @@ function setupTables() {
 	}
 	$tables_setup = true;
 
-	// Used for DarkSky API data
-	$str = "
-		CREATE TABLE IF NOT EXISTS history (
-			id VARCHAR(8) NOT NULL PRIMARY KEY,
-			data MEDIUMTEXT NOT NULL,
-			last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-		)";
-	$mysql->query ( $str );
-
-	$str = "
-		CREATE TABLE IF NOT EXISTS model (
-			id VARCHAR(8) NOT NULL PRIMARY KEY,
-			data MEDIUMTEXT NOT NULL,
-			last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-		)";
-	$mysql->query ( $str );
-
+	// Configuration data
 	$str = "
 		CREATE TABLE IF NOT EXISTS config (
 			id VARCHAR(64) NOT NULL PRIMARY KEY,
@@ -33,6 +17,25 @@ function setupTables() {
 		)";
 	$mysql->query ( $str );
 
+	// Used for DarkSky API historic data
+	$str = "
+		CREATE TABLE IF NOT EXISTS history (
+			id VARCHAR(8) NOT NULL PRIMARY KEY,
+			data MEDIUMTEXT NOT NULL,
+			last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+		)";
+	$mysql->query ( $str );
+
+	// Used for the current data model
+	$str = "
+		CREATE TABLE IF NOT EXISTS model (
+			id VARCHAR(8) NOT NULL PRIMARY KEY,
+			data MEDIUMTEXT NOT NULL,
+			last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+		)";
+	$mysql->query ( $str );
+
+	// last 24 hours of sensor data
 	$str = "
 		CREATE TABLE IF NOT EXISTS sensors (
 			event BIGINT UNSIGNED NOT NULL,
@@ -43,22 +46,23 @@ function setupTables() {
 		)";
 	$mysql->query ( $str );
 
-	$str = "
-		CREATE TABLE IF NOT EXISTS triggers (
-			event BIGINT UNSIGNED NOT NULL,
-			param VARCHAR(255) NOT NULL,
-			value VARCHAR(255) NOT NULL,
-			KEY(event)
-		)";
-	$mysql->query ( $str );
+	// $str = "
+	// CREATE TABLE IF NOT EXISTS triggers (
+	// event BIGINT UNSIGNED NOT NULL,
+	// name VARCHAR(255) NOT NULL,
+	// value VARCHAR(255) NOT NULL,
+	// KEY(event)
+	// )";
+	// $mysql->query ( $str );
 
 	clearLogs ();
 }
 
 function clearLogs() {
 	global $mysql, $logger;
-	// TODO: fix this on sensors and
-	// $mysql->query ( "DELETE FROM temperature_logger where entered < DATE_SUB(NOW(), INTERVAL 24 HOUR)" );
+	$tsnow = timestampNow ();
+	$ts_delete = timestampAddDays ( $tsnow, - 1 );
+	$mysql->query ( "DELETE FROM sensors where event < " . $ts_delete );
 	$logger->clearLogs ();
 }
 
@@ -68,15 +72,15 @@ function nextSunChange() {
 	$nowoffset = timestamp2Time ( $tsnow ) - $midnight;
 	$today = timestampFormat ( $tsnow, "Ymd" );
 	$tomorrow = timestampFormat ( timestampAdd ( $tsnow, numDays ( 1 ) ), "Ymd" );
-// 	echo "Today: $today\n";
-// 	echo "Tomorrow: $tomorrow\n";
-	
+	// echo "Today: $today\n";
+	// echo "Tomorrow: $tomorrow\n";
+
 	$model = getModel ( array (
 			$today,
 			$tomorrow
 	) );
 	// print_r ( $model );
-	
+
 	$ret = "";
 	if ($nowoffset < $model [timestampFormat ( $today, "md" )]->sunriseOffset) {
 		$secs = $model [timestampFormat ( $today, "md" )]->sunriseOffset - $nowoffset;
@@ -463,12 +467,12 @@ function rebuildDataModel() {
 			}
 
 			// Highest temps happen about 60 days after the solstice
-			$obj->temperatureHigh = $high_mid_temperature + $high_delta_temperature * cos ( deg2rad ( ($i -60) * $deg_step ) );
-			$obj->temperatureLow = $low_mid_temperature + $low_delta_temperature * cos ( deg2rad ( ($i -60) * $deg_step ) );
+			$obj->temperatureHigh = $high_mid_temperature + $high_delta_temperature * cos ( deg2rad ( ($i - 60) * $deg_step ) );
+			$obj->temperatureLow = $low_mid_temperature + $low_delta_temperature * cos ( deg2rad ( ($i - 60) * $deg_step ) );
 
 			// Humidity is also offset from the solstice
-			$obj->humidityHigh = $high_mid_humidity + $high_delta_humidity * cos ( deg2rad ( 180 + ($i -60) * $deg_step ) );
-			$obj->humidityLow = $low_mid_humidity + $low_delta_humidity * cos ( deg2rad ( 180 + ($i -60) * $deg_step ) );
+			$obj->humidityHigh = $high_mid_humidity + $high_delta_humidity * cos ( deg2rad ( 180 + ($i - 60) * $deg_step ) );
+			$obj->humidityLow = $low_mid_humidity + $low_delta_humidity * cos ( deg2rad ( 180 + ($i - 60) * $deg_step ) );
 
 			// Daylength is the only real thing that is bount to the solstices
 			$obj->sunsetOffset = ($sunset_mid_offset + $sunset_delta_offset * cos ( deg2rad ( $i * $deg_step ) )) * 3600;
@@ -899,7 +903,7 @@ function readSensor($i) {
 	$type = $sensor->type;
 	$pin = $sensor->pin;
 	$func = "readSensorRaw_" . str_replace ( "-", "_", $sensor->type );
-	
+
 	if ($type == "EMPTY" || $pin == 99) {
 		echo ("Sensor slot #" . $i . " is not configured - endless looping required\n");
 		while ( true ) {
@@ -1120,14 +1124,14 @@ function tick() {
 		$ll = LL_INFO;
 		setConfig ( "status", $status );
 		if (($status == "DAY" && $bulksms_alert_sunrise) || ($status == "NIGHT" && $bulksms_alert_sunset)) {
-echo "############################### SMS ##### $msg\n";
+			echo "############################### SMS ##### $msg\n";
 			sendSms ( $msg, $bulksms_notify );
 		}
 	} else {
 		if ($last_tod != $tod) {
 			$msg = "Time of day changed from '" . $last_tod . "' to '" . $tod . "'";
 			if ($bulksms_alert_tod) {
-echo "############################### SMS ##### $msg\n";
+				echo "############################### SMS ##### $msg\n";
 				sendSms ( $msg, $bulksms_notify );
 			}
 		}
@@ -1210,7 +1214,7 @@ echo "############################### SMS ##### $msg\n";
 
 	echo "\nExecuting triggers\n";
 	foreach ( $fires as $f ) {
-		$data["TRIGGER.".$f->name] = $f->demand == highValue($f->type);
+		$data ["TRIGGER." . $f->name] = $f->demand == highValue ( $f->type );
 		$cmd = "gpio -g write " . $f->pin . " " . $f->demand;
 		echo "Executing (" . $f->name . ") '" . $cmd . "'\n";
 		system ( $cmd . " > /dev/null 2>&1" );
@@ -1221,22 +1225,21 @@ echo "############################### SMS ##### $msg\n";
 	$cmd = "hostname -I 2>/dev/null";
 	$val = null;
 	exec ( $cmd, $output, $retvar );
-	@list($ipaddress, $dummy) = explode(" ", $output[0]);
+	@list ( $ipaddress, $dummy ) = explode ( " ", $output [0] );
 	$next_sun = nextSunChange ();
-	$data["INFO.IPADDR"] = $ipaddress;
-	$data["INFO.NEXTSUN"] = $next_sun;
+	$data ["INFO.IPADDR"] = $ipaddress;
+	$data ["INFO.NEXTSUN"] = $next_sun;
 
 	$ostr = "";
-	$ostr.=$ipaddress;
+	$ostr .= $ipaddress;
 	$ostr .= "|";
 	$ostr .= $next_sun;
-	file_put_contents("/tmp/oled.txt", $ostr);
+	file_put_contents ( "/tmp/oled.txt", $ostr );
 
-	// 	echo "\nEnvironmental data:\n";
-	// 	print_r ( $data );
+	// echo "\nEnvironmental data:\n";
+	// print_r ( $data );
 	// Wite this to the config so I can pull trigger data. TODO: Make INFO section
 	setConfig ( "env", json_encode ( $data ) );
-	
 }
 
 ?>
