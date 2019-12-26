@@ -12,7 +12,7 @@ include_once ("functions.php");
 // buy: https://succulentplants.uk/product/fenestraria-baby-toes-living-stone-rooted-plant/#comment-2356
 // Create connection
 
-clearSensorLogger();
+setupTables();
 $day = timestampFormat ( timestampNow (), "d" ); // 4;
 $mon = timestampFormat ( timestampNow (), "m" ); // 10;
                                                  // $mon = 10;
@@ -68,14 +68,15 @@ Current data: <?php print_r(getModel(timestampNow())) ?>
 
 Model status: <?php print_r(modelStatus()) ?>
 
-Last temp: <?php print_r(tfn(lastTemp())) ?></pre>
+Last environment: <?php print_r(json_decode(getConfig("env"))) ?></pre>
 		</div>
 	
 		<div class="col-sm-8 text-center">
-				<img src="gfx/graph_local_temperatures.php?<?php echo randomQuery() ?>" alt="Local actual temperature graph" class="img-thumbnail" style="margin-bottom:8px; margin-right:5px;" /> 
-				<img src="gfx/graph_schedule_temperatures.php" alt="Remote average temperature graph" class="img-thumbnail" style="margin-bottom:8px; margin-right:5px;" />
-				<img src="gfx/graph_schedule_sun.php" alt="Remote sunrise and sunset graph" class="img-thumbnail" style="margin-bottom:8px; margin-right:5px;" />
-				<img src="gfx/graph_schedule_daylight.php" alt="Remote day length graph" class="img-thumbnail" style="margin-bottom:8px; margin-right:5px;" />
+				<!-- <img src="gfx/graph_local_temperatures.php?<?php echo randomQuery() ?>" alt="Local actual temperature graph" class="img-thumbnail" style="margin-bottom:8px; margin-right:5px;" /> --> 
+				<img src="gfx/graph_schedule_temperatures.php" alt="Temperature schedue graph" class="img-thumbnail" style="margin-bottom:8px; margin-right:5px;" />
+				<img src="gfx/graph_schedule_humidity.php" alt="Humidity schedule graph" class="img-thumbnail" style="margin-bottom:8px; margin-right:5px;" />
+				<img src="gfx/graph_schedule_sun.php" alt="Sunrise and sunset graph" class="img-thumbnail" style="margin-bottom:8px; margin-right:5px;" />
+				<img src="gfx/graph_schedule_daylight.php" alt="Scheduled day length graph" class="img-thumbnail" style="margin-bottom:8px; margin-right:5px;" />
 		</div>
 	</div> <!-- ROW --> 
 

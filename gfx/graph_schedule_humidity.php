@@ -3,11 +3,11 @@ $quiet = true;
 include_once (dirname ( __FILE__ ) . "/../functions.php");
 
 global $loc, $local_timezone;
-$legend = "Temperature Schedule";
+$legend = "Humidity Schedule";
 
 $arr = array (
-		"temperatureHigh",
-		"temperatureLow"
+		"humidityHigh",
+		"humidityLow"
 );
 $data = getModeledDataFields ( $arr );
 
@@ -16,7 +16,7 @@ $max_y = ceil ( graphValMax ( $data ) );
 
 $y_ticks = array ();
 for($i = $min_y; $i <= $max_y; $i ++) {
-	$y_ticks [$i] = sprintf ( "% 2d", $i ) . "C";
+	$y_ticks [$i] = sprintf ( "% 2d", $i ) . "%";
 }
 
 $x_ticks = 12;
@@ -25,13 +25,13 @@ $x_subticks = 0;
 $tsnow = timestampNow ();
 // $pinpoint_act = array ();
 // $pinpoint_act ["x"] = timestamp2Time ( $tsnow );
-// $pinpoint_act ["y"] = getConfig ( "temperature" );
+// $pinpoint_act ["y"] = getConfig ( "humidity" );
 $pinpoint_dem = array ();
 $pinpoint_dem ["x"] = timestamp2Time ( $tsnow );
-$pinpoint_dem ["y"] = getConfig ( "temperature_demand" );
+$pinpoint_dem ["y"] = getConfig ( "humidity_demand" );
 
 $pinpoint = array (
-// 		( object ) $pinpoint_act,
+		//( object ) $pinpoint_act,
 		( object ) $pinpoint_dem
 );
 

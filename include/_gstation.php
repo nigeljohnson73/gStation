@@ -1,7 +1,12 @@
 <?php
+$tables_setup = false;
 
 function setupTables() {
-	global $mysql;
+	global $mysql, $tables_setup;
+	if ($tables_setup) {
+		return;
+	}
+	$tables_setup = true;
 
 	// Used for DarkSky API data
 	$str = "
@@ -55,6 +60,16 @@ function clearLogs() {
 	// TODO: fix this on sensors and
 	// $mysql->query ( "DELETE FROM temperature_logger where entered < DATE_SUB(NOW(), INTERVAL 24 HOUR)" );
 	$logger->clearLogs ();
+}
+
+function timeOfDay($offset) {
+	$h = floor ( $offset / (60 * 60) );
+	$offset -= $h * 60 * 60;
+	$m = floor ( $offset / (60) );
+	$offset -= $m * 60;
+	$s = floor ( $offset );
+	
+	return sprintf("%02d:%02d:%02d", $h, $m, $s);
 }
 
 function getConfig($id, $default = false) {
@@ -409,9 +424,8 @@ function rebuildDataModel() {
 			$obj->temperatureHigh = $high_mid_temperature + $high_delta_temperature * cos ( deg2rad ( $i * $deg_step ) );
 			$obj->temperatureLow = $low_mid_temperature + $low_delta_temperature * cos ( deg2rad ( $i * $deg_step ) );
 
-			// Humidity is higher in the winter when temps drop, so use sin to get 180 degrees off
-			$obj->humidityHigh = $high_mid_humidity + $high_delta_humidity * sin ( deg2rad ( $i * $deg_step ) );
-			$obj->humidityLow = $low_mid_humidity + $low_delta_humidity * sin ( deg2rad ( $i * $deg_step ) );
+			$obj->humidityHigh = $high_mid_humidity + $high_delta_humidity * cos ( deg2rad ( 180 + $i * $deg_step ) );
+			$obj->humidityLow = $low_mid_humidity + $low_delta_humidity * cos ( deg2rad ( 180 + $i * $deg_step ) );
 
 			$obj->sunsetOffset = ($sunset_mid_offset + $sunset_delta_offset * cos ( deg2rad ( $i * $deg_step ) )) * 3600;
 			$obj->sunriseOffset = ($sunrise_mid_offset + $sunrise_delta_offset * cos ( deg2rad ( 180 + $i * $deg_step ) )) * 3600;
@@ -508,6 +522,7 @@ function setupSensorsScript() {
 $triggers_enumerated = false;
 
 function enumerateTriggers() {
+	// echo "enumerateTriggers(): called\n";
 	global $triggers_enumerated, $triggers;
 
 	if ($triggers_enumerated) {
@@ -523,6 +538,7 @@ function enumerateTriggers() {
 }
 
 function enumerateSensors() {
+	// echo "enumerateSensors(): called\n";
 	global $sensors_enumerated, $sensors;
 
 	if ($sensors_enumerated) {
@@ -531,7 +547,7 @@ function enumerateSensors() {
 	$sensors_enumerated = true;
 
 	foreach ( $sensors as $pin => $s ) {
-		$s->enumeration = enumeration ( $s->type );
+		$s->enumeration = sensorEnumeration ( $s->type );
 		$gpio_pin = "sensor_pin_" . ($pin + 1);
 		global $$gpio_pin;
 		$s->pin = $$gpio_pin;
@@ -542,7 +558,7 @@ function enumerateSensors() {
 $w1_enum = 1;
 $iio_enum = 0;
 
-function enumeration($type) {
+function sensorEnumeration($type) {
 	$ret = null;
 	global $w1_enum;
 	global $iio_enum;
@@ -580,7 +596,11 @@ function enumeration($type) {
 function overlay($type) {
 	$ret = "w1-gpio";
 
+	// See https://www.raspberrypi.org/forums/viewtopic.php?t=80730#p1056163 for better way to handle LED
 	switch ($type) {
+		case "LED" :
+			$ret = "pi3-act-led";
+			break;
 		case "DHT11" :
 		case "DHT22" :
 			$ret = "dht11";
@@ -744,24 +764,7 @@ function readSensorRaw_DHT11($sensor) {
 			} else {
 				echo ("Got incorrect character count:\n" . ob_print_r ( $output ) . "\n");
 			}
-			// echo("length: ".strlen($output[0])."\n");
-			// echo ("Got:\n" . ob_print_r ( $output ) . "\n");
-
-			// if(is_array($output) && count($output) == 2) {
-			// echo ("Got correct line count:\n".ob_print_r($output)."\n");
-			// if(preg_match('/crc=[a-f0-9]{2} YES/', $output[0])) {
-			// echo ("CRC passed\n");
-			// list($dummy, $temp) = explode("t=", $output[1]);
-			// echo ("Got temp: ".$temp."\n");
-			// $val = ((double)$temp)/1000.0;
-			// echo ("Set val: ".$val."\n");
 			$output = null;
-			// } else {
-			// echo ("CRC check failed\n");
-			// }
-			// } else {
-			// echo ("Got incorrect line count:\n".ob_print_r($output)."\n");
-			// }
 		} while ( $val == null && $retry_count < $retry_limit );
 
 		if ($val == null) {
@@ -778,6 +781,11 @@ function readSensorRaw_DHT22($sensor) {
 	return readSensorRaw_DHT11 ( $sensor );
 }
 
+function readSensorRaw_MH_Z19B($sensor) {
+	// Coming soon
+	return null;
+}
+
 // How long to give the sensor time to refresh
 function sensorCooloff($type) {
 	$ret = 2;
@@ -786,6 +794,30 @@ function sensorCooloff($type) {
 		case "DHT11" :
 		case "DHT22" :
 			$ret = 3;
+			break;
+	}
+
+	return $ret;
+}
+
+function highValue($type) {
+	$ret = 1;
+
+	switch ($type) {
+		case "iSSR" :
+			$ret = 0;
+			break;
+	}
+
+	return $ret;
+}
+
+function lowValue($type) {
+	$ret = 0;
+
+	switch ($type) {
+		case "iSSR" :
+			$ret = 1;
 			break;
 	}
 
@@ -810,7 +842,7 @@ function readSensor($i) {
 	global $sensors;
 
 	if (! isset ( $sensors [$i - 1] )) {
-		echo ("No sensor defined for slot #" . $i . "\n");
+		echo ("No sensor defined for slot #" . $i . " - endless looping required\n");
 		while ( true ) {
 			// Endless loop
 			sleep ( 30 );
@@ -823,12 +855,12 @@ function readSensor($i) {
 	$pin = $sensor->pin;
 
 	while ( checkSensors ( $type, $pin ) == false ) {
-		echo "No sensor overlay setup for a " . $type . " on pin " . $pin . "\n";
+		echo "No sensor overlay setup for a " . $type . " on pin " . $pin . " - will retry in 30 seconds\n";
 		sleep ( 30 );
-		echo "retrying...\n";
+		// echo "retrying...\n";
 	}
 
-	$func = "readSensorRaw_" . $sensor->type;
+	$func = "readSensorRaw_" . str_replace ( "-", "_", $sensor->type );
 	while ( true ) {
 		$ret = $func ( $sensor );
 		if ($ret == null) {
@@ -860,11 +892,268 @@ function gatherSensors() {
 				$o = new StdClass ();
 				$o->name = $name;
 				$o->param = $k;
-				$o->val = $v;
+				$o->value = $v;
 				$ret [] = $o;
 			}
 		}
 	}
 	return $ret;
 }
+
+function setupGpio() {
+	// echo "setupGpio(): called\n";
+	$runtime_version = @file_get_contents ( dirname ( __FILE__ ) . "/../board.txt" );
+
+	global $sensor_pin_1, $sensor_pin_2, $sensor_pin_3, $sensor_pin_4, $trigger_pin_1, $trigger_pin_2, $trigger_pin_3, $trigger_pin_4, $trigger_pin_5, $trigger_pin_6;
+
+	if (in_array ( $runtime_version, [ 
+			"2.1f",
+			"2.1g",
+			"2.0b",
+			"2.0c"
+	] )) {
+		$sensor_pin_1 = 4;
+		$sensor_pin_2 = 17;
+		$sensor_pin_3 = 7;
+		$sensor_pin_4 = 22;
+
+		$trigger_pin_1 = 18;
+		$trigger_pin_2 = 23;
+		$trigger_pin_3 = 24;
+		$trigger_pin_4 = 25;
+		$trigger_pin_5 = 8;
+		$trigger_pin_6 = 11;
+	}
+	if ($runtime_version == "2.0") {
+		// THe first PCB
+		$sensor_pin_1 = 4;
+
+		$trigger_pin_1 = 17;
+		$trigger_pin_2 = 18;
+	}
+	echo "setupGpio(): runtime_version = " . $runtime_version . "\n";
+	if ($sensor_pin_1 != 99) {
+		echo "setupGpio(): sensor_pin_1 = " . $sensor_pin_1 . "\n";
+	}
+	if ($sensor_pin_2 != 99) {
+		echo "setupGpio(): sensor_pin_2 = " . $sensor_pin_2 . "\n";
+	}
+	if ($sensor_pin_3 != 99) {
+		echo "setupGpio(): sensor_pin_3 = " . $sensor_pin_3 . "\n";
+	}
+	if ($sensor_pin_4 != 99) {
+		echo "setupGpio(): sensor_pin_4 = " . $sensor_pin_4 . "\n";
+	}
+	if ($trigger_pin_1 != 99) {
+		echo "setupGpio(): trigger_pin_1 = " . $trigger_pin_1 . "\n";
+	}
+	if ($trigger_pin_2 != 99) {
+		echo "setupGpio(): trigger_pin_2 = " . $trigger_pin_2 . "\n";
+	}
+	if ($trigger_pin_3 != 99) {
+		echo "setupGpio(): trigger_pin_3 = " . $trigger_pin_3 . "\n";
+	}
+	if ($trigger_pin_4 != 99) {
+		echo "setupGpio(): trigger_pin_4 = " . $trigger_pin_4 . "\n";
+	}
+	if ($trigger_pin_5 != 99) {
+		echo "setupGpio(): trigger_pin_5 = " . $trigger_pin_5 . "\n";
+	}
+	if ($trigger_pin_6 != 99) {
+		echo "setupGpio(): trigger_pin_6 = " . $trigger_pin_6 . "\n";
+	}
+}
+
+function tick() {
+	echo "************************************************************************************************************************************\n";
+	global $mysql, $bulksms_notify, $bulksms_alert_sunset, $bulksms_alert_sunrise, $bulksms_alert_tod, $triggers, $conditions;
+
+	// Set the parameters for the tick
+	$tsnow = timestampNow ();
+	$nowOffset = timestampFormat ( $tsnow, "H" ) * 60 * 60 + timestampFormat ( $tsnow, "i" ) * 60 + timestampFormat ( $tsnow, "s" );
+
+	$model = getModel ( $tsnow );
+	echo "\nModel data:\n";
+	print_r ( $model );
+
+	// Prepare the storage for later
+	$data = array (); // Whre we will store sensors and trigger data
+
+	/**
+	 * *************************************************************************************************************************************
+	 * Calculate the sunset/rise times.
+	 */
+	$last_status = getConfig ( "status", "NIGHT" );
+	$last_tod = getConfig ( "status", "NIGHT" );
+	$tod = "NIGHT";
+	$status = (( int ) ($nowOffset) >= ( int ) ($model->sunriseOffset) && ( int ) ($nowOffset) <= ( int ) ($model->sunsetOffset)) ? ("DAY") : ("NIGHT");
+	if ($status == "DAY") {
+		$dayLength = $model->sunsetOffset - $model->sunriseOffset;
+		$stepOffset = $dayLength / 5;
+		echo "LIGHT.MOON, TOD.NIGHT    : 00:00:00 -> " . timeOfDay ( $model->sunriseOffset );
+		if ($nowOffset < ($model->sunriseOffset)) {
+			echo " <-- ***NOW***\n";
+		} else {
+			echo "\n";
+		}
+		// echo "SUNRISE = " . timeOfDay($model->sunriseOffset) . "\n";
+		// echo "SUNSET = " . timeOfDay($model->sunsetOffset) . "\n";
+		echo "LIGHT.SUN,  TOD.EARLY    : " . timeOfDay ( $model->sunriseOffset + 0 * $stepOffset ) . " -> " . timeOfDay ( $model->sunriseOffset + 1 * $stepOffset );
+		if ($nowOffset >= ($model->sunriseOffset + 0 * $stepOffset) && $nowOffset < ($model->sunriseOffset + 1 * $stepOffset)) {
+			echo " <-- ***NOW***\n";
+		} else {
+			echo "\n";
+		}
+		echo "LIGHT.SUN,  TOD.EARLYMID : " . timeOfDay ( $model->sunriseOffset + 1 * $stepOffset ) . " -> " . timeOfDay ( $model->sunriseOffset + 2 * $stepOffset );
+		if ($nowOffset >= ($model->sunriseOffset + 1 * $stepOffset) && $nowOffset < ($model->sunriseOffset + 2 * $stepOffset)) {
+			echo " <-- ***NOW***\n";
+		} else {
+			echo "\n";
+		}
+		echo "LIGHT.SUN,  TOD.MID      : " . timeOfDay ( $model->sunriseOffset + 2 * $stepOffset ) . " -> " . timeOfDay ( $model->sunriseOffset + 3 * $stepOffset );
+		if ($nowOffset >= ($model->sunriseOffset + 2 * $stepOffset) && $nowOffset < ($model->sunriseOffset + 3 * $stepOffset)) {
+			echo " <-- ***NOW***\n";
+		} else {
+			echo "\n";
+		}
+		echo "LIGHT.SUN,  TOD.MIDLATE  : " . timeOfDay ( $model->sunriseOffset + 3 * $stepOffset ) . " -> " . timeOfDay ( $model->sunriseOffset + 4 * $stepOffset );
+		if ($nowOffset >= ($model->sunriseOffset + 3 * $stepOffset) && $nowOffset < ($model->sunriseOffset + 4 * $stepOffset)) {
+			echo " <-- ***NOW***\n";
+		} else {
+			echo "\n";
+		}
+		echo "LIGHT.SUN,  TOD.LATE     : " . timeOfDay ( $model->sunriseOffset + 4 * $stepOffset ) . " -> " . timeOfDay ( $model->sunriseOffset + 5 * $stepOffset );
+		if ($nowOffset >= ($model->sunriseOffset + 4 * $stepOffset) && $nowOffset < ($model->sunriseOffset + 5 * $stepOffset)) {
+			echo " <-- ***NOW***\n";
+		} else {
+			echo "\n";
+		}
+		echo "LIGHT.MOON, TOD.NIGHT    : " . timeOfDay ( $model->sunsetOffset ) . " -> 23:59:59";
+		if ($nowOffset >= ($model->sunsetOffset)) {
+			echo " <-- ***NOW***\n";
+		} else {
+			echo "\n";
+		}
+
+		// echo "day step offset = " . ($stepOffset / 60) . " minutes\n";
+		if ($nowOffset < ($model->sunriseOffset + 1 * $stepOffset)) {
+			$tod = "EARLY";
+		} else if ($nowOffset < ($model->sunriseOffset + 2 * $stepOffset)) {
+			$tod = "EARLYMID";
+		} else if ($nowOffset < ($model->sunriseOffset + 3 * $stepOffset)) {
+			$tod = "MID";
+		} else if ($nowOffset < ($model->sunriseOffset + 4 * $stepOffset)) {
+			$tod = "MIDLATE";
+		} else {
+			$tod = "LATE";
+		}
+	}
+	if ($last_tod != $tod) {
+		setConfig ( "tod", $tod );
+	}
+
+	$msg = "Status is still '" . $last_tod . "'";
+	$ll = LL_DEBUG;
+	if ($last_status != $status) {
+		$msg = "Status changed from '" . $last_status . "' to '" . $status . "'";
+		$ll = LL_INFO;
+		setConfig ( "status", $status );
+		if (($status == "DAY" && $bulksms_alert_sunrise) || ($status == "NIGHT" && $bulksms_alert_sunset)) {
+			sendSms ( $msg, $bulksms_notify );
+		}
+	} else {
+		if ($last_tod != $tod) {
+			$msg = "Time of day changed from '" . $last_tod . "' to '" . $tod . "'";
+			if ($bulksms_alert_tod)
+				;
+			{
+				sendSms ( $msg, $bulksms_notify );
+			}
+		}
+	}
+	logger ( $ll, "tick(): " . $msg );
+
+	// $status = "DAY";
+	$hl = ($status == "DAY") ? ("High") : ("Low");
+	$temp = "temperature" . $hl;
+	$humd = "humidity" . $hl;
+	$data ["DEMAND.LIGHT"] = "'" . (($status == 'DAY') ? ("SUN") : ("MOON")) . "'";
+	$data ["DEMAND.TOD"] = "'" . $tod . "'";
+	$data ["DEMAND.TEMPERATURE"] = $model->$temp;
+	$data ["DEMAND.HUMIDITY"] = $model->$humd;
+
+	setConfig ( "temperature_demand", $model->$temp );
+	setConfig ( "humidity_demand", $model->$humd );
+
+	echo "\nGathering sensor data\n";
+	$sensors = gatherSensors ();
+	foreach ( $sensors as $s ) {
+		$name = $s->name;
+		$param = $s->param;
+		$val = $s->value;
+		$data [strtoupper ( $name . "." . $param )] = $val;
+		$ret = $mysql->query ( "REPLACE INTO sensors (event, name, param, value) VALUES (?, ?, ?, ?)", "isss", array (
+				$tsnow,
+				$name,
+				$param,
+				$val
+		) );
+	}
+
+	echo "\nEnvironmental data:\n";
+	print_r ( $data );
+	setConfig("env", json_encode($data));
+
+	// Now we get the triggers and see what we need to set
+
+	echo "\nProcessing trigger conditions\n";
+	$fires = array ();
+	enumerateTriggers ();
+	foreach ( $triggers as $t ) {
+		if (isGpio ( $t->type )) {
+			$t->demand = 0;
+			$fires [$t->name] = $t;
+		}
+	}
+
+	foreach ( $conditions as $c ) {
+		$oc = $c;
+		foreach ( $data as $k => $v ) {
+			$c = str_replace ( "[[" . $k . "]]", $v, $c );
+		}
+
+		$matches = array ();
+		if (preg_match ( "/\[\[(.*?)\]\]/", $c, $matches ) == 0) {
+			list ( $k, $expr ) = explode ( " IF ", $c );
+			if (isset ( $fires [$k] )) {
+				echo $k . " = (" . $expr . ")?(1):(0);\n";
+				$eval = '$fires[$k]->demand = (' . $expr . ')?(highValue($fires[$k]->type)):(lowValue($fires[$k]->type));';
+				eval ( $eval );
+			} else {
+				echo "Skipping damaged condition - Trigger '" . $k . "' not found (" . $oc . ")\n";
+			}
+		} else {
+			$missing = [ ];
+			$cap = false;
+			foreach ( $matches as $m ) {
+				if ($cap) {
+					$missing [] = $m;
+				}
+				$cap = ! $cap;
+			}
+			echo "Skipping damaged condition - 'Sensor '" . implode ( "', '", $missing ) . "' not found (" . $oc . ")\n";
+		}
+	}
+	// setLight ( ($status == "DAY") ? ($hl_high_value) : ($hl_low_value) );
+
+	// print_r ( $fires );
+
+	echo "\nExecuting triggers\n";
+	foreach ( $fires as $f ) {
+		$cmd = "gpio -g write " . $f->pin . " " . $f->demand;
+		echo "Executing (" . $f->name . ") '" . $cmd . "'\n";
+		system ( $cmd . " > /dev/null 2>&1" );
+	}
+}
+
 ?>

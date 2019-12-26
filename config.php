@@ -1,39 +1,71 @@
 <?php
 $local_timezone = "Europe/London"; // Where are you locally based for time references
 
-$sensors = array();
-//$sensors[] = (object) ["name"=>"Zone1", "type"=>"DS18B20"];
-$sensors[] = (object) ["name"=>"Zone2", "type"=>"DHT22"];
-$sensors[] = (object) ["name"=>"Zone3", "type"=>"EMPTY"];
-$sensors[] = (object) ["name"=>"Zone4", "type"=>"EMPTY"];
-$sensors[] = (object) ["name"=>"Zone4", "type"=>"MH-Z19B"];
+$sensors = [ ];
+$sensors [] = ( object ) [ 
+		"name" => "ZONE1", // RZ Root zone
+		"type" => "DHT22" // EMPTY, DS18B20, DHT11 or DHT22
+];
+$sensors [] = ( object ) [ 
+		"name" => "ZONE2", // AZ Generic air zone
+		"type" => "EMPTY" // EMPTY, DS18B20, DHT11 or DHT22
+];
+$sensors [] = ( object ) [ 
+		"name" => "ZONE3", // CZ Canopy zone
+		"type" => "EMPTY" // EMPTY, DS18B20, DHT11 or DHT22
+];
+$sensors [] = ( object ) [ 
+		"name" => "ZONE4", // LZ Lighting zone
+		"type" => "EMPTY" // EMPTY, DS18B20, DHT11 or DHT22
+];
+$sensors [] = ( object ) [ // This is the 5th sensor for the CO2 monitor in the Air Zone (AZ)
+		"name" => "ZONE2", // Generic air zone
+		"type" => "EMPTY" // EMPTY or MH-Z19B
+];
 
-$triggers = [];
-$triggers[] = (object) ["name"=>"HT", "type"=>"SSR"];
-$triggers[] = (object) ["name"=>"LT", "type"=>"SSR"];
-$triggers[] = (object) ["name"=>"T3", "type"=>"EMPTY"];
-$triggers[] = (object) ["name"=>"T4", "type"=>"EMPTY"];
-$triggers[] = (object) ["name"=>"T5", "type"=>"EMPTY"];
-$triggers[] = (object) ["name"=>"T6", "type"=>"EMPTY"];
-$triggers[] = (object) ["name"=>"LED1", "type"=>"LED"];
+$triggers = [ ];
+$triggers [] = ( object ) [ 
+		"name" => "T1", // Generally used for heat
+		"type" => "SSR" // EMPTY, SSR, iSSR or LED
+];
+$triggers [] = ( object ) [ 
+		"name" => "T2", // Generally used for light
+		"type" => "SSR" // EMPTY, SSR, iSSR or LED
+];
+$triggers [] = ( object ) [ 
+		"name" => "T3",
+		"type" => "EMPTY" // EMPTY, SSR, iSSR or LED
+];
+$triggers [] = ( object ) [ 
+		"name" => "T4",
+		"type" => "EMPTY" // EMPTY, SSR, iSSR or LED
+];
+$triggers [] = ( object ) [ 
+		"name" => "T5",
+		"type" => "EMPTY" // EMPTY, SSR, iSSR or LED
+];
+$triggers [] = ( object ) [ 
+		"name" => "T6",
+		"type" => "EMPTY" // EMPTY, SSR, iSSR or LED
+];
 
-$conditions = [];
-$conditions[] = "HT IF [[ZONE2.TEMPERATURE]] < [[DEMAND.TEMPERATURE]]";
-$conditions[] = "LT IF [[DEMAND.TOD]] == 'DAY'";
-$conditions[] = "LED1 IF true";
+$conditions = [ ];
+$conditions [] = "T1 IF [[ZONE1.TEMPERATURE]] < [[DEMAND.TEMPERATURE]]";
+$conditions [] = "T2 IF [[DEMAND.LIGHT]] == 'SUN'";
+$conditions [] = "BAD_TRIGGER_TEST IF [[ZONE1.TEMPERATURE]] < [[DEMAND.TEMPERATURE]]";
+$conditions [] = "T6 IF [[BAD_SENSOR_TEST]]";
 
-$sensor_pin_1 = 4;
-$sensor_pin_2 = 24;
-$sensor_pin_3 = 25;
-$sensor_pin_4 = 26;
+$sensor_pin_1 = 99;
+$sensor_pin_2 = 99;
+$sensor_pin_3 = 99;
+$sensor_pin_4 = 99;
 
-$trigger_pin_1 = 17;
-$trigger_pin_2 = 18;
-$trigger_pin_3 = 19;
-$trigger_pin_4 = 20;
-$trigger_pin_5 = 21;
-$trigger_pin_6 = 22;
-$trigger_pin_7 = 23;
+$trigger_pin_1 = 99;
+$trigger_pin_2 = 99;
+$trigger_pin_3 = 99;
+$trigger_pin_4 = 99;
+$trigger_pin_5 = 99;
+$trigger_pin_6 = 99;
 
 /**
  * START SIMULATION ENVIRONMENT
@@ -43,14 +75,14 @@ $day_temperature_max = 28.5; // In the summer, this is the max temp
 $day_temperature_min = 21.5; // In the winter, this is the max temp
 $night_temperature_max = 12.5; // In the summer, this is the lowest temperature
 $night_temperature_min = 9.5; // In the winter, this is the lowest temperature
-$day_humidity_max = 55; // In the winter, this is the max humidity
-$day_humidity_min = 45; // In the summer, this is the max humidity
-$night_humidity_max = 60; // In the winter, this is the lowest humidity
-$night_humidity_min = 50; // In the summer, this is the lowest humidity
-$sunset_min = 15 + (55 / 60); // In the winter, this is the time of sunset 17:32 UTC
-$sunset_max = 20 + (21 / 60); // In the summer, this is the time of sunset 19:21 UTC
-$daylight_max = 16 + (38/60); // In the summer, this is how many hours of daylight there will be
-$daylight_min = 7 + (51/60); // In the winter, this is how many hours of daylight there will be
+$day_humidity_max = 81; // In the winter, this is the max day-time humidity
+$day_humidity_min = 62; // In the summer, this is the max day-time humidity
+$night_humidity_max = 89; // In the winter, this is the max night-time humidity
+$night_humidity_min = 78; // In the summer, this is the max night-time humidity
+$sunset_min = 15 + (55 / 60); // In the winter, this is the time of sunset in Malkerns/SZ - 15:55 UTC (London is 17:32 UTC)
+$sunset_max = 20 + (21 / 60); // In the summer, this is the time of sunset in Malkerns/SZ - 20:21 UTC (London is 19:21 UTC)
+$daylight_max = 16 + (38 / 60); // In the summer, this is how many hours of daylight there will be
+$daylight_min = 7 + (51 / 60); // In the winter, this is how many hours of daylight there will be
 /**
  * END SIMULATION ENVIRONMENT
  */
@@ -62,16 +94,16 @@ $darksky_key = ""; // You can sign up for a free dark sky account to get locatio
 $api_call_cap = 370; // If you have a free account, leave this under 900 and don't run the update more than once in a day until you're up to date
 
 // The place you want your station to be remotely located at
-$lat = "-26.549711"; // the latitude of the place you want to mimic
-$lng = "31.197664"; // the longitude of the place you want to mimic
-$loc = "gStation"; // Just to give it a name could be the name of the actual place
+$lat = "-26.549711"; // the latitude of the place you want to mimic (Malkerns/SZ)
+$lng = "31.197664"; // the longitude of the place you want to mimic (Malkerns/SZ)
+$loc = "gStation"; // Just to give it a name in the browser could be the name of the actual place
 
 $season_adjust_days = 0; // If you want to move forward in the season, add this many days to the actual forcast. if set to 31, Real January 1 will be like February 1 at your location.
 $timeszone_adjust_hours = 0; // If you want to move forward in the day (because your location is suitably ahead of you) add this many hours. If set to 2, Real 07:30 will be like 09:30 at your location.
 $yr_history = 25; // How many years to go back for historic data. The further back the smoother 'today' will be but more processing and database is required for the data model.
 $force_api_history = 5; // Forecast data is replaced with historic data over the few days after it happened, this flag will force API calls based on this number of days
 $smoothing_days = 15; // Used to smooth the measurement data even more than history alone. Used as a sliding +/- window from 'today' 2n+1 points are used to calculate 'today'
-$smoothing_loops = 3;// Using more loops is much more computationally intensive, but yeilds a much smoother outcome
+$smoothing_loops = 3; // Using more loops is much more computationally intensive, but yeilds a much smoother outcome
 /**
  * END DARK SKY
  */
@@ -85,6 +117,7 @@ $bulksms_sender = "TxtsRFun";
 $bulksms_notify = "447000000000"; // This is where text alerts will go.
 $bulksms_alert_sunrise = false;
 $bulksms_alert_sunset = false;
+$bulksms_alert_tod = false;
 /**
  * END BULKSMS
  */

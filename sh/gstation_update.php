@@ -11,7 +11,8 @@ if ($darksky_key != "") {
 
 if (1) {
 	setupTables ();
-
+	setupGpio ();
+	
 	echo "Retrieving historic data from Dark Sky\n";
 	getDarkSkyApiData ( $force_api_history );
 	echo "\n";
