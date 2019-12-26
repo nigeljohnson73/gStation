@@ -117,7 +117,11 @@ $x_subticks = 1;
 $im = drawTimeGraph ( $temps, $legend, $x_ticks, $x_subticks, $min_y, $max_y, $max_y - $min_y, 1, $y_ticks );
 
 header ( 'Content-type: image/png' );
-imagepng ( $im );
+if ($ofn . "" == "") {
+	imagepng ( $im );
+} else {
+	imagepng ( $im, $ofn );
+}
 imagedestroy ( $im );
 
 ?>

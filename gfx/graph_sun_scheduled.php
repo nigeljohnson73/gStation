@@ -26,7 +26,7 @@ foreach ( $data as $k => $v ) {
 		                                    // echo "".$ts." sunsetOffset</br>\n";
 		                                    // }
 
-		//$local_timezone = "UTC";
+		// $local_timezone = "UTC";
 		$dt = new DateTime ( '@' . round ( $kk + $vv, 0 ) );
 		$dt->setTimeZone ( new DateTimeZone ( $local_timezone ) );
 		$nhr = $dt->format ( 'H' );
@@ -67,7 +67,11 @@ $pinpoint ["y"] = $noff;
 $im = drawTimeGraph ( $data, $legend, $x_ticks, $x_subticks, $min_y, $max_y, $max_y - $min_y, 1, $y_ticks, "M d", ( object ) $pinpoint );
 
 header ( 'Content-type: image/png' );
-imagepng ( $im );
+if ($ofn . "" == "") {
+	imagepng ( $im );
+} else {
+	imagepng ( $im, $ofn );
+}
 imagedestroy ( $im );
 
 ?>

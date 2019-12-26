@@ -73,12 +73,12 @@ Current environment: <?php print_r(json_decode(getConfig("env"))) ?></pre>
 	
 		<div class="col-sm-8 text-center">
 				<!-- <img src="gfx/graph_local_temperatures.php?<?php echo randomQuery() ?>" alt="Local actual temperature graph" class="img-thumbnail" style="margin-bottom:8px; margin-right:5px;" /> --> 
-				<img src="gfx/static_graph_temperature_ZONE1.png" alt="Measured temperature graph for the last 24 hours" class="img-thumbnail" style="margin-bottom:8px; margin-right:5px;" />
-				<img src="gfx/static_graph_humidity_ZONE1.png" alt="Measured humidity graph for the last 24 hours" class="img-thumbnail" style="margin-bottom:8px; margin-right:5px;" />
-				<img src="gfx/graph_schedule_temperature.php" alt="Temperature schedule graph" class="img-thumbnail" style="margin-bottom:8px; margin-right:5px;" />
-				<img src="gfx/graph_schedule_humidity.php" alt="Humidity schedule graph" class="img-thumbnail" style="margin-bottom:8px; margin-right:5px;" />
-				<img src="gfx/graph_schedule_sun.php" alt="Sunrise and sunset schedule graph" class="img-thumbnail" style="margin-bottom:8px; margin-right:5px;" />
-				<img src="gfx/graph_schedule_daylight.php" alt="Scheduled day length graph" class="img-thumbnail" style="margin-bottom:8px; margin-right:5px;" />
+				<img src="gfx/static_graph_temperature_ZONE1.png?<?php echo randomQuery() ?>" alt="Measured temperature graph for the last 24 hours" class="img-thumbnail" style="margin-bottom:8px; margin-right:5px;" />
+				<img src="gfx/static_graph_humidity_ZONE1.png?<?php echo randomQuery() ?>" alt="Measured humidity graph for the last 24 hours" class="img-thumbnail" style="margin-bottom:8px; margin-right:5px;" />
+				<img src="gfx/static_graph_temperature_scheduled.png?<?php echo randomQuery() ?>" alt="Temperature schedule graph" class="img-thumbnail" style="margin-bottom:8px; margin-right:5px;" />
+				<img src="gfx/static_graph_humidity_scheduled.png?<?php echo randomQuery() ?>" alt="Humidity schedule graph" class="img-thumbnail" style="margin-bottom:8px; margin-right:5px;" />
+				<img src="gfx/static_graph_sun_scheduled.png?<?php echo randomQuery() ?>" alt="Sunrise and sunset schedule graph" class="img-thumbnail" style="margin-bottom:8px; margin-right:5px;" />
+				<img src="gfx/static_graph_daylight_scheduled.png?<?php echo randomQuery() ?>" alt="Scheduled day length graph" class="img-thumbnail" style="margin-bottom:8px; margin-right:5px;" />
 		</div>
 	</div> <!-- ROW --> 
 
