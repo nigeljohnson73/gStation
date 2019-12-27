@@ -1055,25 +1055,37 @@ function setupGpio() {
 		$sensor_pin_1 = 4;
 		$sensor_pin_2 = 17;
 		$sensor_pin_3 = 7;
-		$sensor_pin_4 = 22;
 
 		$trigger_pin_1 = 18;
 		$trigger_pin_2 = 23;
 		$trigger_pin_3 = 24;
 		$trigger_pin_4 = 25;
-		$trigger_pin_5 = 8;
-		$trigger_pin_6 = 11;
+
+		// The 2.1 boards have more sensors
+		if (in_array ( $runtime_version, [
+				"2.1g",
+				"2.1f"
+		] )) {
+			$sensor_pin_4 = 22;
+			$trigger_pin_5 = 8;
+			$trigger_pin_6 = 11;
+		}
 
 		// In these versions of the board, the sensors and triggers are all the same, but the button pin moved, and an LED was added in later versions.
-		if (in_array ( $runtime_version, [ 
-				"2.1g",
+		if (in_array ( $runtime_version, [
+				"2.1g"
+		] )) {
+			$button_pin = 10;
+			$led_pin = 9;
+		}
+		if (in_array ( $runtime_version, [
 				"2.0c"
 		] )) {
-			$button_pin = 4;
-			$led_pin = 9;
+			$led_pin = 10;
 		}
 		if (in_array ( $runtime_version, [ 
 				"2.1f",
+				"2.0c",
 				"2.0b"
 		] )) {
 			$button_pin = 9;

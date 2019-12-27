@@ -175,3 +175,79 @@ The latest version of the board is `2.1g`.
  * The button doesn't have polarity, but the pin expects to be grounded to be 'pushed'.
  * All of the triggers have a ground and the listed pin supplies 3v3 positive signal, no load resistor seems to be required for the relays I'm using.
  * The LED pin is 3v3 and probably requires a load resistor, 330 ohm is pretty good generally.
+ 
+ The board version pin-outs are listed below.
+ 
+### 2.1g Pinouts (plus the MH-Z19B on the serial port)
+
+```
+setupGpio(): runtime_version = 2.1g
+setupGpio(): sensor_pin_1 = 4
+setupGpio(): sensor_pin_2 = 17
+setupGpio(): sensor_pin_3 = 7
+setupGpio(): sensor_pin_4 = 22
+setupGpio(): trigger_pin_1 = 18
+setupGpio(): trigger_pin_2 = 23
+setupGpio(): trigger_pin_3 = 24
+setupGpio(): trigger_pin_4 = 25
+setupGpio(): trigger_pin_5 = 8
+setupGpio(): trigger_pin_6 = 11
+setupGpio(): button_pin = 10
+setupGpio(): led_pin = 9
+```
+
+### 2.1f Pinouts (plus the MH-Z19B on the serial port)
+
+```
+setupGpio(): runtime_version = 2.1f
+setupGpio(): sensor_pin_1 = 4
+setupGpio(): sensor_pin_2 = 17
+setupGpio(): sensor_pin_3 = 7
+setupGpio(): sensor_pin_4 = 22
+setupGpio(): trigger_pin_1 = 18
+setupGpio(): trigger_pin_2 = 23
+setupGpio(): trigger_pin_3 = 24
+setupGpio(): trigger_pin_4 = 25
+setupGpio(): trigger_pin_5 = 8
+setupGpio(): trigger_pin_6 = 11
+setupGpio(): button_pin = 9
+```
+
+### 2.0c Pinouts (requires additional 330 ohm load off-board for the LED)
+
+```
+setupGpio(): runtime_version = 2.0c
+setupGpio(): sensor_pin_1 = 4
+setupGpio(): sensor_pin_2 = 17
+setupGpio(): sensor_pin_3 = 7
+setupGpio(): trigger_pin_1 = 18
+setupGpio(): trigger_pin_2 = 23
+setupGpio(): trigger_pin_3 = 24
+setupGpio(): trigger_pin_4 = 25
+setupGpio(): button_pin = 9
+setupGpio(): led_pin = 10
+```
+
+### 2.0b Pinouts
+
+```
+setupGpio(): runtime_version = 2.0b
+setupGpio(): sensor_pin_1 = 4
+setupGpio(): sensor_pin_2 = 17
+setupGpio(): sensor_pin_3 = 7
+setupGpio(): trigger_pin_1 = 18
+setupGpio(): trigger_pin_2 = 23
+setupGpio(): trigger_pin_3 = 24
+setupGpio(): trigger_pin_4 = 25
+setupGpio(): button_pin = 9
+```
+
+### 2.0 Pinouts
+
+```
+setupGpio(): runtime_version = 2.0
+setupGpio(): sensor_pin_1 = 4
+setupGpio(): trigger_pin_1 = 17
+setupGpio(): trigger_pin_2 = 18
+setupGpio(): button_pin = 14
+```
