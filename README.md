@@ -51,7 +51,7 @@ The control (sensor definition, trigger logic and environmental modelling) is ha
 to the web interface in time. If you can install everything then this will not be a problem for you. The config file is located at 
 `/webroot/gStation/config_override.php`.
 
-Please see the [Roadmap](#Roadmap) section for details on some of things that will come and fix some of these points.
+Please see the [Roadmap](https://github.com/nigeljohnson73/gStation/projects/1) section for details on some of things that will come and fix some of these points.
 
 ## Setting up the Pi
 
@@ -59,9 +59,9 @@ There are a couple of assumptions if you want to use this stuff. First is that y
 youre doing with regard to Installing an operating system on a raspberry pi (Zero in this case). It is also assumed 
 that you have command line access to ssh (mac/linux for example) or know how to configure something like PuTTY on 
 windows. How you write images to SD cards is also highly dependant on your operating system, but you can find out 
-more information in the [Raspian documentation][RASPBIANINSTALL] and google is your friend.
+more information in the [Raspian documentation](https://www.raspberrypi.org/documentation/installation/installing-images/README.md) and google is your friend.
 
- * Burn the latest [Raspian **Lite**][RASPIAN] image to an Micro/SD card (8GB is more than enough).
+ * Burn the latest [Raspian **Lite**](https://www.raspberrypi.org/downloads/raspbian/) image to an Micro/SD card (8GB is more than enough).
  * Drop res/wpa_supplicant.conf from here into the boot disk
  * Update that file with the details from your router
  * Drop res/ssh file from here into the boot disk (or just create an empty file in the file system)
@@ -146,6 +146,3 @@ Add these lines:
     1 0 * * * /usr/bin/php /webroot/gStation/sh/gstation_update.php > /tmp/gstation_update.txt 2>/dev/null
     * * * * * /usr/bin/php /webroot/gStation/sh/gstation_tick.php > /tmp/gstation_tick.txt 2>/dev/null
     * * * * * /usr/bin/php /webroot/gStation/gfx/generate_static_graphs.php > /dev/null 2>&1
-
-[RASPIAN]: https://www.raspberrypi.org/downloads/raspbian/
-[RASPBIANINSTALL]:https://www.raspberrypi.org/documentation/installation/installing-images/README.md
