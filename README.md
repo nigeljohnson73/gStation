@@ -3,9 +3,9 @@
  * [Overview](#Overview)
  * [Limitations](#Limitations)
  * [Setting up the Pi](#Setting-up-the-Pi)
- * [Roadmap](#Roadmap)
- * [The Journey so far (with pictures)](https://github.com/nigeljohnson73/gStation/wiki/History)
- * [Other stuff](https://github.com/nigeljohnson73/gStation/wiki/Useful-resources)
+ * [The Journey so far (Wiki)](https://github.com/nigeljohnson73/gStation/wiki/History)
+ * [Roadmap (GitHub)](https://github.com/nigeljohnson73/gStation/projects/1)
+ * [Other stuff (Wiki)](https://github.com/nigeljohnson73/gStation/wiki/Useful-resources)
 
 ## Overview
 
@@ -25,7 +25,7 @@ graphs on what is being planned for the environment.
 ## Limitations
 
 This app and everything in it are so pre-release that there isn't a version number yet, but it is affectionately referred to as 
-Version 1 or 'the beast'.
+Version 1 or 'the beast'. Version 2 is coming as a much smaller, modular version... I'll need a new name for it.
 
 This application is not designed to be exposed to the internet and be secure.
 
@@ -34,7 +34,7 @@ You're stuck with temperatures in Centigrade for now and quite some time.
 This app uses a solid state relay to control the lights and heat pad. The one I have found reasonbably cheaply
 is only rated at 2 amps per channel. Version 2 of the beast will handle 5A per channel.
 
-There is only 1 sensor and 2 output triggers. Version 2 of the beast will allow up to 4 one-wire sensors and a serial CO2 sensor
+There is only 1 sensor and 2 output triggers. Version 2 will allow up to 4 one-wire sensors and a serial CO2 sensor
 as well as up to 6 control triggers. The sensors supported are the DS18B20 for temerature, the DHT11, and DHT22 for temperature and humidity, 
 and I'm adding the MH-Z19B for Carbon Dioxide.
 
@@ -146,31 +146,6 @@ Add these lines:
     1 0 * * * /usr/bin/php /webroot/gStation/sh/gstation_update.php > /tmp/gstation_update.txt 2>/dev/null
     * * * * * /usr/bin/php /webroot/gStation/sh/gstation_tick.php > /tmp/gstation_tick.txt 2>/dev/null
     * * * * * /usr/bin/php /webroot/gStation/gfx/generate_static_graphs.php > /dev/null 2>&1
-
-## Roadmap
-
-I'll work out how to use the roadmap and issue functionality in GitHub, and then I can move this section to there.
-
-~~The first thing I am doing is upgrading the sensor and trigger capability. The sensors need to report asychronously to the trigger controlling part of the application as well as being customsable and modular.~~
-
-~~Graphs need to also be generated away from the browser as well since the Pi Zero is woefully under powered for handling a big job like all of this in one go.~~
-
-~~Move the majority of this page into the WIKI in GitHub.~~
-
-Once on the actual journey, the key focus for me will be to work on the web interface. It just needs some sheduling to get the 
-graph image files in the background and update them in the browser. Once this is in place then the tool will be useful enough
-to warant a proper version number.
-
-The next key ingredient will be the ability to control the existing control parameters via the web interface.
-
-The final step before an actual release version will be the ability to control the dynamics of a growing season for hydroponics.
-The idea is that you can set a cold period to start for X days, then ramp up a veg season for Y days and then flower until we stop.
-
-I am also building some 3D printed parts to hold things and provide a box for all the electronics... but a maplin box and hot-glue
-will do just as good a job.
-
-I will probably make up some kits at some point for sale on my website. I can also assemble things, but a full assembly takes me about 
-a day so is a very expensive option, and limited to the spare time I have available.
 
 [RASPIAN]: https://www.raspberrypi.org/downloads/raspbian/
 [RASPBIANINSTALL]:https://www.raspberrypi.org/documentation/installation/installing-images/README.md
