@@ -1311,7 +1311,7 @@ function tick() {
 
 	echo "\nExecuting triggers\n";
 	foreach ( $fires as $f ) {
-		$data ["TRIGGER." . $f->name] = $f->demand == highValue ( $f->type );
+		$data ["TRIGGER." . $f->name] = ($f->demand == highValue ( $f->type ))?(1):(0);
 		$cmd = "gpio -g write " . $f->pin . " " . $f->demand;
 		echo "Executing (" . $f->name . ") '" . $cmd . "'\n";
 		system ( $cmd . " > /dev/null 2>&1" );
