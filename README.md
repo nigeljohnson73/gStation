@@ -32,16 +32,17 @@ This application is not designed to be exposed to the internet and be secure.
 You're stuck with temperatures in Centigrade for now and quite some time.
 
 This app uses a solid state relay to control the lights and heat pad. The one I have found reasonbably cheaply
-is only rated at 2 amps per channel. Version 2 of teh beast will handle 5A per channel.
+is only rated at 2 amps per channel. Version 2 of the beast will handle 5A per channel.
 
 There is only 1 sensor and 2 output triggers. Version 2 of the beast will allow up to 4 one-wire sensors and a serial CO2 sensor
-as well as up to 7 triggers. The sensors supported are the DS18B20 for temerature, the DHT11, and DHT22 for temperature and humidity, 
+as well as up to 6 control triggers. The sensors supported are the DS18B20 for temerature, the DHT11, and DHT22 for temperature and humidity, 
 and I'm adding the MH-Z19B for Carbon Dioxide.
 
-There is only 1 'environment' modelled. This means the demands for heat and light are across all of the 'zones' you set up, so you cannot 
+There is only 1 'environment' modelled. This means the demands for heat, humidity and light are across all of the 'zones' you set up, so you cannot 
 have a temperature plan for a root zone as a separate plan for the air zone. I do not expect this to change in the foreseable future.
 You can have separate triggers run heaters in different zones based on the sensors you assign to that zone but the demanded temps 
-will be the same. I may add a delta in the command structure so you can set things to be -2 degrees of the demanded value for example.
+will be the same, or at least will be based on this. I will add the ability to have a delta in the command structure so you can set things to 
+be -2 degrees of the demanded value for example.
 
 The web interface is very limited and needs to be refreshed manually. This will change to automatically updating and 
 allowing for some parameter control in the future.
@@ -63,7 +64,7 @@ more information in the [Raspian documentation][RASPBIANINSTALL] and google is y
  * Burn the latest [Raspian **Lite**][RASPIAN] image to an Micro/SD card (8GB is more than enough).
  * Drop res/wpa_supplicant.conf from here into the boot disk
  * Update that file with the details from your router
- * Drop res/ssh file from here into the boot disk
+ * Drop res/ssh file from here into the boot disk (or just create an empty file in the file system)
 
 Boot the PI and log in (password will initally be raspberry).
 
@@ -78,7 +79,8 @@ Change the password and run the configurator.
 Make the folllowing changes.
 
  * Network Options -> Hostname
- * Interfaceing options -> I2C -> yes
+ * Interfacing options -> I2C -> yes
+ * Interfacing options -> Serial -> no to console, yes to hardware
  * Exit (and do the reboot)
 
 Next, log back in to the new hostname with the new password, then, update Raspian and install all the software packages we need.
@@ -143,11 +145,19 @@ Add these lines:
 
     1 0 * * * /usr/bin/php /webroot/gStation/sh/gstation_update.php > /tmp/gstation_update.txt 2>/dev/null
     * * * * * /usr/bin/php /webroot/gStation/sh/gstation_tick.php > /tmp/gstation_tick.txt 2>/dev/null
+    * * * * * /usr/bin/php /webroot/gStation/gfx/generate_static_graphs.php > /dev/null 2>&1
 
 ## Roadmap
 
-The first thing I am doing is upgrading the sensor and trigger capability. The sensors need to report asychronously to the trigger 
-controlling part of the application.
+~~The first thing I am doing is upgrading the sensor and trigger capability. The sensors need to report asychronously to the trigger 
+controlling part of the application as well as being customsable and modular. ~~
+
+~~Graphs need to also be generated away from the browser as well since the Pi Zero is woefully under powered for handling a big job like 
+all of this in one go.~~
+
+I'll work out how to use the roadmap and issue functionality in GitHub, and then I can move this section to there.
+
+Move the majority of this page into the WIKI in GitHub.
 
 Once on the actual journey, the key focus for me will be to work on the web interface. It just needs some sheduling to get the 
 graph image files in the background and update them in the browser. Once this is in place then the tool will be useful enough
