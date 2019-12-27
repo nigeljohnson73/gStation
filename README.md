@@ -20,7 +20,7 @@ which will let you configure your environment to a place on the earth. The proje
 There is also a web interface which provides some feedback about how the temperature/humidity has been over the last 24 hours and 
 graphs on what is being planned for the environment.
 
-![Screenshot](res/_web_interface.jpg)
+![Web Interface](https://drive.google.com/uc?id=1BGmyfNSUEZMX6sQKC-R5baNO2RQblfPA)
 
 ## Limitations
 
