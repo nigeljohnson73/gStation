@@ -11,7 +11,7 @@ include_once (dirname ( __FILE__ ) . "/../functions.php");
 // exit ( 0 );
 // // Delete to here
 
-logger ( LL_INFO, "tick(): started" );
+logger ( LL_DEBUG, "tick(): started" );
 $call_delay = 5;
 $last_tick = 59;
 
@@ -66,7 +66,7 @@ foreach ( $secs as $k => $s ) {
 }
 
 echo "tick(): complete\n\n";
-logger ( LL_INFO, "tick(): completed" );
+logger ( LL_DEBUG, "tick(): completed" );
 
 $str = $logger->getString ();
 if (strlen ( trim ( $str ) ) == 0) {

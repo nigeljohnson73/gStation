@@ -998,18 +998,24 @@ function gatherSensors() {
 	$ret = array ();
 	foreach ( $files as $file ) {
 		if (substr ( $file, 0, strlen ( $key ) ) == $key) {
-			echo "Processing '$file'\n";
-			$c = file_get_contents ( $file );
-			$j = json_decode ( $c );
-			$name = $j->name;
-			unset ( $j->name );
-			$j = ( array ) $j;
-			foreach ( $j as $k => $v ) {
-				$o = new StdClass ();
-				$o->name = $name;
-				$o->param = $k;
-				$o->value = $v;
-				$ret [] = $o;
+			$t = filemtime($file);
+			$age = time() - $t;
+			if($age >= 30) {
+				echo "Skipping '$file' - data too old (".periodFormat($age).")\n";
+			} else {
+				echo "Processing '$file'\n";
+				$c = file_get_contents ( $file );
+				$j = json_decode ( $c );
+				$name = $j->name;
+				unset ( $j->name );
+				$j = ( array ) $j;
+				foreach ( $j as $k => $v ) {
+					$o = new StdClass ();
+					$o->name = $name;
+					$o->param = $k;
+					$o->value = $v;
+					$ret [] = $o;
+				}
 			}
 		}
 	}
@@ -1078,6 +1084,46 @@ function setupGpio() {
 	if ($trigger_pin_6 != 99) {
 		echo "setupGpio(): trigger_pin_6 = " . $trigger_pin_6 . "\n";
 	}
+}
+
+function getModeledDataFields($arr) {
+	$model = getModel ();
+	$yr = timestampFormat ( timestampNow (), "Y" );
+	$data = array ();
+	foreach ( $model as $k => $v ) {
+		$time = timestamp2Time ( $yr . $k );
+		foreach ( $arr as $kk ) {
+			if (! isset ( $data [$kk] )) {
+				$data [$kk] = array ();
+			}
+			$data [$kk] [$time] = $v->$kk;
+		}
+	}
+	return $data;
+}
+
+function modelStatus() {
+	global $mysql;
+	
+	$ret = new StdClass ();
+	
+	global $darksky_key;
+	if ($darksky_key !== "") {
+		$ret->modelUsed = "DarkSky";
+		$raw = getDarkSkyDataPoints ( null, true );
+		$valid = getDarkSkyDataPoints ( null, false );
+		$ret->dataPointTotal = count ( $raw );
+		$ret->dataPointValid = count ( $valid );
+		$ret->dataPointInvalid = count ( $raw ) - count ( $valid );
+		$ret->dataPointPerDay = floor ( count ( $raw ) / 365 );
+	} else {
+		$ret->modelUsed = "Simulation";
+	}
+	$rows = $mysql->query ( "select max(last_updated) as ud from model" );
+	if ($rows && count ( $rows )) {
+		$ret->lastModelRebuild = $rows [0] ["ud"];
+	}
+	return $ret;
 }
 
 function tick() {
