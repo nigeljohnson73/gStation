@@ -4,8 +4,8 @@
  * [Limitations](#Limitations)
  * [Setting up the Pi](#Setting-up-the-Pi)
  * [Roadmap](#Roadmap)
- * [The Journey so far (with pictures)](#The-journey-so-far)
- * [Other stuff](#Hardware-requirements)
+ * [The Journey so far (with pictures)](https://github.com/nigeljohnson73/gStation/wiki/History)
+ * [Other stuff](https://github.com/nigeljohnson73/gStation/wiki/Useful-resources)
 
 ## Overview
 
@@ -149,13 +149,13 @@ Add these lines:
 
 ## Roadmap
 
+I'll work out how to use the roadmap and issue functionality in GitHub, and then I can move this section to there.
+
 ~~The first thing I am doing is upgrading the sensor and trigger capability. The sensors need to report asychronously to the trigger 
 controlling part of the application as well as being customsable and modular. ~~
 
 ~~Graphs need to also be generated away from the browser as well since the Pi Zero is woefully under powered for handling a big job like 
 all of this in one go.~~
-
-I'll work out how to use the roadmap and issue functionality in GitHub, and then I can move this section to there.
 
 Move the majority of this page into the WIKI in GitHub.
 
@@ -174,166 +174,5 @@ will do just as good a job.
 I will probably make up some kits at some point for sale on my website. I can also assemble things, but a full assembly takes me about 
 a day so is a very expensive option, and limited to the spare time I have available.
 
-## The journey so far
-
-### Version 2.0
-
-I was being too adventurous with the previus version. It's all very well having a single power cord in, and 2 sockets out in one neat box... But,
-it is severly limiting. What if you want more than just one temperature sensor, it was always the plan to have more. And what about more triggers.
-Version 2 was significanlty smaller, but much more "wirey". Using a bigger section of the Raspberry Pi meant I could have 4 1-wire sensors, an 
-additional CO2 monitor and 6 triggers. The software to control it all would be tricky, but I'll deal with that, but the posibilities are huge. I 
-could run 4 Deep Water Culture hydroponics buckets in a single tent. Or 4 reptile vivariums, or I can mimic the sunrise and set with 3 lights, or
-I can add a fogger to raise humidity, or a demudifier, or air-con... As long as each appliance runs under 5 amps it will be awesome... air-con may 
-be tricky at that. So lets get some testing going. Here is the test configuration. 
-
-![Version 2 test rig](res/_journey_v2p0_testrig.jpg)
-
-The heater was a 1,500W space heater controlled by the unit. It had a fan option that runs at 20W, Pah. A first heat section that pulls 750W from 
-the wall... But what about running the full 1,500W... that's nearly 7 whole great british amps right there. Well, it didn't blow up and the magic 
-blue smoke stayed inside everything after running it for an hour. The controller seems to not be panicking at all.
-
-![Version 2 controller in IR](res/_journey_v2p0_warm_controller.jpg)
-
-The power cable seems ok as well, it's only 0.75mm copper wire but should be good to 7 amps.. nearly.
-
-![Version 2 power cables in IR](res/_journey_v2p0_warm_wires.jpg)
-
-The Solid state relay handling all that power gets remarkably warm. 140 to 150 degrees centigrade warm. But this is way out of tolerance, and running
-the 750 watts only got the temperature up to 85C. Decent grow lights for a 4'x4' tent will not pull this much current. If you wanted to use the space 
-heater, on the safe heat setting you'd probably warm the tent up is a minute or 2.
-
-![Version 2 solid state relay in IR](res/_journey_v2p0_hot_ssr.jpg)
-
-Just for a laugh, I wondered what the temperature the heating elements was...
-
-![Version 2 space heater in IR](res/_journey_v2p0_hot_heater.jpg)
-
-### Version 1.0
-
-A case was required, but I wanted to show off the custom PCB, and hand grand ideas that it would look totally awesome with nicely ferruled wires 
-hanging out.
-
-![Version 0.3](res/_journey_v0p3.jpg)
-
-The design was a little disappointing and didn't warrant the exposure of the painful electrical bits, so a big box was 
-called for. The gubbins had to fit underneath and be reasonablu out of the way, but the whole case would be quite large and take a while to print,
-neither of which options I was keen on. Here is the test rig prior to the new case going on.
-
-![Version 1 test rig](res/_journey_v1p0_testrig.jpg)
-
-Saddened by the lack of gaffer tape... the next best thing was called for: a HUGE blue LED.
-
-![Version 1 fully assembled](res/_journey_v1p0_assembled.jpg)
-
-Finally, here it is installed under my succulent care station.
-
-![Version 1 in situ](res/_journey_v1p0_insitu.jpg)
-
-### Version 0.000000000000hhhh my god!!!
-
-Like most cool inventions, this project started out as a pile of wires and some gaffer tape.
-
-![Version 0.1](res/_journey_v0p1.jpg)
-
-With the introduction of a couple of custom PCB's the wires were tidied up nicely. Gaffer tape was still obligatory at this point.
-
-![Version 0.2](res/_journey_v0p2.jpg)
-
-Running 1.8 amps through one of the channels and there are no significant hot spots on the solid state relays or the power boards on the far right.
-The proof of concept was a winner.
-
-![Version 0.2 infrared](res/_journey_v0p2_flir.jpg)
-
-## Hardware requirements
-
-### Version 2.0
-
-Version 2 is completely different and will have more details soon.
-
-### Version 1.0
-
-This is quite a list if you want to get into the nitty gritty. But if you have 20AWG for the 240v side and 
-optionally 24AWG for the  5v side, ferrules if you're using them, as well as all the tools (soldering iron etc),
-then there is less to work out. You will need to substitute parts below if you live outside the UK... and you can 
-if you want to reduce cost and can get things outside of  Amazon Prime for example. I have also built my own 
-custom PCB to route wires, but I'll outline where things are plugged in so you can do this in your favourite way.
-
- * [Mains power input socket][PARTPOWERIN]. this one needs a [250v 6.3A fuse][PARTFUSE], but you can simplify this a lot.
- * [5v PSU][PARTPSU]. You can substutute a Pi power cable instead. Attach to the 5v power pin - pin 2 or 4.
- * [Solid state relay pair][PARTSSR]. Heat trigger on GPIO17 - pin 11, Light on GPIO18 - pin 12, 5v for Vcc.
- * [OLED screen][PARTOLED] . Uses the I2C connections and 3.3v for VCC.
- * [Momentary push button][PARTBUTTON]. Bridge ground to GPIO14 - pin 8, or GPIO21 - pin 40.
- * [Temperature sensor][PARTTEMP]. Data wire to GPIO4 - pin 7, vcc is 3.3v.
- * [Plug socket][PARTPLUG] (x2) to run the power to the heat pad and light, attach in part to the solid state relay and 240v side.
- * [A heat pad][PARTHEAT]
- * [A light][PARTLIGHT]
- * [A Raspberry Pi Zero][PARTPI]
- * [An SD card][PARTSDCARD]
- 
-## Resources used
-
-Here is a list of things I found useful on my journey.
-
-* [Configure wireless before booting][SUPLICANT]
-* [Enable SSH before booting][SSH]
-* [LAMP on a Raspberry PI][LAMP]
-* [Button press off][BUTTON]
-* [Solid State Relay tutorial][SSR]
-* [Solid State Relay video][SSRVIDEO]
-* [DS18B20 Digital termocouple tutorial][DS18B20]
-* [OLED wiring diagram and tutorial][OLED]
-* [Decent GPIO pinout][GPIOPIOUT]
-
-## Improvments
-
-An I2C bus temp/humidity sensor for environmental monitoring.
-
-* [AM2315 on Amazon][AM2315]
-* [HDC1080 on Amazon][HDC1080]
-* [BME280 on Amazon][BME280]
-
-PID tuned Heat controller for stopping the oscilation in the heater.
-
-* [PhD Thesis on PID tuning][PIDTUNE]
-
-## Software discarded
-
-I incorporated some of this stuff, but then moved on a bit. I thought I'd keep it in case I need it again later.
-
-### DHT22 Humidity and temperature module
-
-* [General overview][DHT22OVERVIEW]
-* [Data logger example][DH22LOGGER]
-* [Adafruit library for python][DH22ADAFRUIT]
-
-[GPIOPIOUT]: https://raw.githubusercontent.com/DigitalLumberjack/mk_arcade_joystick_rpi/master/wiki/images/mk_joystick_arcade_GPIOsb+.png
-[DH22ADAFRUIT]: https://github.com/adafruit/Adafruit_Python_DHT
-[DH22LOGGER]: https://www.instructables.com/id/Raspberry-PI-and-DHT22-temperature-and-humidity-lo/
-[DHT22OVERVIEW]: https://pimylifeup.com/raspberry-pi-humidity-sensor-dht22/
-[OLED]: https://www.raspberrypi-spy.co.uk/2018/04/i2c-oled-display-module-with-raspberry-pi/
-[DS18B20]: http://www.circuitbasics.com/raspberry-pi-ds18b20-temperature-sensor-tutorial/
-[SSRVIDEO]: https://www.youtube.com/watch?v=Q6v8BnDT47I
-[BUTTON]: https://github.com/TonyLHansen/raspberry-pi-safe-off-switch/
-[SSR]: https://tech.iprock.com/?p=10030
-[SUPLICANT]: https://howchoo.com/g/ndy1zte2yjn/how-to-set-up-wifi-on-your-raspberry-pi-without-ethernet
-[SSH]: https://howchoo.com/g/ote0ywmzywj/how-to-enable-ssh-on-raspbian-without-a-screen
-[LAMP]: https://howtoraspberrypi.com/how-to-install-web-server-raspberry-pi-lamp/
-[AM2315CODE]:https://code.google.com/archive/p/am2315-python-api/
-[AM2315]: https://smile.amazon.co.uk/dp/B07VF17C7N
-[HDC1080]: https://smile.amazon.co.uk/dp/B07DJ7FLHS
-[BME280]: https://smile.amazon.co.uk/dp/B07KY8WY4M
-[PIDTUNE]: https://studentnet.cs.manchester.ac.uk/resources/library/thesis_abstracts/MSc14/FullText/Ioannidis-Feidias-fulltext.pdf
 [RASPIAN]: https://www.raspberrypi.org/downloads/raspbian/
 [RASPBIANINSTALL]:https://www.raspberrypi.org/documentation/installation/installing-images/README.md
-[PARTPOWERIN]: https://uk.rs-online.com/web/p/iec-connectors/3521831/
-[PARTFUSE]: https://smile.amazon.co.uk/dp/B07DS3X4XT
-[PARTSSR]: https://smile.amazon.co.uk/dp/B07BVXT8L5
-[PARTPSU]: https://smile.amazon.co.uk/dp/B073GPSY4T
-[PARTOLED]: https://smile.amazon.co.uk/dp/B07NLVK4D5
-[PARTTEMP]: https://smile.amazon.co.uk/dp/B01M4NGFKF
-[PARTPLUG]: https://uk.rs-online.com/web/p/plug-sockets/5000459
-[PARTHEAT]: https://smile.amazon.co.uk/dp/B07GYWRNNY
-[PARTLIGHT]: https://smile.amazon.co.uk/dp/B07L57Z5TP
-[PARTPI]: https://thepihut.com/products/raspberry-pi-zero-w?variant=547421782033
-[PARTSDCARD]: https://smile.amazon.co.uk/dp/B073K14CVB
-[PARTBUTTON]: https://smile.amazon.co.uk/dp/B075WT4T75
