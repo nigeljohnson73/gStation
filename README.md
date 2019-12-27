@@ -9,15 +9,15 @@
 
 ## Overview
 
-Being designed to read 5 sensors and control 7 triggers meaning you can have up to 4 reptile vivariums or Deep Water Culture (DWC) buckets 
-(Assuming they have the same envirnomental requirements), or maybe a much more complex single growing environment, requiring 
-heating/cooling/dehumidfying/humidifying/venting in 3 zones and lighting across the whole environment... or a combination of any of that.
+Being designed to read 5 sensors (4 one-wire and a serial CO2 monitor) and control 6 triggers meaning you can have up to 4 reptile vivariums or 
+Deep Water Culture (DWC) buckets (Assuming they have the same envirnomental requirements), or maybe a much more complex single growing environment, 
+requiring heating/cooling/dehumidfying/humidifying/venting in 3 zones and lighting across the whole environment... or a combination of any of that.
 
 Currently, at it's core this is simply a controller for a heat pad and a light. Out of the box it will use a northern hemisphere 
 concept of when summer is (solstice in June) and a 28.8°C high. You can also sign up for a [DarkSky](https://darksky.net/dev) account
 which will let you configure your environment to a place on the earth. The project currently controls a single vivarium/DWC/germination station.
 
-There is also a web interface which provides some feedback about how the temperature has been over the last 24 hours and 
+There is also a web interface which provides some feedback about how the temperature/humidity has been over the last 24 hours and 
 graphs on what is being planned for the environment.
 
 ![Screenshot](res/_web_interface.jpg)
