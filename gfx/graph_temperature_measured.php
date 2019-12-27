@@ -47,31 +47,31 @@ if ($temps && count ( $temps [array_keys ( $temps ) [0]] ) > 2) {
 	// $temps [$k] = decimateArray ( $v, 5 );
 	// }
 	// $dcount = count ( $temps ["demanded"] );
-	// logger ( LL_INFO, "graphLocalTemps(): Got demanded count: " . count ( $temps ["demanded"] ) );
+	// logger ( LL_DEBUG, "graphLocalTemps(): Got demanded count: " . count ( $temps ["demanded"] ) );
 
 	// $dcount_max = 100;
 	// if ($dcount >= (2 * $dcount_max)) {
-	// logger ( LL_INFO, "graphLocalTemps(): calling decimateArray()" );
+	// logger ( LL_DEBUG, "graphLocalTemps(): calling decimateArray()" );
 	// $temps ["demanded"] = decimateArray ( $temps ["demanded"], floor ( $dcount / $dcount_max ) );
 	// }
-	// logger ( LL_INFO, "graphLocalTemps(): Rendering demanded count: " . count ( $temps ["demanded"] ) );
+	// logger ( LL_DEBUG, "graphLocalTemps(): Rendering demanded count: " . count ( $temps ["demanded"] ) );
 
 	// $temps ["temperature"] = deltaDecimateArray ( smoothArray ( $temps ["temperature"], 1, 1 ), 0.1, 30 );
 	// $temps ["temperature"] = smoothArray ( deltaDecimateArray ( $temps ["temperature"], 0.1, 20 ), 1, 1 );
 	$tcount = count ( $temps ["temperature"] );
-	logger ( LL_INFO, "graphLocalTemps(): Got temp count: " . count ( $temps ["temperature"] ) );
+	logger ( LL_DEBUG, "graphLocalTemps(): Got temp count: " . count ( $temps ["temperature"] ) );
 
 	$tcount_max = 400;
 	if ($tcount >= (2 * $tcount_max)) {
-		logger ( LL_INFO, "graphLocalTemps(): calling deltaDecimateArray()" );
+		logger ( LL_DEBUG, "graphLocalTemps(): calling deltaDecimateArray()" );
 		$temps ["temperature"] = deltaDecimateArray ( $temps ["temperature"], 0.1, floor ( $tcount / $tcount_max ) );
 	} else if ($tcount >= ($tcount_max)) {
-		logger ( LL_INFO, "graphLocalTemps(): calling smoothArray()" );
+		logger ( LL_DEBUG, "graphLocalTemps(): calling smoothArray()" );
 		$temps ["temperature"] = smoothArray ( $temps ["temperature"], 1, 1 );
 	} else {
 		// leave it
 	}
-	logger ( LL_INFO, "graphLocalTemps(): Rendering temp count: " . count ( $temps ["temperature"] ) );
+	logger ( LL_DEBUG, "graphLocalTemps(): Rendering temp count: " . count ( $temps ["temperature"] ) );
 	;
 
 	$min_y = floor ( graphValMin ( $temps ) );

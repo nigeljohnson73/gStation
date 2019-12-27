@@ -13,7 +13,7 @@ if (! function_exists ( "getLocalHums" )) {
 		global $mysql;
 		// $res = $mysql->query ( "SELECT * FROM humidity_logger where humidity != 999999 and demanded != 999999 and entered >= DATE_SUB(NOW(), INTERVAL 12 HOUR)" );
 		$res = $mysql->query ( "SELECT * FROM sensors where name = '$name' and param = 'humidity'" );
-		// echo "Local temp count: ".count($res)."\n";
+		// echo "Local humidity count: ".count($res)."\n";
 		// var_dump($res);
 		if (is_array ( $res ) && count ( $res ) > 0) {
 			$dem = array ();
@@ -47,31 +47,31 @@ if ($hums && count ( $hums [array_keys ( $hums ) [0]] ) > 2) {
 	// $hums [$k] = decimateArray ( $v, 5 );
 	// }
 	// $dcount = count ( $hums ["demanded"] );
-	// logger ( LL_INFO, "graphLocalHums(): Got demanded count: " . count ( $hums ["demanded"] ) );
+	// logger ( LL_DEBUG, "graphLocalHums(): Got demanded count: " . count ( $hums ["demanded"] ) );
 
 	// $dcount_max = 100;
 	// if ($dcount >= (2 * $dcount_max)) {
-	// logger ( LL_INFO, "graphLocalHums(): calling decimateArray()" );
+	// logger ( LL_DEBUG, "graphLocalHums(): calling decimateArray()" );
 	// $hums ["demanded"] = decimateArray ( $hums ["demanded"], floor ( $dcount / $dcount_max ) );
 	// }
-	// logger ( LL_INFO, "graphLocalHums(): Rendering demanded count: " . count ( $hums ["demanded"] ) );
+	// logger ( LL_DEBUG, "graphLocalHums(): Rendering demanded count: " . count ( $hums ["demanded"] ) );
 
 	// $hums ["humidity"] = deltaDecimateArray ( smoothArray ( $hums ["humidity"], 1, 1 ), 0.1, 30 );
 	// $hums ["humidity"] = smoothArray ( deltaDecimateArray ( $hums ["humidity"], 0.1, 20 ), 1, 1 );
 	$hcount = count ( $hums ["humidity"] );
-	logger ( LL_INFO, "graphLocalHums(): Got temp count: " . count ( $hums ["humidity"] ) );
+	logger ( LL_DEBUG, "graphLocalHums(): Got humidity count: " . count ( $hums ["humidity"] ) );
 
 	$hcount_max = 400;
 	if ($hcount >= (2 * $hcount_max)) {
-		logger ( LL_INFO, "graphLocalHums(): calling deltaDecimateArray()" );
+		logger ( LL_DEBUG, "graphLocalHums(): calling deltaDecimateArray()" );
 		$hums ["humidity"] = deltaDecimateArray ( $hums ["humidity"], 0.1, floor ( $hcount / $hcount_max ) );
 	} else if ($hcount >= ($hcount_max)) {
-		logger ( LL_INFO, "graphLocalHums(): calling smoothArray()" );
+		logger ( LL_DEBUG, "graphLocalHums(): calling smoothArray()" );
 		$hums ["humidity"] = smoothArray ( $hums ["humidity"], 1, 1 );
 	} else {
 		// leave it
 	}
-	logger ( LL_INFO, "graphLocalHums(): Rendering temp count: " . count ( $hums ["humidity"] ) );
+	logger ( LL_DEBUG, "graphLocalHums(): Rendering humidity count: " . count ( $hums ["humidity"] ) );
 	;
 
 	$min_y = floor ( graphValMin ( $hums ) );
