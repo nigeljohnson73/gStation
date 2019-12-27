@@ -155,7 +155,7 @@ I'll work out how to use the roadmap and issue functionality in GitHub, and then
 
 ~~Graphs need to also be generated away from the browser as well since the Pi Zero is woefully under powered for handling a big job like all of this in one go.~~
 
-Move the majority of this page into the WIKI in GitHub.
+~~Move the majority of this page into the WIKI in GitHub.~~
 
 Once on the actual journey, the key focus for me will be to work on the web interface. It just needs some sheduling to get the 
 graph image files in the background and update them in the browser. Once this is in place then the tool will be useful enough
