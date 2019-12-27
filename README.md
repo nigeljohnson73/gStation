@@ -151,11 +151,9 @@ Add these lines:
 
 I'll work out how to use the roadmap and issue functionality in GitHub, and then I can move this section to there.
 
-~~The first thing I am doing is upgrading the sensor and trigger capability. The sensors need to report asychronously to the trigger 
-controlling part of the application as well as being customsable and modular. ~~
+~~The first thing I am doing is upgrading the sensor and trigger capability. The sensors need to report asychronously to the trigger controlling part of the application as well as being customsable and modular.~~
 
-~~Graphs need to also be generated away from the browser as well since the Pi Zero is woefully under powered for handling a big job like 
-all of this in one go.~~
+~~Graphs need to also be generated away from the browser as well since the Pi Zero is woefully under powered for handling a big job like all of this in one go.~~
 
 Move the majority of this page into the WIKI in GitHub.
 
