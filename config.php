@@ -67,6 +67,9 @@ $trigger_pin_4 = 99;
 $trigger_pin_5 = 99;
 $trigger_pin_6 = 99;
 
+$led_pin = 99;
+$button_pin = 99;
+
 /**
  * START SIMULATION ENVIRONMENT
  */

@@ -697,7 +697,7 @@ function isGpio($type) {
 }
 
 function createTriggersSetupScript() {
-	global $triggers;
+	global $triggers, $led_pin, $button_pin;
 	enumerateTriggers ();
 
 	$ret = "";
@@ -712,6 +712,24 @@ function createTriggersSetupScript() {
 		}
 	}
 
+	//  Now handled with the heartbeat overlay
+// 	if($led_pin != 99) {
+// 		$ret .= "# LED\n";
+// 		$ret .= "gpio -g mode " . $led_pin . " out\n";
+// 		$ret .= "gpio -g mode " . $led_pin . " down\n";
+// 		$ret .= "gpio -g write " . $led_pin . " 1\n";
+// 		$ret .= "\n";
+// 	}
+
+	// Handled in the Python library
+// 	if($button_pin != 99) {
+// 		$ret .= "# BUTTON\n";
+// 		$ret .= "gpio -g mode " . $button_pin . " in\n";
+// 		$ret .= "gpio -g mode " . $button_pin . " up\n";
+// 		//$ret .= "gpio -g write " . $button_pin . " 1\n";
+// 		$ret .= "\n";
+// 	}
+	
 	return $ret;
 }
 
@@ -833,57 +851,57 @@ function readSensorRaw_MH_Z19B($sensor) {
 	// Coming soon
 	echo "readSensorRaw_MH_Z19B(): Coming soon\n";
 	return null;
-/*
-Enalbe UART:
-http://www.circuits.dk/setup-raspberry-pi-3-gpio-uart/
-Python: https://www.circuits.dk/testing-mh-z19-ndir-co2-sensor-module/
-
-// Let's start the class
-$serial = new PhpSerial;
-
-// First we must specify the device. This works on both linux and windows (if
-// your linux serial device is /dev/ttyS0 for COM1, etc)
-$serial->deviceSet("COM1");
-
-// We can change the baud rate, parity, length, stop bits, flow control
-$serial->confBaudRate(2400);
-$serial->confParity("none");
-$serial->confCharacterLength(8);
-$serial->confStopBits(1);
-$serial->confFlowControl("none");
-
-// Then we need to open it
-$serial->deviceOpen();
-
-// To write into
-$serial->sendMessage("Hello !");
-
-// Or to read from
-$read = $serial->readPort();
-
-// If you want to change the configuration, the device must be closed
-$serial->deviceClose();
-
-// We can change the baud rate
-$serial->confBaudRate(2400);
-
-// etc...
-//
-//
-Notes from Jim :
-> Also, one last thing that would be good to document, maybe in example.php:
->  The actual device to be opened caused me a lot of confusion, I was
-> attempting to open a tty.* device on my system and was having no luck at
-> all, until I found that I should actually be opening a cu.* device instead!
->  The following link was very helpful in figuring this out, my USB/Serial
-> adapter (as most probably do) lacked DTR, so trying to use the tty.* device
-> just caused the code to hang and never return, it took a lot of googling to
-> realize what was going wrong and how to fix it.
->
-> http://lists.apple.com/archives/darwin-dev/2009/Nov/msg00099.html
-
-Riz comment : I've definately had a device that didn't work well when using cu., but worked fine with tty. Either way, a good thing to note and keep for reference when debugging.
- */
+	/*
+	 * Enalbe UART:
+	 * http://www.circuits.dk/setup-raspberry-pi-3-gpio-uart/
+	 * Python: https://www.circuits.dk/testing-mh-z19-ndir-co2-sensor-module/
+	 *
+	 * // Let's start the class
+	 * $serial = new PhpSerial;
+	 *
+	 * // First we must specify the device. This works on both linux and windows (if
+	 * // your linux serial device is /dev/ttyS0 for COM1, etc)
+	 * $serial->deviceSet("COM1");
+	 *
+	 * // We can change the baud rate, parity, length, stop bits, flow control
+	 * $serial->confBaudRate(2400);
+	 * $serial->confParity("none");
+	 * $serial->confCharacterLength(8);
+	 * $serial->confStopBits(1);
+	 * $serial->confFlowControl("none");
+	 *
+	 * // Then we need to open it
+	 * $serial->deviceOpen();
+	 *
+	 * // To write into
+	 * $serial->sendMessage("Hello !");
+	 *
+	 * // Or to read from
+	 * $read = $serial->readPort();
+	 *
+	 * // If you want to change the configuration, the device must be closed
+	 * $serial->deviceClose();
+	 *
+	 * // We can change the baud rate
+	 * $serial->confBaudRate(2400);
+	 *
+	 * // etc...
+	 * //
+	 * //
+	 * Notes from Jim :
+	 * > Also, one last thing that would be good to document, maybe in example.php:
+	 * > The actual device to be opened caused me a lot of confusion, I was
+	 * > attempting to open a tty.* device on my system and was having no luck at
+	 * > all, until I found that I should actually be opening a cu.* device instead!
+	 * > The following link was very helpful in figuring this out, my USB/Serial
+	 * > adapter (as most probably do) lacked DTR, so trying to use the tty.* device
+	 * > just caused the code to hang and never return, it took a lot of googling to
+	 * > realize what was going wrong and how to fix it.
+	 * >
+	 * > http://lists.apple.com/archives/darwin-dev/2009/Nov/msg00099.html
+	 *
+	 * Riz comment : I've definately had a device that didn't work well when using cu., but worked fine with tty. Either way, a good thing to note and keep for reference when debugging.
+	 */
 }
 
 // How long to give the sensor time to refresh
@@ -998,10 +1016,10 @@ function gatherSensors() {
 	$ret = array ();
 	foreach ( $files as $file ) {
 		if (substr ( $file, 0, strlen ( $key ) ) == $key) {
-			$t = filemtime($file);
-			$age = time() - $t;
-			if($age >= 30) {
-				echo "Skipping '$file' - data too old (".periodFormat($age).")\n";
+			$t = filemtime ( $file );
+			$age = time () - $t;
+			if ($age >= 30) {
+				echo "Skipping '$file' - data too old (" . periodFormat ( $age ) . ")\n";
 			} else {
 				echo "Processing '$file'\n";
 				$c = file_get_contents ( $file );
@@ -1026,7 +1044,7 @@ function setupGpio() {
 	// echo "setupGpio(): called\n";
 	$runtime_version = @file_get_contents ( dirname ( __FILE__ ) . "/../board.txt" );
 
-	global $sensor_pin_1, $sensor_pin_2, $sensor_pin_3, $sensor_pin_4, $trigger_pin_1, $trigger_pin_2, $trigger_pin_3, $trigger_pin_4, $trigger_pin_5, $trigger_pin_6;
+	global $sensor_pin_1, $sensor_pin_2, $sensor_pin_3, $sensor_pin_4, $trigger_pin_1, $trigger_pin_2, $trigger_pin_3, $trigger_pin_4, $trigger_pin_5, $trigger_pin_6, $led_pin, $button_pin;
 
 	if (in_array ( $runtime_version, [ 
 			"2.1f",
@@ -1045,6 +1063,21 @@ function setupGpio() {
 		$trigger_pin_4 = 25;
 		$trigger_pin_5 = 8;
 		$trigger_pin_6 = 11;
+
+		// In these versions of the board, the sensors and triggers are all the same, but the button pin moved, and an LED was added in later versions.
+		if (in_array ( $runtime_version, [ 
+				"2.1g",
+				"2.0c"
+		] )) {
+			$button_pin = 4;
+			$led_pin = 9;
+		}
+		if (in_array ( $runtime_version, [ 
+				"2.1f",
+				"2.0b"
+		] )) {
+			$button_pin = 9;
+		}
 	}
 	if ($runtime_version == "2.0") {
 		// THe first PCB
@@ -1052,6 +1085,8 @@ function setupGpio() {
 
 		$trigger_pin_1 = 17;
 		$trigger_pin_2 = 18;
+
+		$button_pin = 14;
 	}
 	echo "setupGpio(): runtime_version = " . $runtime_version . "\n";
 	if ($sensor_pin_1 != 99) {
@@ -1084,6 +1119,12 @@ function setupGpio() {
 	if ($trigger_pin_6 != 99) {
 		echo "setupGpio(): trigger_pin_6 = " . $trigger_pin_6 . "\n";
 	}
+	if ($button_pin != 99) {
+		echo "setupGpio(): button_pin = " . $button_pin . "\n";
+	}
+	if ($led_pin != 99) {
+		echo "setupGpio(): led_pin = " . $led_pin . "\n";
+	}
 }
 
 function getModeledDataFields($arr) {
@@ -1104,9 +1145,9 @@ function getModeledDataFields($arr) {
 
 function modelStatus() {
 	global $mysql;
-	
+
 	$ret = new StdClass ();
-	
+
 	global $darksky_key;
 	if ($darksky_key !== "") {
 		$ret->modelUsed = "DarkSky";
@@ -1311,7 +1352,7 @@ function tick() {
 
 	echo "\nExecuting triggers\n";
 	foreach ( $fires as $f ) {
-		$data ["TRIGGER." . $f->name] = ($f->demand == highValue ( $f->type ))?(1):(0);
+		$data ["TRIGGER." . $f->name] = ($f->demand == highValue ( $f->type )) ? (1) : (0);
 		$cmd = "gpio -g write " . $f->pin . " " . $f->demand;
 		echo "Executing (" . $f->name . ") '" . $cmd . "'\n";
 		system ( $cmd . " > /dev/null 2>&1" );

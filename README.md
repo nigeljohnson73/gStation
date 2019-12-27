@@ -3,6 +3,7 @@
  * [Overview](#Overview)
  * [Limitations](#Limitations)
  * [Setting up the Pi](#Setting-up-the-Pi)
+ * [Hardware pinouts used](#Pinouts)
  * [The Journey so far (Wiki)](https://github.com/nigeljohnson73/gStation/wiki/History)
  * [Roadmap (GitHub)](https://github.com/nigeljohnson73/gStation/projects/1)
  * [Other stuff (Wiki)](https://github.com/nigeljohnson73/gStation/wiki/Useful-resources)
@@ -107,6 +108,12 @@ Clone the software into its home.
     cd gStation
     cat config.php | grep -v "^$" | grep -v "^//" > config_override.php
 
+You want to set up the GPIO pins for your sensors, so configure them in `config_override.php` and then 
+run the setup. The parameter supplied is the pin layout in the [Pinout section](#Pinouts) below. When you 
+run this command it should print out the pins that can be used. More detail below.
+
+    php sh/setup_gpio.php 2.1g
+
 Move the new DHT11 overlay into the correct place.
 
     sudo rm -f /boot/overlays/dht11.dtbo
@@ -146,3 +153,25 @@ Add these lines:
     1 0 * * * /usr/bin/php /webroot/gStation/sh/gstation_update.php > /tmp/gstation_update.txt 2>/dev/null
     * * * * * /usr/bin/php /webroot/gStation/sh/gstation_tick.php > /tmp/gstation_tick.txt 2>/dev/null
     * * * * * /usr/bin/php /webroot/gStation/gfx/generate_static_graphs.php > /dev/null 2>&1
+
+Once you reboot, things should start kicking off in a few minutes.
+
+## Pinouts
+
+THe custome PCB I have built has gone through various iterations and things have moved around a bit with 
+trying to optomize the board space and access to the pins. I only have access to Fritzing for designing PCBs 
+so I'm limited in the tracks and things I can lay out. When setting up the GPIO you probably want to set it 
+up to this so things will work out of the box.
+
+The latest version of the board is `2.1g`.
+
+![Pinout defintion](https://drive.google.com/uc?id=12JmH5ScMZp-obORhgVlYbhvnULQuYN1d)
+
+### Things to note:
+
+ * All of the sensors are 3v3 sensors and the data lines are attached to the pin labled.
+ * The MH-Z19B is a 5v supply voltage but supplies 3v3 UART connections so is fine.
+ * All of the sensor pins require 10k pull-up resistors. If you use a DHT11/22 breakout it will have a resitor on board, but it doesn't harm it to have another 10k across it.
+ * The button doesn't have polarity, but the pin expects to be grounded to be 'pushed'.
+ * All of the triggers have a ground and the listed pin supplies 3v3 positive signal, no load resistor seems to be required for the relays I'm using.
+ * The LED pin is 3v3 and probably requires a load resistor, 330 ohm is pretty good generally.
