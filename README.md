@@ -3,8 +3,8 @@
  * [Overview](#Overview)
  * [Limitations](#Limitations)
  * [Setting up the Pi](#Setting-up-the-Pi)
- * [The Journey so far (with pictures)](#The-journey-so-far)
  * [Roadmap](#Roadmap)
+ * [The Journey so far (with pictures)](#The-journey-so-far)
  * [Other stuff](#Hardware-requirements)
 
 ## Overview
@@ -144,38 +144,6 @@ Add these lines:
     1 0 * * * /usr/bin/php /webroot/gStation/sh/gstation_update.php > /tmp/gstation_update.txt 2>/dev/null
     * * * * * /usr/bin/php /webroot/gStation/sh/gstation_tick.php > /tmp/gstation_tick.txt 2>/dev/null
 
-## The journey so far
-
-This started out as a pile of wires and some gaffer tape.
-
-![Version 0.1](res/_journey_v0p1.jpg)
-
-With the introduction of a couple of custom PCB's the wires were tidied up nicely. Gaffer tape was still obligatory at this point.
-
-![Version 0.2](res/_journey_v0p2.jpg)
-
-Running 1.8 amps through one of the channels and there are no significant hot spots on the far right.
-
-![Version 0.2 infrared](res/_journey_v0p2_flir.jpg)
-
-Finally a single case with a new 'for-show' PCB and it's mostly done and pretty.
-
-![Version 0.3](res/_journey_v0p3.jpg)
-
-The design was a little disappointing and didn't warrant the exposure of the painful electrical bits, so a big box was 
-called for.
-
-![Version 1 test rig](res/_journey_v1p0_testrig.jpg)
-
-Saddened by the lack of gaffer tape... the next best thing was called for: a HUGE blue LED.
-
-![Version 1 fully assembled](res/_journey_v1p0_assembled.jpg)
-
-Finally, here it is installed under my succulent care station.
-
-![Version 1 in situ](res/_journey_v1p0_insitu.jpg)
-
-
 ## Roadmap
 
 The first thing I am doing is upgrading the sensor and trigger capability. The sensors need to report asychronously to the trigger 
@@ -196,9 +164,83 @@ will do just as good a job.
 I will probably make up some kits at some point for sale on my website. I can also assemble things, but a full assembly takes me about 
 a day so is a very expensive option, and limited to the spare time I have available.
 
+## The journey so far
+
+### Version 2.0
+
+I was being too adventurous with the previus version. It's all very well having a single power cord in, and 2 sockets out in one neat box... But,
+it is severly limiting. What if you want more than just one temperature sensor, it was always the plan to have more. And what about more triggers.
+Version 2 was significanlty smaller, but much more "wirey". Using a bigger section of the Raspberry Pi meant I could have 4 1-wire sensors, an 
+additional CO2 monitor and 6 triggers. The software to control it all would be tricky, but I'll deal with that, but the posibilities are huge. I 
+could run 4 Deep Water Culture hydroponics buckets in a single tent. Or 4 reptile vivariums, or I can mimic the sunrise and set with 3 lights, or
+I can add a fogger to raise humidity, or a demudifier, or air-con... As long as each appliance runs under 5 amps it will be awesome... air-con may 
+be tricky at that. So lets get some testing going. Here is the test configuration. 
+
+![Version 2 test rig](res/_journey_v2p0_testrig.jpg)
+
+The heater was a 1,500W space heater controlled by the unit. It had a fan option that runs at 20W, Pah. A first heat section that pulls 750W from 
+the wall... But what about running the full 1,500W... that's nearly 7 whole great british amps right there. Well, it didn't blow up and the magic 
+blue smoke stayed inside everything after running it for an hour. The controller seems to not be panicking at all.
+
+![Version 2 controller in IR](res/_journey_v2p0_warm_controller.jpg)
+
+The power cable seems ok as well, it's only 0.75mm copper wire but should be good to 7 amps.. nearly.
+
+![Version 2 power cables in IR](res/_journey_v2p0_warm_wires.jpg)
+
+The Solid state relay handling all that power gets remarkably warm. 140 to 150 degrees centigrade warm. But this is way out of tolerance, and running
+the 750 watts only got the temperature up to 85C. Decent grow lights for a 4'x4' tent will not pull this much current. If you wanted to use the space 
+heater, on the safe heat setting you'd probably warm the tent up is a minute or 2.
+
+![Version 2 solid state relay in IR](res/_journey_v2p0_hot_ssr.jpg)
+
+Just for a laugh, I wondered what the temperature the heating elements was...
+
+![Version 2 space heater in IR](res/_journey_v2p0_hot_heater.jpg)
+
+### Version 1.0
+
+A case was required, but I wanted to show off the custom PCB, and hand grand ideas that it would look totally awesome with nicely ferruled wires 
+hanging out.
+
+![Version 0.3](res/_journey_v0p3.jpg)
+
+The design was a little disappointing and didn't warrant the exposure of the painful electrical bits, so a big box was 
+called for. The gubbins had to fit underneath and be reasonablu out of the way, but the whole case would be quite large and take a while to print,
+neither of which options I was keen on. Here is the test rig prior to the new case going on.
+
+![Version 1 test rig](res/_journey_v1p0_testrig.jpg)
+
+Saddened by the lack of gaffer tape... the next best thing was called for: a HUGE blue LED.
+
+![Version 1 fully assembled](res/_journey_v1p0_assembled.jpg)
+
+Finally, here it is installed under my succulent care station.
+
+![Version 1 in situ](res/_journey_v1p0_insitu.jpg)
+
+### Version 0.000000000000hhhh my god!!!
+
+Like most cool inventions, this project started out as a pile of wires and some gaffer tape.
+
+![Version 0.1](res/_journey_v0p1.jpg)
+
+With the introduction of a couple of custom PCB's the wires were tidied up nicely. Gaffer tape was still obligatory at this point.
+
+![Version 0.2](res/_journey_v0p2.jpg)
+
+Running 1.8 amps through one of the channels and there are no significant hot spots on the solid state relays or the power boards on the far right.
+The proof of concept was a winner.
+
+![Version 0.2 infrared](res/_journey_v0p2_flir.jpg)
+
 ## Hardware requirements
 
-Version 2 is completely different and will have more details soon, but version 1 is as follows:
+### Version 2.0
+
+Version 2 is completely different and will have more details soon.
+
+### Version 1.0
 
 This is quite a list if you want to get into the nitty gritty. But if you have 20AWG for the 240v side and 
 optionally 24AWG for the  5v side, ferrules if you're using them, as well as all the tools (soldering iron etc),
