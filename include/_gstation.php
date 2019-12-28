@@ -1014,7 +1014,7 @@ function readSensor($i) {
 		if ($ret == null) {
 			echo "Garbage sensor??\n";
 		} else {
-			$ret->event = time();
+			$ret->event = time ();
 			$ret->name = $sensor->name;
 			$jstr = json_encode ( $ret );
 			file_put_contents ( $sensor->ofn, $jstr );
@@ -1034,13 +1034,20 @@ function gatherSensors() {
 		if (substr ( $file, 0, strlen ( $key ) ) == $key) {
 			$c = file_get_contents ( $file );
 			$j = json_decode ( $c );
-			$t = $j->event;
-			unset ( $j->event );
+			$t = 0;
+			if (isset ( $j->event )) {
+				$t = $j->event;
+				unset ( $j->event );
+			}
 			$age = time () - $t;
+			$age_str = ($age < 0) ? (durationFormat ( - $age ) . " in the future") : (durationFormat ( $age ) . " old");
+			// echo "time now: ".time()." (".timestampFormat(time2Timestamp(time())).")\n";
+			// echo "time file: ".$t." (".timestampFormat(time2Timestamp($t)).")\n";
+			// echo "age: ".$age." (".$age_str.")\n";
 			if ($age >= 30) {
-				echo "Skipping '$file' - data too old (age: " . durationFormat ( $age ) . ")\n";
+				echo "Skipping '$file' - data too old (age: " . $age_str . ")\n";
 			} else {
-				echo "Processing '$file' (age: " . durationFormat ( $age ) . ")\n";
+				echo "Processing '$file' (age: " . $age_str . ")\n";
 				$name = $j->name;
 				unset ( $j->name );
 				$j = ( array ) $j;
