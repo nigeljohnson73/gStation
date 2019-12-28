@@ -1014,6 +1014,7 @@ function readSensor($i) {
 		if ($ret == null) {
 			echo "Garbage sensor??\n";
 		} else {
+			$ret->event = time();
 			$ret->name = $sensor->name;
 			$jstr = json_encode ( $ret );
 			file_put_contents ( $sensor->ofn, $jstr );
@@ -1031,14 +1032,15 @@ function gatherSensors() {
 	$ret = array ();
 	foreach ( $files as $file ) {
 		if (substr ( $file, 0, strlen ( $key ) ) == $key) {
-			$t = filemtime ( $file );
+			$c = file_get_contents ( $file );
+			$j = json_decode ( $c );
+			$t = $j->event;
+			unset ( $j->event );
 			$age = time () - $t;
 			if ($age >= 30) {
 				echo "Skipping '$file' - data too old (" . periodFormat ( $age ) . ")\n";
 			} else {
 				echo "Processing '$file'\n";
-				$c = file_get_contents ( $file );
-				$j = json_decode ( $c );
 				$name = $j->name;
 				unset ( $j->name );
 				$j = ( array ) $j;
