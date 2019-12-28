@@ -1017,7 +1017,7 @@ function readSensor($i) {
 			$ret->name = $sensor->name;
 			$jstr = json_encode ( $ret );
 			file_put_contents ( $sensor->ofn, $jstr );
-			touch ( $ofn );
+			touch ( $sensor->ofn );
 			echo "Writing to '" . $sensor->ofn . "'\n";
 			print_r ( $ret );
 		}
