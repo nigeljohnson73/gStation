@@ -1038,9 +1038,9 @@ function gatherSensors() {
 			unset ( $j->event );
 			$age = time () - $t;
 			if ($age >= 30) {
-				echo "Skipping '$file' - data too old (" . periodFormat ( $age ) . ")\n";
+				echo "Skipping '$file' - data too old (age: " . durationFormat ( $age ) . ")\n";
 			} else {
-				echo "Processing '$file'\n";
+				echo "Processing '$file' (age: " . durationFormat ( $age ) . ")\n";
 				$name = $j->name;
 				unset ( $j->name );
 				$j = ( array ) $j;
