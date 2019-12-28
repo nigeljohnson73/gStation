@@ -56,7 +56,7 @@ function setupTables() {
 			KEY(param)
 	)";
 	$mysql->query ( $str );
-	
+
 	$str = "
 		CREATE TABLE IF NOT EXISTS demands (
 			event BIGINT UNSIGNED NOT NULL,
@@ -66,7 +66,7 @@ function setupTables() {
 			KEY(param)
 	)";
 	$mysql->query ( $str );
-	
+
 	clearLogs ();
 }
 
@@ -1017,6 +1017,7 @@ function readSensor($i) {
 			$ret->name = $sensor->name;
 			$jstr = json_encode ( $ret );
 			file_put_contents ( $sensor->ofn, $jstr );
+			touch ( $ofn );
 			echo "Writing to '" . $sensor->ofn . "'\n";
 			print_r ( $ret );
 		}
