@@ -42,19 +42,31 @@ function setupTables() {
 			name VARCHAR(255) NOT NULL,
 			param VARCHAR(255) NOT NULL,
 			value VARCHAR(255) NOT NULL,
-			KEY(event)
+			KEY(event),
+			KEY(name)
 		)";
 	$mysql->query ( $str );
 
-	// $str = "
-	// CREATE TABLE IF NOT EXISTS triggers (
-	// event BIGINT UNSIGNED NOT NULL,
-	// name VARCHAR(255) NOT NULL,
-	// value VARCHAR(255) NOT NULL,
-	// KEY(event)
-	// )";
-	// $mysql->query ( $str );
-
+	$str = "
+		CREATE TABLE IF NOT EXISTS triggers (
+			event BIGINT UNSIGNED NOT NULL,
+			param VARCHAR(255) NOT NULL,
+			value VARCHAR(255) NOT NULL,
+			KEY(event),
+			KEY(param)
+	)";
+	$mysql->query ( $str );
+	
+	$str = "
+		CREATE TABLE IF NOT EXISTS demands (
+			event BIGINT UNSIGNED NOT NULL,
+			param VARCHAR(255) NOT NULL,
+			value VARCHAR(255) NOT NULL,
+			KEY(event),
+			KEY(param)
+	)";
+	$mysql->query ( $str );
+	
 	clearLogs ();
 }
 
@@ -62,7 +74,9 @@ function clearLogs() {
 	global $mysql, $logger;
 	$tsnow = timestampNow ();
 	$ts_delete = timestampAddDays ( $tsnow, - 1 );
+	$mysql->query ( "DELETE FROM demands where event < " . $ts_delete );
 	$mysql->query ( "DELETE FROM sensors where event < " . $ts_delete );
+	$mysql->query ( "DELETE FROM triggers where event < " . $ts_delete );
 	$logger->clearLogs ();
 }
 
@@ -712,24 +726,24 @@ function createTriggersSetupScript() {
 		}
 	}
 
-	//  Now handled with the heartbeat overlay
-// 	if($led_pin != 99) {
-// 		$ret .= "# LED\n";
-// 		$ret .= "gpio -g mode " . $led_pin . " out\n";
-// 		$ret .= "gpio -g mode " . $led_pin . " down\n";
-// 		$ret .= "gpio -g write " . $led_pin . " 1\n";
-// 		$ret .= "\n";
-// 	}
+	// Now handled with the heartbeat overlay
+	// if($led_pin != 99) {
+	// $ret .= "# LED\n";
+	// $ret .= "gpio -g mode " . $led_pin . " out\n";
+	// $ret .= "gpio -g mode " . $led_pin . " down\n";
+	// $ret .= "gpio -g write " . $led_pin . " 1\n";
+	// $ret .= "\n";
+	// }
 
 	// Handled in the Python library
-// 	if($button_pin != 99) {
-// 		$ret .= "# BUTTON\n";
-// 		$ret .= "gpio -g mode " . $button_pin . " in\n";
-// 		$ret .= "gpio -g mode " . $button_pin . " up\n";
-// 		//$ret .= "gpio -g write " . $button_pin . " 1\n";
-// 		$ret .= "\n";
-// 	}
-	
+	// if($button_pin != 99) {
+	// $ret .= "# BUTTON\n";
+	// $ret .= "gpio -g mode " . $button_pin . " in\n";
+	// $ret .= "gpio -g mode " . $button_pin . " up\n";
+	// //$ret .= "gpio -g write " . $button_pin . " 1\n";
+	// $ret .= "\n";
+	// }
+
 	return $ret;
 }
 
@@ -1062,7 +1076,7 @@ function setupGpio() {
 		$trigger_pin_4 = 25;
 
 		// The 2.1 boards have more sensors
-		if (in_array ( $runtime_version, [
+		if (in_array ( $runtime_version, [ 
 				"2.1g",
 				"2.1f"
 		] )) {
@@ -1072,13 +1086,13 @@ function setupGpio() {
 		}
 
 		// In these versions of the board, the sensors and triggers are all the same, but the button pin moved, and an LED was added in later versions.
-		if (in_array ( $runtime_version, [
+		if (in_array ( $runtime_version, [ 
 				"2.1g"
 		] )) {
 			$button_pin = 10;
 			$led_pin = 9;
 		}
-		if (in_array ( $runtime_version, [
+		if (in_array ( $runtime_version, [ 
 				"2.0c"
 		] )) {
 			$led_pin = 10;
@@ -1307,12 +1321,6 @@ function tick() {
 		$param = $s->param;
 		$val = $s->value;
 		$data [strtoupper ( $name . "." . $param )] = $val;
-		$ret = $mysql->query ( "REPLACE INTO sensors (event, name, param, value) VALUES (?, ?, ?, ?)", "isss", array (
-				$tsnow,
-				$name,
-				$param,
-				$val
-		) );
 	}
 
 	echo "\nEnvironmental data:\n";
@@ -1369,6 +1377,35 @@ function tick() {
 		echo "Executing (" . $f->name . ") '" . $cmd . "'\n";
 		system ( $cmd . " > /dev/null 2>&1" );
 	}
+
+	// Stash data to database tables
+	foreach ( $data as $k => $v ) {
+		list ( $what, $k ) = explode ( ".", $k );
+		if ($what == "DEMAND") {
+			$mysql->query ( "REPLACE INTO demands (event, param, value) VALUES (?, ?, ?)", "iss", array (
+					$tsnow,
+					$k,
+					$v
+			) );
+		} elseif ($what == "TRIGGER") {
+			$mysql->query ( "REPLACE INTO triggers (event, param, value) VALUES (?, ?, ?)", "iss", array (
+					$tsnow,
+					$k,
+					$v
+			) );
+		} elseif ($what == "INFO") {
+			// We know about it, but we can ignore it
+		} else {
+			// Must be a zone name
+			$mysql->query ( "REPLACE INTO sensors (event, name, param, value) VALUES (?, ?, ?, ?)", "isss", array (
+					$tsnow,
+					$what,
+					$k,
+					$v
+			) );
+		}
+	}
+
 	// TODO: Get OLED Working correctly
 	$retvar = 0;
 	$ouput = "";

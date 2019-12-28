@@ -4,7 +4,7 @@
  * [Limitations](#Limitations)
  * [Setting up the Pi](#Setting-up-the-Pi)
  * [Hardware pinouts used](#Pinouts)
- * [The Journey so far (Wiki)](https://github.com/nigeljohnson73/gStation/wiki/History)
+ * [The Journey so far (Wiki)](https://github.com/nigeljohnson73/gStation/wiki/The-Journey)
  * [Roadmap (GitHub)](https://github.com/nigeljohnson73/gStation/projects/1)
  * [Other stuff (Wiki)](https://github.com/nigeljohnson73/gStation/wiki/Useful-resources)
 
@@ -154,12 +154,13 @@ Add these lines:
     * * * * * /usr/bin/php /webroot/gStation/sh/gstation_tick.php > /tmp/gstation_tick.txt 2>/dev/null
     * * * * * /usr/bin/php /webroot/gStation/gfx/generate_static_graphs.php > /dev/null 2>&1
 
-Once you reboot, things should start kicking off in a few minutes.
+Once you reboot, things should start kicking off in a few minutes and you should see the IP address you can 
+connect to for the web interface appear on the OLED screen.
 
 ## Pinouts
 
 More detailed information is available including voltage tolerances and resistor values can be found on the 
-[Hardware Pinout](https://github.com/nigeljohnson73/gStation/wiki/Hardware-Pin-outs) page in the wiki, but 
+[Hardware Pinout](https://github.com/nigeljohnson73/gStation/wiki/Raspberry-Pi-pin-outs) page in the wiki, but 
 here is the lasted version.
 
 ![Pinout defintion](https://drive.google.com/uc?id=12JmH5ScMZp-obORhgVlYbhvnULQuYN1d)
