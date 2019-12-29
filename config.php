@@ -70,6 +70,11 @@ $trigger_pin_6 = 99;
 $led_pin = 99;
 $button_pin = 99;
 
+$outlier_temperature_min = 12;
+$outlier_temperature_max = 35;
+$outlier_humidity_min = 15;
+$outlier_humidity_max = 95;
+
 /**
  * START SIMULATION ENVIRONMENT
  */

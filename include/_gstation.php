@@ -814,6 +814,7 @@ function readSensorRaw_DS18B20($sensor) {
 
 function readSensorRaw_DHT11($sensor) {
 	$ret = new StdClass ();
+	global $outlier_temperature_min, $outlier_temperature_max, $outlier_humidity_min, $outlier_humidity_max;
 
 	foreach ( $sensor->enumeration as $e ) {
 		$output = null;
@@ -838,6 +839,19 @@ function readSensorRaw_DHT11($sensor) {
 				if (is_numeric ( $output [0] )) {
 					echo ("Integer conversion works\n");
 					$val = (( double ) $output [0]) / 1000.00;
+					$olmax = "outlier_" . ($e->name) . "_max";
+					$olmin = "outlier_" . ($e->name) . "_min";
+					if ($$olmin != "" && $val < $olmin) {
+						$msg = ($e - name . " reading of " . $val . " is out of tolerance (< " . ($$olmin) . ")\n");
+						echo $msg;
+						logger ( LL_WARNING, $msg );
+						$val = null;
+					} elseif ($$olmax != "" && $val < $olmax) {
+						$msg = ($e - name . " reading of " . $val . " is out of tolerance (> " . ($$olmax) . ")\n");
+						echo $msg;
+						logger ( LL_WARNING, $msg );
+						$val = null;
+					}
 				} else {
 					echo ("Integer conversion failed '" . $output [0] . "'\n");
 				}
