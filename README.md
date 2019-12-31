@@ -106,7 +106,14 @@ Clone the software into its home.
     sudo chown -R pi:www-data /webroot
     sudo chmod -R g+w /webroot
     cd gStation
-    cat config.php | grep -v "^$" | grep -v "^//" > config_override.php
+
+Copy a simple installation config file so you can edit stuff
+
+    cp config_install.php config_override.php
+
+Set up MySQL with the correct root account and a user for the application.
+
+    sudo mysql --user=root < /res/install.sql
 
 You want to set up the GPIO pins for your sensors, so configure them in `config_override.php` and then 
 run the setup. The parameter supplied is the pin layout in the [Pinout section](#Pinouts) below. When you 
@@ -125,10 +132,6 @@ Move the webroot stuff around.
     sudo mv html html_orig
     sudo ln -s /webroot/gStation html
     sudo /etc/init.d/apache2 restart
-
-Set up MySQL with the correct root account and a user for the application.
-
-    sudo mysql --user=root < /webroot/gStation/res/install.sql
 
 Update the user login script so it has a pretty banner and stuff.
 

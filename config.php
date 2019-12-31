@@ -4,7 +4,7 @@ $local_timezone = "Europe/London"; // Where are you locally based for time refer
 $sensors = [ ];
 $sensors [] = ( object ) [ 
 		"name" => "ZONE1", // RZ Root zone
-		"type" => "DHT22" // EMPTY, DS18B20, DHT11 or DHT22
+		"type" => "EMPTY" // EMPTY, DS18B20, DHT11 or DHT22
 ];
 $sensors [] = ( object ) [ 
 		"name" => "ZONE2", // AZ Generic air zone
@@ -26,11 +26,11 @@ $sensors [] = ( object ) [ // This is the 5th sensor for the CO2 monitor in the 
 $triggers = [ ];
 $triggers [] = ( object ) [ 
 		"name" => "T1", // Generally used for heat
-		"type" => "SSR" // EMPTY, SSR, iSSR or LED
+		"type" => "EMPTY" // EMPTY, SSR, iSSR or LED
 ];
 $triggers [] = ( object ) [ 
 		"name" => "T2", // Generally used for light
-		"type" => "SSR" // EMPTY, SSR, iSSR or LED
+		"type" => "EMPTY" // EMPTY, SSR, iSSR or LED
 ];
 $triggers [] = ( object ) [ 
 		"name" => "T3",
@@ -54,6 +54,10 @@ $conditions [] = "T1 IF [[ZONE1.TEMPERATURE]] < [[DEMAND.TEMPERATURE]]";
 $conditions [] = "T2 IF [[DEMAND.LIGHT]] == 'SUN'";
 $conditions [] = "BAD_TRIGGER_TEST IF [[ZONE1.TEMPERATURE]] < [[DEMAND.TEMPERATURE]]";
 $conditions [] = "T6 IF [[BAD_SENSOR_TEST]]";
+
+$graphs = [];
+$graphs[] = "temperature.ZONE1";
+$graphs[] = "humidity.ZONE1";
 
 $sensor_pin_1 = 99;
 $sensor_pin_2 = 99;
@@ -79,18 +83,18 @@ $outlier_humidity_max = 95;
  * START SIMULATION ENVIRONMENT
  */
 $summer_solstice = "0621"; // June 21 is summer solstice in the northern hemisphere
-$day_temperature_max = 28.5; // In the summer, this is the max temp
-$day_temperature_min = 21.5; // In the winter, this is the max temp
-$night_temperature_max = 12.5; // In the summer, this is the lowest temperature
-$night_temperature_min = 9.5; // In the winter, this is the lowest temperature
-$day_humidity_max = 81; // In the winter, this is the max day-time humidity
-$day_humidity_min = 62; // In the summer, this is the max day-time humidity
-$night_humidity_max = 89; // In the winter, this is the max night-time humidity
-$night_humidity_min = 78; // In the summer, this is the max night-time humidity
-$sunset_min = 15 + (55 / 60); // In the winter, this is the time of sunset in Malkerns/SZ - 15:55 UTC (London is 17:32 UTC)
-$sunset_max = 20 + (21 / 60); // In the summer, this is the time of sunset in Malkerns/SZ - 20:21 UTC (London is 19:21 UTC)
-$daylight_max = 16 + (38 / 60); // In the summer, this is how many hours of daylight there will be
-$daylight_min = 7 + (51 / 60); // In the winter, this is how many hours of daylight there will be
+$day_temperature_summer = 28.5; // In the summer, this is the max temp
+$day_temperature_winter = 21.5; // In the winter, this is the max temp
+$night_temperature_summer = 12.5; // In the summer, this is the lowest temperature
+$night_temperature_winter = 9.5; // In the winter, this is the lowest temperature
+$day_humidity_winter = 81; // In the winter, this is the max day-time humidity
+$day_humidity_summer = 62; // In the summer, this is the max day-time humidity
+$night_humidity_winter = 89; // In the winter, this is the max night-time humidity
+$night_humidity_summer = 78; // In the summer, this is the max night-time humidity
+$sunset_winter = 15 + (55 / 60); // In the winter, this is the time of sunset in Malkerns/SZ - 15:55 UTC (London is 17:32 UTC)
+$sunset_summer = 20 + (21 / 60); // In the summer, this is the time of sunset in Malkerns/SZ - 20:21 UTC (London is 19:21 UTC)
+$daylight_summer = 16 + (38 / 60); // In the summer, this is how many hours of daylight there will be
+$daylight_winter = 7 + (51 / 60); // In the winter, this is how many hours of daylight there will be
 /**
  * END SIMULATION ENVIRONMENT
  */

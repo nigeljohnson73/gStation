@@ -72,9 +72,13 @@ Current environment: <?php print_r(json_decode(getConfig("env"))) ?></pre>
 		</div>
 	
 		<div class="col-sm-8 text-center">
-				<!-- <img src="gfx/graph_local_temperatures.php?<?php echo randomQuery() ?>" alt="Local actual temperature graph" class="img-thumbnail" style="margin-bottom:8px; margin-right:5px;" /> --> 
-				<img src="gfx/static_graph_temperature_ZONE1.png?<?php echo randomQuery() ?>" alt="Measured temperature graph for the last 24 hours" class="img-thumbnail" style="margin-bottom:8px; margin-right:5px;" />
-				<img src="gfx/static_graph_humidity_ZONE1.png?<?php echo randomQuery() ?>" alt="Measured humidity graph for the last 24 hours" class="img-thumbnail" style="margin-bottom:8px; margin-right:5px;" />
+			<?php
+			foreach($graphs as $g) {
+				list($what, $zone) = explode(".", $g);
+				$ofn = "gfx/static_graph_".$what."_".$zone.".png";
+				echo '				<img src="'.$ofn.'?'.randomQuery().'" alt="Measured '.$what.' graph for the last 24 hours" class="img-thumbnail" style="margin-bottom:8px; margin-right:5px;" />'."\n";
+			}
+			?>
 				<img src="gfx/static_graph_temperature_scheduled.png?<?php echo randomQuery() ?>" alt="Temperature schedule graph" class="img-thumbnail" style="margin-bottom:8px; margin-right:5px;" />
 				<img src="gfx/static_graph_humidity_scheduled.png?<?php echo randomQuery() ?>" alt="Humidity schedule graph" class="img-thumbnail" style="margin-bottom:8px; margin-right:5px;" />
 				<img src="gfx/static_graph_sun_scheduled.png?<?php echo randomQuery() ?>" alt="Sunrise and sunset schedule graph" class="img-thumbnail" style="margin-bottom:8px; margin-right:5px;" />

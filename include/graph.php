@@ -1,5 +1,88 @@
 <?php
 
+function getLocalMeasurements($what, $name) {
+	global $mysql;
+	$where = "name = '$name'";
+	$bits = explode ( ",", $name );
+	foreach ( $bits as $k => $v ) {
+		$bits [$k] = trim ( $v );
+	}
+	if (count ( $bits ) > 1) {
+		$where = "name in ('" . implode ( "','", $bits ) . "')";
+	}
+	// $res = $mysql->query ( "SELECT * FROM temperature_logger where temperature != 999999 and demanded != 999999 and entered >= DATE_SUB(NOW(), INTERVAL 12 HOUR)" );
+	$sql = "SELECT event, name, value FROM sensors where " . $where . " and param = '" . $what . "' union select event, 'DEMANDED' as 'name', value from demands where param = '" . $what . "'";
+	// echo "SQL: \"" . $sql . "\"\n";
+	// $sql = "SELECT event, name, value FROM sensors where name = 'ZONE1' and param = 'temperature' union select event, 'DEMANDED' as 'name', value from demands where param = 'temperature'";
+	$res = $mysql->query ( $sql );
+	// echo "Local temp count: ".count($res)."\n";
+	// var_dump($res);
+	if (is_array ( $res ) && count ( $res ) > 0) {
+		$ret = array ();
+		foreach ( $res as $r ) {
+			// echo ob_print_r($r);
+			// $dem [timestamp2Time ( $r ["entered"] )] = $r ["demanded"];
+			$ret [$r ["name"]] [timestamp2Time ( $r ["event"] )] = $r ["value"];
+		}
+		// return array (
+		// "temperature" => $act
+		// // "demanded" => $dem
+		// );
+		return $ret;
+	}
+	return null;
+}
+
+function drawMeasuredGraph($what, $zone) {
+	$legend_keys = [ ];
+	$legend_key ["temperature"] = "C";
+	$legend_key ["humidity"] = "%";
+
+	$legend_key = $legend_key [$what];
+
+	$dbg = false;
+	$vals = getLocalMeasurements ( $what, $zone );
+	// echo "<pre>".ob_print_r($temps)."</pre>";
+	// Lets have some axes regardless of data
+	$legend = "Not enough " . $what . " measurements have been gathered";
+	$min_y = 0;
+	$max_y = 5;
+	$y_ticks = array ();
+
+	foreach ( $vals as $k => $v ) {
+		if ($v && count ( array_keys ( $v ) ) > 2) {
+			$legend = "Measured " . $what . " (" . $zone . ")";
+			$vc = count ( $v );
+
+			$ll = LL_DEBUG;
+			logger ( $ll, "graphLocalValues(" . $what . "): Got count: " . count ( $vc ) );
+
+			$vc_max = 400;
+			if ($vc >= (2 * $vc_max)) {
+				logger ( $ll, "graphLocalValues(" . $what . ", " . $k . "): calling deltaDecimateArray()" );
+				$temps [$k] = deltaDecimateArray ( $v, 0.1, floor ( $vc / $vc_max ) );
+			} else if ($vc >= ($vc_max)) {
+				logger ( $ll, "graphLocalValues(" . $what . ", " . $k . "): calling smoothArray()" );
+				$temps [$k] = smoothArray ( $v, 1, 1 );
+			} else {
+				logger ( $ll, "graphLocalValues(" . $what . ", " . $k . "): no need for point reduction" );
+			}
+			logger ( $ll, "graphLocalValues(" . $what . ", " . $k . "): Render count: " . count ( $vc ) );
+		}
+	}
+
+	$min_y = floor ( graphValMin ( $vals ) );
+	$max_y = ceil ( graphValMax ( $vals ) );
+	$y_ticks = array ();
+	for($i = $min_y; $i <= $max_y; $i ++) {
+		$y_ticks [$i] = $i . $legend_key;
+	}
+
+	$x_ticks = 12;
+	$x_subticks = 1;
+	return drawTimeGraph ( $vals, $legend, $x_ticks, $x_subticks, $min_y, $max_y, $max_y - $min_y, 1, $y_ticks );
+}
+
 function _graphMinMax($arr, $compfunc, $blankval, $kvfunc) {
 	// echo "<pre>_graphMinMax(\$arr, $compfunc, $blankval, $kvfunc): called\n" . ob_print_r ( $arr ) . "</pre>\n";
 	$ret = $blankval;

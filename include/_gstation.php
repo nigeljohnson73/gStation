@@ -433,7 +433,7 @@ function rebuildDataModel() {
 		}
 		logger ( LL_INFO, "rebuildDataModel(): Smoothing: updated model" );
 	} else {
-		global $summer_solstice, $day_temperature_min, $day_temperature_max, $night_temperature_min, $night_temperature_max, $day_humidity_min, $day_humidity_max, $night_humidity_min, $night_humidity_max, $sunset_max, $sunset_min, $daylight_max, $daylight_min;
+		global $summer_solstice, $day_temperature_winter, $day_temperature_summer, $night_temperature_winter, $night_temperature_summer, $day_humidity_summer, $day_humidity_winter, $night_humidity_summer, $night_humidity_winter, $sunset_summer, $sunset_winter, $daylight_summer, $daylight_winter;
 
 		if ($darksky_key == "") {
 			logger ( LL_INFO, "rebuildDataModel(): Simulating data" );
@@ -443,26 +443,26 @@ function rebuildDataModel() {
 		$tsnow = timestampNow ();
 		$yr = timestampFormat ( $tsnow, "Y" );
 
-		$high_delta_temperature = ($day_temperature_max - $day_temperature_min) / 2;
-		$high_mid_temperature = $day_temperature_min + $high_delta_temperature;
+		$high_delta_temperature = ($day_temperature_summer - $day_temperature_winter) / 2;
+		$high_mid_temperature = $day_temperature_winter + $high_delta_temperature;
 
-		$low_delta_temperature = ($night_temperature_max - $night_temperature_min) / 2;
-		$low_mid_temperature = $night_temperature_min + $low_delta_temperature;
+		$low_delta_temperature = ($night_temperature_summer - $night_temperature_winter) / 2;
+		$low_mid_temperature = $night_temperature_winter + $low_delta_temperature;
 
-		$high_delta_humidity = ($day_humidity_max - $day_humidity_min) / 2;
-		$high_mid_humidity = $day_humidity_min + $high_delta_humidity;
+		$high_delta_humidity = ($day_humidity_winter - $day_humidity_summer) / 2;
+		$high_mid_humidity = $day_humidity_summer + $high_delta_humidity;
 
-		$low_delta_humidity = ($night_humidity_max - $night_humidity_min) / 2;
-		$low_mid_humidity = $night_humidity_min + $low_delta_humidity;
+		$low_delta_humidity = ($night_humidity_winter - $night_humidity_summer) / 2;
+		$low_mid_humidity = $night_humidity_summer + $low_delta_humidity;
 
-		$sunset_delta_offset = ($sunset_max - $sunset_min) / 2;
-		$sunset_mid_offset = $sunset_min + $sunset_delta_offset;
+		$sunset_delta_offset = ($sunset_summer - $sunset_winter) / 2;
+		$sunset_mid_offset = $sunset_winter + $sunset_delta_offset;
 
-		// echo "Sunset MIN: $sunset_min. MAX: $sunset_max\n";
+		// echo "Sunset MIN: $sunset_winter. MAX: $sunset_summer\n";
 		// echo "Sunset AVG: $sunset_mid_offset. delta: $sunset_delta_offset\n";
 
-		$sunrise_min = $sunset_max - $daylight_max; // longest day
-		$sunrise_max = $sunset_min - $daylight_min; // shortesst
+		$sunrise_min = $sunset_summer - $daylight_summer; // longest day
+		$sunrise_max = $sunset_winter - $daylight_winter; // shortesst
 		$sunrise_delta_offset = ($sunrise_max - $sunrise_min) / 2;
 		$sunrise_mid_offset = $sunrise_min + $sunrise_delta_offset;
 
