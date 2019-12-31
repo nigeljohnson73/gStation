@@ -613,7 +613,7 @@ function enumerateSensors() {
 		$gpio_pin = "sensor_pin_" . ($pin + 1);
 		global $$gpio_pin;
 		$s->pin = $$gpio_pin;
-		$s->ofn = "/tmp/gs_sensor_" . ($pin + 1) . ".json";
+		$s->ofn = "/tmp/sensor_data_" . ($pin + 1) . ".json";
 	}
 }
 
@@ -1023,7 +1023,9 @@ function readSensor($i) {
 		}
 	}
 
+	$lfn = "/tmp/sensor_reader_".$i.".log";
 	while ( true ) {
+		ob_start();
 		$ret = $func ( $sensor );
 		if ($ret == null) {
 			echo "Garbage sensor??\n";
@@ -1037,6 +1039,9 @@ function readSensor($i) {
 			print_r ( $ret );
 		}
 		sleep ( sensorCooloff ( $type ) );
+		$c = ob_get_contents();
+		file_put_contents($lfn, $c);
+		ob_end_clean();
 	}
 }
 
