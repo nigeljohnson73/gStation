@@ -1046,7 +1046,7 @@ function readSensor($i) {
 }
 
 function gatherSensors() {
-	$key = "/tmp/gs_sensor_";
+	$key = "/tmp/sensor_data_";
 	$files = directoryListing ( "/tmp", "*.json" );
 	$ret = array ();
 	foreach ( $files as $file ) {
