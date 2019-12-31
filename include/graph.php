@@ -55,7 +55,7 @@ function drawMeasuredGraph($what, $zone) {
 			$vc = count ( $v );
 
 			$ll = LL_DEBUG;
-			logger ( $ll, "graphLocalValues(" . $what . "): Got count: " . count ( $vc ) );
+			logger ( $ll, "graphLocalValues(" . $what . "): Got count: " . $vc );
 
 			$vc_max = 400;
 			if ($vc >= (2 * $vc_max)) {
@@ -67,7 +67,7 @@ function drawMeasuredGraph($what, $zone) {
 			} else {
 				logger ( $ll, "graphLocalValues(" . $what . ", " . $k . "): no need for point reduction" );
 			}
-			logger ( $ll, "graphLocalValues(" . $what . ", " . $k . "): Render count: " . count ( $vc ) );
+			logger ( $ll, "graphLocalValues(" . $what . ", " . $k . "): Render count: " . $vc );
 		}
 	}
 
