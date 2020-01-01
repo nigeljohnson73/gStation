@@ -613,7 +613,7 @@ function includeDirectory($d, $ext = "php") {
 	$files = directoryListing ( $d, $ext );
 	foreach ( $files as $file ) {
 		// echo "loading $file<br />";
-		if (! preg_match ( '/index.php$/', $file )) {
+		if (! preg_match ( '/index.php$/', $file ) && ! preg_match ( '/.swp$/', $file )) {	
 			$ret [] = $file;
 		}
 	}
