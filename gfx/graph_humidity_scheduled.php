@@ -38,8 +38,8 @@ $pinpoint = array (
 // echo "<pre>" . ob_print_r ( $pinpoint ). "</pre>";
 $im = drawTimeGraph ( $data, $legend, $x_ticks, $x_subticks, $min_y, $max_y, $max_y - $min_y, 1, $y_ticks, "M d", $pinpoint );
 
-header ( 'Content-type: image/png' );
 if ($ofn . "" == "") {
+	header ( 'Content-type: image/png' );
 	imagepng ( $im );
 } else {
 	imagepng ( $im, $ofn );

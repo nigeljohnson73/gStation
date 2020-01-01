@@ -30,8 +30,8 @@ $pinpoint ["y"] = $model->daylightHours;
 $im = drawTimeGraph ( $data, $legend, $x_ticks, $x_subticks, $min_y, $max_y, $max_y - $min_y, 1, $y_ticks, "M d", ( object ) $pinpoint );
 // $im = drawTimeGraph ( $data, $legend, $x_ticks, $x_subticks, $min_y, $max_y, $max_y - $min_y, 1, $y_ticks, "Y-m-d" );
 
-header ( 'Content-type: image/png' );
 if ($ofn . "" == "") {
+	header ( 'Content-type: image/png' );
 	imagepng ( $im );
 } else {
 	imagepng ( $im, $ofn );
