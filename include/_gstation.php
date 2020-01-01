@@ -1339,10 +1339,10 @@ function tick() {
 	$data ["DEMAND.LIGHT"] = "'" . (($status == 'DAY') ? ("SUN") : ("MOON")) . "'";
 	$data ["DEMAND.TEMPERATURE"] = $model->$temp;
 	$data ["DEMAND.HUMIDITY"] = $model->$humd;
-	$data ["DATA.HOUR"] = number_format ( $nowOffset / 60, 2 );
-	$data ["DATA.HR"] = floor ( $nowOffset / 60 );
+	$data ["DATA.HOUR"] = number_format ( $nowOffset / (60*60), 2 );
+	$data ["DATA.HR"] = floor ( $nowOffset / (60*60) );
 	// $data ["DATA.HR"] = timestampFormat ( timestampNow (), "H" );
-	$data ["DATA.MN"] = timestampFormat ( timestampNow (), "m" );
+	$data ["DATA.MN"] = timestampFormat ( timestampNow (), "i" );
 	$data ["DATA.TOD"] = "'" . $tod . "'";
 	
 	// setConfig ( "temperature_demand", $model->$temp );
