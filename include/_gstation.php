@@ -1023,9 +1023,9 @@ function readSensor($i) {
 		}
 	}
 
-	$lfn = "/tmp/sensor_reader_".$i.".log";
+	$lfn = "/tmp/sensor_reader_" . $i . ".log";
 	while ( true ) {
-		ob_start();
+		ob_start ();
 		$ret = $func ( $sensor );
 		if ($ret == null) {
 			echo "Garbage sensor??\n";
@@ -1039,9 +1039,9 @@ function readSensor($i) {
 			print_r ( $ret );
 		}
 		sleep ( sensorCooloff ( $type ) );
-		$c = ob_get_contents();
-		file_put_contents($lfn, $c);
-		ob_end_clean();
+		$c = ob_get_contents ();
+		file_put_contents ( $lfn, $c );
+		ob_end_clean ();
 	}
 }
 
@@ -1336,12 +1336,16 @@ function tick() {
 	$temp = "temperature" . $hl;
 	$humd = "humidity" . $hl;
 	$data ["DEMAND.LIGHT"] = "'" . (($status == 'DAY') ? ("SUN") : ("MOON")) . "'";
-	$data ["DEMAND.TOD"] = "'" . $tod . "'";
 	$data ["DEMAND.TEMPERATURE"] = $model->$temp;
 	$data ["DEMAND.HUMIDITY"] = $model->$humd;
-
-	setConfig ( "temperature_demand", $model->$temp );
-	setConfig ( "humidity_demand", $model->$humd );
+	$data ["DATA.HOUR"] = number_format ( $nowOffset / 60, 2 );
+	$data ["DATA.HR"] = floor ( $nowOffset / 60 );
+	// $data ["DATA.HR"] = timestampFormat ( timestampNow (), "H" );
+	$data ["DATA.MN"] = timestampFormat ( timestampNow (), "m" );
+	$data ["DATA.TOD"] = "'" . $tod . "'";
+	
+	// setConfig ( "temperature_demand", $model->$temp );
+	// setConfig ( "humidity_demand", $model->$humd );
 
 	echo "\nGathering sensor data\n";
 	$sensors = gatherSensors ();
