@@ -11,7 +11,7 @@ function getLocalMeasurements($what, $name) {
 		$where = "name in ('" . implode ( "','", $bits ) . "')";
 	}
 	// $res = $mysql->query ( "SELECT * FROM temperature_logger where temperature != 999999 and demanded != 999999 and entered >= DATE_SUB(NOW(), INTERVAL 12 HOUR)" );
-	$sql = "SELECT event, name, value FROM sensors where " . $where . " and param = '" . $what . "' union select event, 'DEMANDED' as 'name', value from demands where param = '" . $what . "'";
+	$sql = "SELECT event, name, value FROM sensors where param = '" . $what . "' " . $where . " union select event, 'DEMANDED' as 'name', value from demands where param = '" . $what . "'";
 	// echo "SQL: \"" . $sql . "\"\n";
 	// $sql = "SELECT event, name, value FROM sensors where name = 'ZONE1' and param = 'temperature' union select event, 'DEMANDED' as 'name', value from demands where param = 'temperature'";
 	$res = $mysql->query ( $sql );

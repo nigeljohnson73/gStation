@@ -43,7 +43,8 @@ function setupTables() {
 			param VARCHAR(255) NOT NULL,
 			value VARCHAR(255) NOT NULL,
 			KEY(event),
-			KEY(name)
+			KEY(name), 
+			KEY(param, name)
 		)";
 	$mysql->query ( $str );
 
