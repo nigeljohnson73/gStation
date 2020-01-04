@@ -624,10 +624,12 @@ function directoryListing($dirname, $extensoes = null) {
 				if ($extensoes [$i] [0] == "*") {
 					$extensoes [$i] = "." . $extensoes [$i];
 				}
-				if (preg_match ( "/" . $extensoes [$i] . "/i", $file )) {
+				//if (preg_match ( "/\.swp/", $file ) === false) {
+				if (preg_match ( "/" . $extensoes [$i] . "$/i", $file )) {
 					// if (ereg("\.+" . $extensoes[$i] . "$", $file)) {
 					$files [] = $dirname . "/" . $file;
 				}
+				//}
 			}
 		}
 	}

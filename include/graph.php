@@ -1,6 +1,6 @@
 <?php
 
-function getLocalMeasurements($what, $name) {
+function getLocalMeasurements_orig($what, $name) {
 	global $mysql;
 	$where = "name = '$name'";
 	$bits = explode ( ",", $name );
@@ -10,10 +10,8 @@ function getLocalMeasurements($what, $name) {
 	if (count ( $bits ) > 1) {
 		$where = "name in ('" . implode ( "','", $bits ) . "')";
 	}
-	// $res = $mysql->query ( "SELECT * FROM temperature_logger where temperature != 999999 and demanded != 999999 and entered >= DATE_SUB(NOW(), INTERVAL 12 HOUR)" );
 	$sql = "SELECT event, name, value FROM sensors where param = '" . $what . "' and " . $where . " union select event, 'DEMANDED' as 'name', value from demands where param = '" . $what . "'";
 	// echo "SQL: \"" . $sql . "\"\n";
-	// $sql = "SELECT event, name, value FROM sensors where name = 'ZONE1' and param = 'temperature' union select event, 'DEMANDED' as 'name', value from demands where param = 'temperature'";
 	$res = $mysql->query ( $sql );
 	// echo "Local temp count: ".count($res)."\n";
 	// var_dump($res);
@@ -33,7 +31,41 @@ function getLocalMeasurements($what, $name) {
 	return null;
 }
 
+function getLocalMeasurements($what, $name) {
+	$ret = null;
+	global $mysql;
+	$where = "name = '$name'";
+	$bits = explode ( ",", $name );
+	$sqls = [];
+	foreach ( $bits as $k => $v ) {
+		$bit = trim ( $v );
+		if(strtolower($bit) == "demanded") {
+			$sqls[strtolower($bit)] = "SELECT event, 'DEMANDED' as 'name', value FROM demands WHERE param = '" . $what . "'";
+		} else {
+			$sqls[strtolower($bit)] = "SELECT event, name, value FROM sensors WHERE param = '" . $what . "' and name = '" . $bit . "'";
+		}
+	}
+	foreach($sqls as $sql) {
+		$res = $mysql->query ( $sql );
+		// echo "SQL: \"" . $sql . "\"\n";
+		// echo "    Count: ".count($res)."\n";
+		echo timestampFormat(timestampNow(), "H:i:s"). ": getLocalMeasurements(): ".count($res)." rows from \"$sql\"\n";
+		if (is_array ( $res ) && count ( $res ) > 0) {
+			if($ret == null) {
+				$ret = array ();
+			}
+			foreach ( $res as $r ) {
+				$ret [$r ["name"]] [timestamp2Time ( $r ["event"] )] = $r ["value"];
+			}
+		}
+		sleep(1);
+	}
+	return $ret;
+}
+
 function drawMeasuredGraph($what, $zone) {
+	echo timestampFormat(timestampNow(), "H:i:s"). ": drawMeasuredGraph(): started\n";
+
 	$legend_keys = [ ];
 	$legend_key ["temperature"] = "C";
 	$legend_key ["humidity"] = "%";
@@ -49,6 +81,7 @@ function drawMeasuredGraph($what, $zone) {
 	$max_y = 5;
 	$y_ticks = array ();
 
+	echo timestampFormat(timestampNow(), "H:i:s"). ": drawMeasuredGraph(): Processing data points\n";
 	foreach ( $vals as $k => $v ) {
 		if ($v && count ( array_keys ( $v ) ) > 2) {
 			$legend = "Measured " . $what . " (" . $zone . ")";
@@ -80,6 +113,7 @@ function drawMeasuredGraph($what, $zone) {
 
 	$x_ticks = 12;
 	$x_subticks = 1;
+	echo timestampFormat(timestampNow(), "H:i:s"). ": drawMeasuredGraph(): Generating graph\n";
 	return drawTimeGraph ( $vals, $legend, $x_ticks, $x_subticks, $min_y, $max_y, $max_y - $min_y, 1, $y_ticks );
 }
 

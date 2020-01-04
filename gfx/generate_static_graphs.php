@@ -15,7 +15,8 @@ foreach ( $graphs as $g ) {
 	imagedestroy ( $im );
 	//ob_end_clean ();
 	//ob_end_flush ();
-	sleep(15); // So the system can catch up with itself
+	echo timestampFormat(timestampNow(), "H:i:s"). ": generateStaticGraphs(): Created\n";
+	sleep(2); // So the system can catch up with itself
 }
 
 //ob_start ();
@@ -24,7 +25,8 @@ echo timestampFormat(timestampNow(), "H:i:s"). ": generateStaticGraphs(): Creati
 include (dirname ( __FILE__ ) . "/graph_daylight_scheduled.php");
 //ob_end_clean ();
 //ob_end_flush ();
-sleep(5);
+echo timestampFormat(timestampNow(), "H:i:s"). ": generateStaticGraphs(): Created\n";
+sleep(2);
 
 //ob_start ();
 $ofn = dirname ( __FILE__ ) . "/static_graph_humidity_scheduled.png";
@@ -32,7 +34,8 @@ echo timestampFormat(timestampNow(), "H:i:s"). ": generateStaticGraphs(): Creati
 include (dirname ( __FILE__ ) . "/graph_humidity_scheduled.php");
 //ob_end_clean ();
 //ob_end_flush ();
-sleep(5);
+echo timestampFormat(timestampNow(), "H:i:s"). ": generateStaticGraphs(): Created\n";
+sleep(2);
 
 //ob_start ();
 $ofn = dirname ( __FILE__ ) . "/static_graph_sun_scheduled.png";
@@ -40,7 +43,8 @@ echo timestampFormat(timestampNow(), "H:i:s"). ": generateStaticGraphs(): Creati
 include (dirname ( __FILE__ ) . "/graph_sun_scheduled.php");
 //ob_end_clean ();
 //ob_end_flush ();
-sleep(5);
+echo timestampFormat(timestampNow(), "H:i:s"). ": generateStaticGraphs(): Created\n";
+sleep(2);
 
 //ob_start ();
 $ofn = dirname ( __FILE__ ) . "/static_graph_temperature_scheduled.png";
@@ -48,7 +52,8 @@ echo timestampFormat(timestampNow(), "H:i:s"). ": generateStaticGraphs(): Creati
 include (dirname ( __FILE__ ) . "/graph_temperature_scheduled.php");
 //ob_end_clean ();
 //ob_end_flush ();
-sleep(5);
+echo timestampFormat(timestampNow(), "H:i:s"). ": generateStaticGraphs(): Created\n";
+sleep(2);
 
 echo timestampFormat(timestampNow(), "H:i:s"). ": generateStaticGraphs(): Process complete\n";
 
