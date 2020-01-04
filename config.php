@@ -2,7 +2,11 @@
 $local_timezone = "Europe/London"; // Where are you locally based for time references
 
 $sensors = [ ];
-$sensors [] = ( object ) [ 
+$sensors [] = ( object ) [
+		"name" => "PI", // RZ Root zone
+		"type" => "PI" // EMPTY, DS18B20, DHT11 or DHT22
+];
+$sensors [] = ( object ) [
 		"name" => "ZONE1", // RZ Root zone
 		"type" => "EMPTY" // EMPTY, DS18B20, DHT11 or DHT22
 ];

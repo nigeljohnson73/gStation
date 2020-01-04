@@ -8,6 +8,35 @@ ini_set ( 'display_errors', 'on' );
 // All calcuations are done in UTC
 date_default_timezone_set ( "UTC" );
 
+function bitCompare($str, $in, $now, $prev) {
+	$bp = 24; // bit padding
+	$has_str = "YES";
+	$now_str = "NOW";
+	$no_str = "NEVER";
+	$ret = $no_str;
+	
+	
+	$hi = str_pad(decbin($in), $bp, "0", STR_PAD_LEFT);
+	$hn = str_pad(decbin($now), $bp, "0", STR_PAD_LEFT);
+	$hp = str_pad(decbin($prev), $bp, "0", STR_PAD_LEFT);
+	
+	echo $str.": ";
+	if($in & $now) {
+		$ret = $now_str;
+	} elseif($in & $prev) {
+		$ret = $has_str;
+	}
+	echo $ret;
+	echo "\n";
+	
+	echo "In  (in): ".$hi." (".dechex($in).")\n";
+	echo "Now (hn): ".$hn." (".(($in&$now)?("set"):("--")).")\n";
+	echo "Prev(hp): ".$hp." (".(($in&$prev)?("set"):("--")).")\n";
+	echo "----\n";
+	
+	return $ret;
+}
+
 function GUID() {
 	if (function_exists ( 'com_create_guid' ) === true) {
 		return trim ( com_create_guid (), '{}' );
@@ -613,7 +642,7 @@ function includeDirectory($d, $ext = "php") {
 	$files = directoryListing ( $d, $ext );
 	foreach ( $files as $file ) {
 		// echo "loading $file<br />";
-		if (! preg_match ( '/index.php$/', $file ) && ! preg_match ( '/.swp$/', $file )) {	
+		if (! preg_match ( '/index.php$/', $file )) {
 			$ret [] = $file;
 		}
 	}

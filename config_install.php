@@ -1,9 +1,9 @@
 <?php
 // This is all the stuff that should go into the database configurator... plus probably some more... Later... Much... later.
-$sensors [0]->type = "DS18B20"; // EMPTY, DS18B20, DHT11 or DHT22
-$sensors [1]->type = "DHT22"; // EMPTY, DS18B20, DHT11 or DHT22
-$triggers [0]->type = "SSR"; // EMPTY, SSR, iSSR or LED
+$sensors [1]->type = "DS18B20"; // EMPTY, DS18B20, DHT11 or DHT22
+$sensors [2]->type = "DHT22"; // EMPTY, DS18B20, DHT11 or DHT22
 $triggers [1]->type = "SSR"; // EMPTY, SSR, iSSR or LED
+$triggers [2]->type = "SSR"; // EMPTY, SSR, iSSR or LED
 
 $conditions = [ ];
 $conditions [] = "T1 IF [[ZONE1.TEMPERATURE]] < [[DEMAND.TEMPERATURE]]";

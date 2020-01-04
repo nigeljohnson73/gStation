@@ -702,12 +702,14 @@ function isGpio($type) {
 	$ret = true;
 
 	switch ($type) {
+		case "PI":
 		case "EMPTY" :
 		case "MH-Z19B" :
 			$ret = false;
 			break;
 	}
 
+	echo "isGpio($type): $ret\n";
 	return $ret;
 }
 
@@ -933,6 +935,34 @@ function readSensorRaw_MH_Z19B($sensor) {
 	 */
 }
 
+function readSensorRaw_PI($sensor) {
+	$throt = exec ( "vcgencmd get_throttled" );
+	// $throt = "0x40004";
+	echo "throt: '$throt'\n";
+	$throt = explode ( "0x", $throt ) [1];
+	echo "throt: '$throt'\n";
+	$throt = hexdec ( $throt );
+	echo "throt: '$throt'\n";
+
+	$temp = exec ( "vcgencmd measure_temp" );
+	echo "temp: '$temp'\n";
+	$temp = explode ( "=", $temp ) [1];
+	echo "temp: '$temp'\n";
+	$temp = explode ( "'", $temp ) [0];
+	echo "temp: '$temp'\n";
+
+	$obj = new StdClass ();
+	// $obj->event = time();
+	// $obj->name = "PI";
+	$obj->temperature = $temp;
+	$obj->under_voltage = bitCompare ( "UNDERVOLT", $throt, (1 << 0), (1 << 16) );
+	$obj->frequency_capped = bitCompare ( "FREQCAP", $throt, (1 << 1), (1 << 17) );
+	$obj->throttled = bitCompare ( "THROTTLED", $throt, (1 << 2), (1 << 18) );
+	$obj->soft_temperature_limited = bitCompare ( "TEMPLIMIT", $throt, (1 << 3), (1 << 19) );
+
+	return $obj;
+}
+
 // How long to give the sensor time to refresh
 function sensorCooloff($type) {
 	$ret = 2;
@@ -988,7 +1018,7 @@ function checkSensors($type, $pin) {
 function readSensor($i) {
 	global $sensors;
 
-	if (! isset ( $sensors [$i - 1] )) {
+	if (! isset ( $sensors [$i] )) {
 		echo ("No sensor defined for slot #" . $i . " - endless looping required\n");
 		while ( true ) {
 			// Endless loop
@@ -997,9 +1027,9 @@ function readSensor($i) {
 	}
 	enumerateSensors ();
 
-	$sensor = $sensors [$i - 1];
+	$sensor = $sensors [$i];
 	$type = $sensor->type;
-	$pin = $sensor->pin;
+	$pin = @$sensor->pin;
 	$func = "readSensorRaw_" . str_replace ( "-", "_", $sensor->type );
 
 	if ($type == "EMPTY" || $pin == 99) {
@@ -1339,12 +1369,12 @@ function tick() {
 	$data ["DEMAND.LIGHT"] = "'" . (($status == 'DAY') ? ("SUN") : ("MOON")) . "'";
 	$data ["DEMAND.TEMPERATURE"] = $model->$temp;
 	$data ["DEMAND.HUMIDITY"] = $model->$humd;
-	$data ["DATA.HOUR"] = number_format ( $nowOffset / (60*60), 2 );
-	$data ["DATA.HR"] = floor ( $nowOffset / (60*60) );
+	$data ["DATA.HOUR"] = number_format ( $nowOffset / (60 * 60), 2 );
+	$data ["DATA.HR"] = floor ( $nowOffset / (60 * 60) );
 	// $data ["DATA.HR"] = timestampFormat ( timestampNow (), "H" );
 	$data ["DATA.MN"] = timestampFormat ( timestampNow (), "i" );
 	$data ["DATA.TOD"] = "'" . $tod . "'";
-	
+
 	// setConfig ( "temperature_demand", $model->$temp );
 	// setConfig ( "humidity_demand", $model->$humd );
 
