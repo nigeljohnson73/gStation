@@ -18,6 +18,7 @@ echo "Starting gStation display"
 sh /webroot/gStation/sh/oled_monitor.sh &
 
 echo "Starting gStation sensors"
+sh /webroot/gStation/sh/sensor_monitor.sh 0 &
 sh /webroot/gStation/sh/sensor_monitor.sh 1 &
 sh /webroot/gStation/sh/sensor_monitor.sh 2 &
 sh /webroot/gStation/sh/sensor_monitor.sh 3 &

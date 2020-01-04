@@ -3,8 +3,8 @@ $local_timezone = "Europe/London"; // Where are you locally based for time refer
 
 $sensors = [ ];
 $sensors [] = ( object ) [
-		"name" => "PI", // RZ Root zone
-		"type" => "PI" // EMPTY, DS18B20, DHT11 or DHT22
+		"name" => "PI", 
+		"type" => "PI"
 ];
 $sensors [] = ( object ) [
 		"name" => "ZONE1", // RZ Root zone
@@ -63,6 +63,7 @@ $graphs = [];
 $graphs[] = "temperature.ZONE1";
 $graphs[] = "humidity.ZONE1";
 
+$sensor_pin_0 = 99;
 $sensor_pin_1 = 99;
 $sensor_pin_2 = 99;
 $sensor_pin_3 = 99;

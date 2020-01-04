@@ -609,12 +609,12 @@ function enumerateSensors() {
 	}
 	$sensors_enumerated = true;
 
-	foreach ( $sensors as $pin => $s ) {
+	foreach ( $sensors as $k => $s ) {
 		$s->enumeration = sensorEnumeration ( $s->type );
-		$gpio_pin = "sensor_pin_" . ($pin + 1);
-		global $$gpio_pin;
-		$s->pin = $$gpio_pin;
-		$s->ofn = "/tmp/sensor_data_" . ($pin + 1) . ".json";
+		$gpio_pin = "sensor_pin_" . ($k);
+		global $$k;
+		$s->pin = $$k;
+		$s->ofn = "/tmp/sensor_data_" . ($k) . ".json";
 	}
 }
 
@@ -702,7 +702,7 @@ function isGpio($type) {
 	$ret = true;
 
 	switch ($type) {
-		case "PI":
+		case "PI" :
 		case "EMPTY" :
 		case "MH-Z19B" :
 			$ret = false;
