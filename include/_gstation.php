@@ -709,7 +709,7 @@ function isGpio($type) {
 			break;
 	}
 
-	echo "isGpio($type): ".tfn($ret)."\n";
+	echo "isGpio($type): " . tfn ( $ret ) . "\n";
 	return $ret;
 }
 
@@ -936,7 +936,12 @@ function readSensorRaw_MH_Z19B($sensor) {
 }
 
 function readSensorRaw_PI($sensor) {
-echo "readSensorRaw_PI():".ob_print_r($sensor)."\n";
+	echo "readSensorRaw_PI():" . ob_print_r ( $sensor ) . "\n";
+	$vmstat = exec ( "vmstat 1 2" );
+	echo "vmstat: '$vmstat'\n";
+	$bits = explode ( " ", $vmstat );
+	echo "bits: " . ob_print_r ( $bits ) . "\n";
+
 	$throt = exec ( "vcgencmd get_throttled" );
 	// $throt = "0x40004";
 	echo "throt: '$throt'\n";
@@ -1018,7 +1023,7 @@ function checkSensors($type, $pin) {
 
 function readSensor($i) {
 	global $sensors;
-echo "readSensor($i): started\n";
+	echo "readSensor($i): started\n";
 
 	if (! isset ( $sensors [$i] )) {
 		echo ("No sensor defined for slot #" . $i . " - endless looping required\n");
@@ -1030,7 +1035,7 @@ echo "readSensor($i): started\n";
 	enumerateSensors ();
 
 	$sensor = $sensors [$i];
-echo "readSensor($i): sensor: ".ob_print_r($sensor)."\n";
+	echo "readSensor($i): sensor: " . ob_print_r ( $sensor ) . "\n";
 	$type = $sensor->type;
 	$pin = @$sensor->pin;
 	$func = "readSensorRaw_" . str_replace ( "-", "_", $sensor->type );
