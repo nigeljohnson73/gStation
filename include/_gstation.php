@@ -935,31 +935,94 @@ function readSensorRaw_MH_Z19B($sensor) {
 	 */
 }
 
+function getVmStats() {
+	$free = exec ( "free | grep '^Mem:'" );
+	//echo "free: '$free'\n";
+	$bits = explode(" ", preg_replace('/\s+/', " ", trim($free)));
+	//echo "bits: " . ob_print_r ( $bits ) . "\n";
+
+	$keys = [];
+	$keys[] = "dummy";
+	$keys[] = "total";
+	$keys[] = "used";
+	$keys[] = "free";
+	$keys[] = "shared";
+	$keys[] = "cache";
+	$keys[] = "available";
+
+	$free = new StdClass();
+	foreach($bits as $k=>$v) {
+		$key = $keys[$k];
+		$free -> $key = $v;
+	}
+
+	$vmstat = exec ( "vmstat 1 2" );
+	//echo "vmstat: '$vmstat'\n";
+	$bits = explode(" ", preg_replace('/\s+/', " ", trim($vmstat)));
+	//echo "bits: " . ob_print_r ( $bits ) . "\n";
+
+	$keys = [];
+	$keys[] = "procs_r";
+	$keys[] = "procs_b";
+	$keys[] = "mem_swapd";
+	$keys[] = "mem_free";
+	$keys[] = "mem_buff";
+	$keys[] = "mem_cache";
+	$keys[] = "swap_si";
+	$keys[] = "swap_so";
+	$keys[] = "io_bi";
+	$keys[] = "io_bo";
+	$keys[] = "sys_in";
+	$keys[] = "sys_cs";
+	$keys[] = "procs_r";
+	$keys[] = "cpu_us";
+	$keys[] = "cpu_sy";
+	$keys[] = "cpu_id";
+	$keys[] = "cpu_wa";
+	$keys[] = "cpu_st";
+
+	$vmstat = new StdClass();
+	foreach($bits as $k=>$v) {
+		$key = $keys[$k];
+		$vmstat -> $key = $v;
+	}
+
+	$ret = new StdClass();
+	$ret->cpu_wait = $vmstat->cpu_wa;
+	$ret->cpu_load = 100-$vmstat->cpu_id;
+	$ret->mem_total = $free->total;
+	$ret->mem_avail = $free->available + $vmstat->mem_cache;
+	$ret->mem_load = round(100*($ret->mem_total - $ret->mem_avail)/$ret->mem_total, 2);
+
+	return $ret;
+}
+
 function readSensorRaw_PI($sensor) {
 	echo "readSensorRaw_PI():" . ob_print_r ( $sensor ) . "\n";
-	$vmstat = exec ( "vmstat 1 2" );
-	echo "vmstat: '$vmstat'\n";
-	$bits = explode ( " ", $vmstat );
-	echo "bits: " . ob_print_r ( $bits ) . "\n";
+	$vmstats = getVmStats();
+	// echo "vmstats: ".ob_print_r($vmstats)."\n";
 
 	$throt = exec ( "vcgencmd get_throttled" );
 	// $throt = "0x40004";
-	echo "throt: '$throt'\n";
+	// echo "throt: '$throt'\n";
 	$throt = explode ( "0x", $throt ) [1];
-	echo "throt: '$throt'\n";
+	// echo "throt: '$throt'\n";
 	$throt = hexdec ( $throt );
-	echo "throt: '$throt'\n";
+	// echo "throt: '$throt'\n";
 
 	$temp = exec ( "vcgencmd measure_temp" );
-	echo "temp: '$temp'\n";
+	// echo "temp: '$temp'\n";
 	$temp = explode ( "=", $temp ) [1];
-	echo "temp: '$temp'\n";
+	// echo "temp: '$temp'\n";
 	$temp = explode ( "'", $temp ) [0];
-	echo "temp: '$temp'\n";
+	// echo "temp: '$temp'\n";
 
 	$obj = new StdClass ();
 	// $obj->event = time();
 	// $obj->name = "PI";
+	$obj->cpu_wait = $vmstats->cpu_wait;
+	$obj->cpu_load = $vmstats->cpu_load;
+	$obj->mem_load = $vmstats->mem_load;
 	$obj->temperature = $temp;
 	$obj->under_voltage = bitCompare ( "UNDERVOLT", $throt, (1 << 0), (1 << 16) );
 	$obj->frequency_capped = bitCompare ( "FREQCAP", $throt, (1 << 1), (1 << 17) );

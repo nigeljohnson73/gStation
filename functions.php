@@ -20,19 +20,19 @@ function bitCompare($str, $in, $now, $prev) {
 	$hn = str_pad(decbin($now), $bp, "0", STR_PAD_LEFT);
 	$hp = str_pad(decbin($prev), $bp, "0", STR_PAD_LEFT);
 	
-	echo $str.": ";
+	// echo $str.": ";
 	if($in & $now) {
 		$ret = $now_str;
 	} elseif($in & $prev) {
 		$ret = $has_str;
 	}
-	echo $ret;
-	echo "\n";
+	// echo $ret;
+	// echo "\n";
 	
-	echo "In  (in): ".$hi." (".dechex($in).")\n";
-	echo "Now (hn): ".$hn." (".(($in&$now)?("set"):("--")).")\n";
-	echo "Prev(hp): ".$hp." (".(($in&$prev)?("set"):("--")).")\n";
-	echo "----\n";
+	// echo "In  (in): ".$hi." (".dechex($in).")\n";
+	// echo "Now (hn): ".$hn." (".(($in&$now)?("set"):("--")).")\n";
+	// echo "Prev(hp): ".$hp." (".(($in&$prev)?("set"):("--")).")\n";
+	// echo "----\n";
 	
 	return $ret;
 }
