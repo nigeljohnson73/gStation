@@ -26,9 +26,11 @@ $tsnow = timestampNow ();
 // $pinpoint_act = array ();
 // $pinpoint_act ["x"] = timestamp2Time ( $tsnow );
 // $pinpoint_act ["y"] = getConfig ( "humidity" );
+
+$env = json_decode(getConfig("env"));
 $pinpoint_dem = array ();
 $pinpoint_dem ["x"] = timestamp2Time ( $tsnow );
-$pinpoint_dem ["y"] = getConfig ( "humidity_demand" );
+$pinpoint_dem ["y"] = ((array)$env)["DEMAND.HUMIDITY"];
 
 $pinpoint = array (
 		//( object ) $pinpoint_act,
