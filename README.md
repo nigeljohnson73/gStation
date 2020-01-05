@@ -137,15 +137,15 @@ Update the user login script so it has a pretty banner and stuff.
 
     echo "source /webroot/gStation/res/bashrc" | tee -a ~/.bashrc
 
-Change the I2C refresh rate.
-
-    echo "dtparam=i2c_baudrate=1000000" | sudo tee -a /boot/config.txt
-
 Configure the system to set up the GPIOs on boot in the rc.local file.
 
     cat /etc/rc.local | grep -v 'exit 0' | sudo tee /etc/rc.local
     echo ". /webroot/gStation/res/rc.local" | sudo tee -a /etc/rc.local
     echo "exit 0" | sudo tee -a /etc/rc.local
+
+Change the I2C refresh rate.
+
+    echo "dtparam=i2c_baudrate=1000000" | sudo tee -a /boot/config.txt
 
 Update the crontab to have our update commands.
 
