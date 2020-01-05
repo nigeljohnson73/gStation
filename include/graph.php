@@ -69,6 +69,9 @@ function drawMeasuredGraph($what, $zone) {
 	$legend_keys = [ ];
 	$legend_key ["temperature"] = "C";
 	$legend_key ["humidity"] = "%";
+	$legend_key ["mem_load"] = "%";
+	$legend_key ["cpu_load"] = "%";
+	$legend_key ["cpu_wait"] = "%";
 
 	$legend_key = $legend_key [$what];
 

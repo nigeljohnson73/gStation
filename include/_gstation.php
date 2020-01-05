@@ -482,17 +482,17 @@ function rebuildDataModel() {
 			}
 
 			// Highest temps happen about 60 days after the solstice
-			$obj->temperatureHigh = $high_mid_temperature + $high_delta_temperature * cos ( deg2rad ( ($i - 60) * $deg_step ) );
-			$obj->temperatureLow = $low_mid_temperature + $low_delta_temperature * cos ( deg2rad ( ($i - 60) * $deg_step ) );
+			$obj->temperatureHigh = round($high_mid_temperature + $high_delta_temperature * cos ( deg2rad ( ($i - 60) * $deg_step ) ), 3);
+			$obj->temperatureLow = round($low_mid_temperature + $low_delta_temperature * cos ( deg2rad ( ($i - 60) * $deg_step ) ), 3);
 
 			// Humidity is also offset from the solstice
-			$obj->humidityHigh = $high_mid_humidity + $high_delta_humidity * cos ( deg2rad ( 180 + ($i - 60) * $deg_step ) );
-			$obj->humidityLow = $low_mid_humidity + $low_delta_humidity * cos ( deg2rad ( 180 + ($i - 60) * $deg_step ) );
+			$obj->humidityHigh = round($high_mid_humidity + $high_delta_humidity * cos ( deg2rad ( 180 + ($i - 60) * $deg_step ) ), 3);
+			$obj->humidityLow = round($low_mid_humidity + $low_delta_humidity * cos ( deg2rad ( 180 + ($i - 60) * $deg_step ) ), 3);
 
 			// Daylength is the only real thing that is bount to the solstices
-			$obj->sunsetOffset = ($sunset_mid_offset + $sunset_delta_offset * cos ( deg2rad ( $i * $deg_step ) )) * 3600;
-			$obj->sunriseOffset = ($sunrise_mid_offset + $sunrise_delta_offset * cos ( deg2rad ( 180 + $i * $deg_step ) )) * 3600;
-			$obj->daylightHours = ($obj->sunsetOffset - $obj->sunriseOffset) / 3600;
+			$obj->sunsetOffset = round(($sunset_mid_offset + $sunset_delta_offset * cos ( deg2rad ( $i * $deg_step ) )) * 3600, 3);
+			$obj->sunriseOffset = round(($sunrise_mid_offset + $sunrise_delta_offset * cos ( deg2rad ( 180 + $i * $deg_step ) )) * 3600, 3);
+			$obj->daylightHours = round(($obj->sunsetOffset - $obj->sunriseOffset) / 3600, 3);
 
 			$model [timestampFormat ( $tsnow, "md" )] = $obj;
 
@@ -936,6 +936,26 @@ function readSensorRaw_MH_Z19B($sensor) {
 }
 
 function getVmStats() {
+	$hdd = exec ( "df -k | grep '^\/dev\/root'" );
+	// echo "free: '$free'\n";
+	$bits = explode(" ", preg_replace('/\s+/', " ", trim($hdd)));
+	// echo "bits: " . ob_print_r ( $bits ) . "\n";
+
+	$keys = [];
+	$keys[] = "fs";
+	$keys[] = "blocks";
+	$keys[] = "used";
+	$keys[] = "available";
+	$keys[] = "use";
+	$keys[] = "mount";
+
+	$hdd = new StdClass();
+	foreach($bits as $k=>$v) {
+		$key = $keys[$k];
+		$hdd -> $key = $v;
+	}
+	// echo "HDD: ".ob_print_r($hdd)."\n";
+
 	$free = exec ( "free | grep '^Mem:'" );
 	//echo "free: '$free'\n";
 	$bits = explode(" ", preg_replace('/\s+/', " ", trim($free)));
@@ -988,11 +1008,12 @@ function getVmStats() {
 	}
 
 	$ret = new StdClass();
+	$ret->sd_free = round(100*$hdd->available/$hdd->blocks, 3);
 	$ret->cpu_wait = $vmstat->cpu_wa;
 	$ret->cpu_load = 100-$vmstat->cpu_id;
 	$ret->mem_total = $free->total;
 	$ret->mem_avail = $free->available + $vmstat->mem_cache;
-	$ret->mem_load = round(100*($ret->mem_total - $ret->mem_avail)/$ret->mem_total, 2);
+	$ret->mem_load = round(100*($ret->mem_total - $ret->mem_avail)/$ret->mem_total, 3);
 
 	return $ret;
 }
@@ -1020,6 +1041,7 @@ function readSensorRaw_PI($sensor) {
 	$obj = new StdClass ();
 	// $obj->event = time();
 	// $obj->name = "PI";
+	$obj->sd_free = $vmstats->sd_free;
 	$obj->cpu_wait = $vmstats->cpu_wait;
 	$obj->cpu_load = $vmstats->cpu_load;
 	$obj->mem_load = $vmstats->mem_load;
@@ -1438,9 +1460,9 @@ function tick() {
 	$temp = "temperature" . $hl;
 	$humd = "humidity" . $hl;
 	$data ["DEMAND.LIGHT"] = "'" . (($status == 'DAY') ? ("SUN") : ("MOON")) . "'";
-	$data ["DEMAND.TEMPERATURE"] = $model->$temp;
-	$data ["DEMAND.HUMIDITY"] = $model->$humd;
-	$data ["DATA.HOUR"] = number_format ( $nowOffset / (60 * 60), 2 );
+	$data ["DEMAND.TEMPERATURE"] = round($model->$temp, 3);
+	$data ["DEMAND.HUMIDITY"] = round($model->$humd, 3);
+	$data ["DATA.HOUR"] = round ( $nowOffset / (60 * 60), 3 );
 	$data ["DATA.HR"] = floor ( $nowOffset / (60 * 60) );
 	// $data ["DATA.HR"] = timestampFormat ( timestampNow (), "H" );
 	$data ["DATA.MN"] = timestampFormat ( timestampNow (), "i" );
