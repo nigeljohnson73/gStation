@@ -72,6 +72,7 @@ function drawMeasuredGraph($what, $zone) {
 	$legend_key ["mem_load"] = "%";
 	$legend_key ["cpu_load"] = "%";
 	$legend_key ["cpu_wait"] = "%";
+	$legend_key ["sd_free"] = "%";
 
 	$legend_key = $legend_key [$what];
 
