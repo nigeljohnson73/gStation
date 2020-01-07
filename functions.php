@@ -241,7 +241,7 @@ function randomQuery() {
 
 // Returned a value between 0 and 1 as a percenteage of where $v is in the range $min -> $max
 function scaleVal($v, $min, $max) {
-	if(abs($max-$min) < 0.01) {
+	if (abs ( $max - $min ) < 0.01) {
 		return 0;
 	}
 	return ($v - $min) / ($max - $min);
