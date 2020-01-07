@@ -482,17 +482,17 @@ function rebuildDataModel() {
 			}
 
 			// Highest temps happen about 60 days after the solstice
-			$obj->temperatureHigh = round($high_mid_temperature + $high_delta_temperature * cos ( deg2rad ( ($i - 60) * $deg_step ) ), 3);
-			$obj->temperatureLow = round($low_mid_temperature + $low_delta_temperature * cos ( deg2rad ( ($i - 60) * $deg_step ) ), 3);
+			$obj->temperatureHigh = round ( $high_mid_temperature + $high_delta_temperature * cos ( deg2rad ( ($i - 60) * $deg_step ) ), 3 );
+			$obj->temperatureLow = round ( $low_mid_temperature + $low_delta_temperature * cos ( deg2rad ( ($i - 60) * $deg_step ) ), 3 );
 
 			// Humidity is also offset from the solstice
-			$obj->humidityHigh = round($high_mid_humidity + $high_delta_humidity * cos ( deg2rad ( 180 + ($i - 60) * $deg_step ) ), 3);
-			$obj->humidityLow = round($low_mid_humidity + $low_delta_humidity * cos ( deg2rad ( 180 + ($i - 60) * $deg_step ) ), 3);
+			$obj->humidityHigh = round ( $high_mid_humidity + $high_delta_humidity * cos ( deg2rad ( 180 + ($i - 60) * $deg_step ) ), 3 );
+			$obj->humidityLow = round ( $low_mid_humidity + $low_delta_humidity * cos ( deg2rad ( 180 + ($i - 60) * $deg_step ) ), 3 );
 
 			// Daylength is the only real thing that is bount to the solstices
-			$obj->sunsetOffset = round(($sunset_mid_offset + $sunset_delta_offset * cos ( deg2rad ( $i * $deg_step ) )) * 3600, 3);
-			$obj->sunriseOffset = round(($sunrise_mid_offset + $sunrise_delta_offset * cos ( deg2rad ( 180 + $i * $deg_step ) )) * 3600, 3);
-			$obj->daylightHours = round(($obj->sunsetOffset - $obj->sunriseOffset) / 3600, 3);
+			$obj->sunsetOffset = round ( ($sunset_mid_offset + $sunset_delta_offset * cos ( deg2rad ( $i * $deg_step ) )) * 3600, 3 );
+			$obj->sunriseOffset = round ( ($sunrise_mid_offset + $sunrise_delta_offset * cos ( deg2rad ( 180 + $i * $deg_step ) )) * 3600, 3 );
+			$obj->daylightHours = round ( ($obj->sunsetOffset - $obj->sunriseOffset) / 3600, 3 );
 
 			$model [timestampFormat ( $tsnow, "md" )] = $obj;
 
@@ -938,120 +938,102 @@ function readSensorRaw_MH_Z19B($sensor) {
 function getVmStats() {
 	$hdd = exec ( "df -k | grep '^\/dev\/root'" );
 	// echo "free: '$free'\n";
-	$bits = explode(" ", preg_replace('/\s+/', " ", trim($hdd)));
+	$bits = explode ( " ", preg_replace ( '/\s+/', " ", trim ( $hdd ) ) );
 	// echo "bits: " . ob_print_r ( $bits ) . "\n";
 
-	$keys = [];
-	$keys[] = "fs";
-	$keys[] = "blocks";
-	$keys[] = "used";
-	$keys[] = "available";
-	$keys[] = "use";
-	$keys[] = "mount";
+	$keys = [ ];
+	$keys [] = "fs";
+	$keys [] = "blocks";
+	$keys [] = "used";
+	$keys [] = "available";
+	$keys [] = "use";
+	$keys [] = "mount";
 
-	$hdd = new StdClass();
-	foreach($bits as $k=>$v) {
-		$key = $keys[$k];
-		$hdd -> $key = $v;
+	$hdd = new StdClass ();
+	foreach ( $bits as $k => $v ) {
+		$key = $keys [$k];
+		$hdd->$key = $v;
 	}
 	// echo "HDD: ".ob_print_r($hdd)."\n";
 
 	$free = exec ( "free | grep '^Mem:'" );
-	//echo "free: '$free'\n";
-	$bits = explode(" ", preg_replace('/\s+/', " ", trim($free)));
-	//echo "bits: " . ob_print_r ( $bits ) . "\n";
+	// echo "free: '$free'\n";
+	$bits = explode ( " ", preg_replace ( '/\s+/', " ", trim ( $free ) ) );
+	// echo "bits: " . ob_print_r ( $bits ) . "\n";
 
-	$keys = [];
-	$keys[] = "dummy";
-	$keys[] = "total";
-	$keys[] = "used";
-	$keys[] = "free";
-	$keys[] = "shared";
-	$keys[] = "cache";
-	$keys[] = "available";
+	$keys = [ ];
+	$keys [] = "dummy";
+	$keys [] = "total";
+	$keys [] = "used";
+	$keys [] = "free";
+	$keys [] = "shared";
+	$keys [] = "cache";
+	$keys [] = "available";
 
-	$free = new StdClass();
-	foreach($bits as $k=>$v) {
-		$key = $keys[$k];
-		$free -> $key = $v;
+	$free = new StdClass ();
+	foreach ( $bits as $k => $v ) {
+		$key = $keys [$k];
+		$free->$key = $v;
 	}
 
 	$vmstat = exec ( "vmstat 1 2" );
-	//echo "vmstat: '$vmstat'\n";
-	$bits = explode(" ", preg_replace('/\s+/', " ", trim($vmstat)));
-	//echo "bits: " . ob_print_r ( $bits ) . "\n";
+	// echo "vmstat: '$vmstat'\n";
+	$bits = explode ( " ", preg_replace ( '/\s+/', " ", trim ( $vmstat ) ) );
+	// echo "bits: " . ob_print_r ( $bits ) . "\n";
 
-	$keys = [];
-	$keys[] = "procs_r";
-	$keys[] = "procs_b";
-	$keys[] = "mem_swapd";
-	$keys[] = "mem_free";
-	$keys[] = "mem_buff";
-	$keys[] = "mem_cache";
-	$keys[] = "swap_si";
-	$keys[] = "swap_so";
-	$keys[] = "io_bi";
-	$keys[] = "io_bo";
-	$keys[] = "sys_in";
-	$keys[] = "sys_cs";
-	$keys[] = "procs_r";
-	$keys[] = "cpu_us";
-	$keys[] = "cpu_sy";
-	$keys[] = "cpu_id";
-	$keys[] = "cpu_wa";
-	$keys[] = "cpu_st";
+	$keys = [ ];
+	$keys [] = "procs_r";
+	$keys [] = "procs_b";
+	$keys [] = "mem_swapd";
+	$keys [] = "mem_free";
+	$keys [] = "mem_buff";
+	$keys [] = "mem_cache";
+	$keys [] = "swap_si";
+	$keys [] = "swap_so";
+	$keys [] = "io_bi";
+	$keys [] = "io_bo";
+	$keys [] = "sys_in";
+	$keys [] = "sys_cs";
+	$keys [] = "procs_r";
+	$keys [] = "cpu_us";
+	$keys [] = "cpu_sy";
+	$keys [] = "cpu_id";
+	$keys [] = "cpu_wa";
+	$keys [] = "cpu_st";
 
-	$vmstat = new StdClass();
-	foreach($bits as $k=>$v) {
-		$key = $keys[$k];
-		$vmstat -> $key = $v;
+	$vmstat = new StdClass ();
+	foreach ( $bits as $k => $v ) {
+		$key = $keys [$k];
+		$vmstat->$key = $v;
 	}
 
-	$ret = new StdClass();
-	$ret->sd_free = round(100*$hdd->available/$hdd->blocks, 3);
+	$throt = exec ( "vcgencmd get_throttled" );
+	$throt = explode ( "0x", $throt ) [1];
+	$throt = hexdec ( $throt );
+
+	$temp = exec ( "vcgencmd measure_temp" );
+	$temp = explode ( "=", $temp ) [1];
+	$temp = explode ( "'", $temp ) [0];
+
+	$ret = new StdClass ();
+	$ret->sd_free = round ( 100 * $hdd->available / $hdd->blocks, 3 );
 	$ret->cpu_wait = $vmstat->cpu_wa;
-	$ret->cpu_load = 100-$vmstat->cpu_id;
+	$ret->cpu_load = $vmstat->cpu_sy + $vmstat->cpu_us;
 	$ret->mem_total = $free->total;
 	$ret->mem_avail = $free->available + $vmstat->mem_cache;
-	$ret->mem_load = round(100*($ret->mem_total - $ret->mem_avail)/$ret->mem_total, 3);
+	$ret->mem_load = round ( 100 * ($ret->mem_total - $ret->mem_avail) / $ret->mem_total, 3 );
+	$ret->temperature = $temp;
+	$ret->under_voltage = bitCompare ( "UNDERVOLT", $throt, (1 << 0), (1 << 16) );
+	$ret->frequency_capped = bitCompare ( "FREQCAP", $throt, (1 << 1), (1 << 17) );
+	$ret->throttled = bitCompare ( "THROTTLED", $throt, (1 << 2), (1 << 18) );
+	$ret->soft_temperature_limited = bitCompare ( "TEMPLIMIT", $throt, (1 << 3), (1 << 19) );
 
 	return $ret;
 }
 
 function readSensorRaw_PI($sensor) {
 	echo "readSensorRaw_PI():" . ob_print_r ( $sensor ) . "\n";
-	$vmstats = getVmStats();
-	// echo "vmstats: ".ob_print_r($vmstats)."\n";
-
-	$throt = exec ( "vcgencmd get_throttled" );
-	// $throt = "0x40004";
-	// echo "throt: '$throt'\n";
-	$throt = explode ( "0x", $throt ) [1];
-	// echo "throt: '$throt'\n";
-	$throt = hexdec ( $throt );
-	// echo "throt: '$throt'\n";
-
-	$temp = exec ( "vcgencmd measure_temp" );
-	// echo "temp: '$temp'\n";
-	$temp = explode ( "=", $temp ) [1];
-	// echo "temp: '$temp'\n";
-	$temp = explode ( "'", $temp ) [0];
-	// echo "temp: '$temp'\n";
-
-	$obj = new StdClass ();
-	// $obj->event = time();
-	// $obj->name = "PI";
-	$obj->sd_free = $vmstats->sd_free;
-	$obj->cpu_wait = $vmstats->cpu_wait;
-	$obj->cpu_load = $vmstats->cpu_load;
-	$obj->mem_load = $vmstats->mem_load;
-	$obj->temperature = $temp;
-	$obj->under_voltage = bitCompare ( "UNDERVOLT", $throt, (1 << 0), (1 << 16) );
-	$obj->frequency_capped = bitCompare ( "FREQCAP", $throt, (1 << 1), (1 << 17) );
-	$obj->throttled = bitCompare ( "THROTTLED", $throt, (1 << 2), (1 << 18) );
-	$obj->soft_temperature_limited = bitCompare ( "TEMPLIMIT", $throt, (1 << 3), (1 << 19) );
-
-	return $obj;
+	return getVmStats ();
 }
 
 // How long to give the sensor time to refresh
@@ -1460,8 +1442,8 @@ function tick() {
 	$temp = "temperature" . $hl;
 	$humd = "humidity" . $hl;
 	$data ["DEMAND.LIGHT"] = "'" . (($status == 'DAY') ? ("SUN") : ("MOON")) . "'";
-	$data ["DEMAND.TEMPERATURE"] = round($model->$temp, 3);
-	$data ["DEMAND.HUMIDITY"] = round($model->$humd, 3);
+	$data ["DEMAND.TEMPERATURE"] = round ( $model->$temp, 3 );
+	$data ["DEMAND.HUMIDITY"] = round ( $model->$humd, 3 );
 	$data ["DATA.HOUR"] = round ( $nowOffset / (60 * 60), 3 );
 	$data ["DATA.HR"] = floor ( $nowOffset / (60 * 60) );
 	// $data ["DATA.HR"] = timestampFormat ( timestampNow (), "H" );

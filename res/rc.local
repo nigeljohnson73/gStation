@@ -27,5 +27,3 @@ sh /webroot/gStation/sh/sensor_monitor.sh 5 &
 
 echo "Starting gStation graph generator"
 sh /webroot/gStation/sh/graph_monitor.sh &
-
-exit 0
