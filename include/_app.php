@@ -601,7 +601,7 @@ function enumerateTriggers() {
 }
 
 function enumerateSensors() {
-	// echo "enumerateSensors(): called\n";
+	echo "enumerateSensors(): called\n";
 	global $sensors_enumerated, $sensors;
 
 	if ($sensors_enumerated) {
@@ -612,9 +612,10 @@ function enumerateSensors() {
 	foreach ( $sensors as $k => $s ) {
 		$s->enumeration = sensorEnumeration ( $s->type );
 		$gpio_pin = "sensor_pin_" . ($k);
-		global $$k;
-		$s->pin = $$k;
+		global $$gpio_pin;
+		$s->pin = $$gpio_pin;
 		$s->ofn = "/tmp/sensor_data_" . ($k) . ".json";
+		// echo "sensor: ".$s->type.", k: ".$k.", pin: ".$gpio_pin.", value: ".($$gpio_pin)."\n";
 	}
 }
 
@@ -709,7 +710,7 @@ function isGpio($type) {
 			break;
 	}
 
-	echo "isGpio($type): " . tfn ( $ret ) . "\n";
+	// echo "isGpio($type): " . tfn ( $ret ) . "\n";
 	return $ret;
 }
 
@@ -757,6 +758,7 @@ function createSensorsSetupScript() {
 	$ret = "";
 
 	foreach ( $sensors as $s ) {
+// echo ob_print_r($s);
 		if (isGpio ( $s->type )) {
 			$ret .= "dtoverlay ";
 			$ret .= overlay ( $s->type );
