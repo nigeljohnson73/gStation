@@ -92,6 +92,12 @@ Next, log back in to the new hostname with the new password, then, update Raspia
     sudo pip3 install --upgrade pip setuptools wheel Adafruit_DHT datetime adafruit-circuitpython-ssd1306
     sudo phpenmod mysqli
 
+The current version of WiringPi does not work proerly on the Pi 4B so upgrade it.
+
+    cd /tmp
+    wget https://project-downloads.drogon.net/wiringpi-latest.deb
+    sudo dpkg -i wiringpi-latest.deb
+
 Make the directories we require for our software
 
     sudo mkdir /logs
