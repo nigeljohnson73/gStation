@@ -1,0 +1,5 @@
+
+#GSTATION Do not edit between these markers
+dtoverlay=pi3-act-led,gpio=[[LED_PIN]]
+dtparam=act_led_trigger=heartbeat
+#GSTATION Do not edit between these markers

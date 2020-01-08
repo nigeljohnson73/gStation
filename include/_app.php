@@ -1191,7 +1191,7 @@ function gatherSensors() {
 	return $ret;
 }
 
-function setupGpio() {
+function setupGpio($quiet = false) {
 	// echo "setupGpio(): called\n";
 	$runtime_version = @file_get_contents ( dirname ( __FILE__ ) . "/../board.txt" );
 
@@ -1251,42 +1251,45 @@ function setupGpio() {
 
 		$button_pin = 14;
 	}
-	echo "setupGpio(): runtime_version = " . $runtime_version . "\n";
-	if ($sensor_pin_1 != 99) {
-		echo "setupGpio(): sensor_pin_1 = " . $sensor_pin_1 . "\n";
-	}
-	if ($sensor_pin_2 != 99) {
-		echo "setupGpio(): sensor_pin_2 = " . $sensor_pin_2 . "\n";
-	}
-	if ($sensor_pin_3 != 99) {
-		echo "setupGpio(): sensor_pin_3 = " . $sensor_pin_3 . "\n";
-	}
-	if ($sensor_pin_4 != 99) {
-		echo "setupGpio(): sensor_pin_4 = " . $sensor_pin_4 . "\n";
-	}
-	if ($trigger_pin_1 != 99) {
-		echo "setupGpio(): trigger_pin_1 = " . $trigger_pin_1 . "\n";
-	}
-	if ($trigger_pin_2 != 99) {
-		echo "setupGpio(): trigger_pin_2 = " . $trigger_pin_2 . "\n";
-	}
-	if ($trigger_pin_3 != 99) {
-		echo "setupGpio(): trigger_pin_3 = " . $trigger_pin_3 . "\n";
-	}
-	if ($trigger_pin_4 != 99) {
-		echo "setupGpio(): trigger_pin_4 = " . $trigger_pin_4 . "\n";
-	}
-	if ($trigger_pin_5 != 99) {
-		echo "setupGpio(): trigger_pin_5 = " . $trigger_pin_5 . "\n";
-	}
-	if ($trigger_pin_6 != 99) {
-		echo "setupGpio(): trigger_pin_6 = " . $trigger_pin_6 . "\n";
-	}
-	if ($button_pin != 99) {
-		echo "setupGpio(): button_pin = " . $button_pin . "\n";
-	}
-	if ($led_pin != 99) {
-		echo "setupGpio(): led_pin = " . $led_pin . "\n";
+
+	if(!$quiet) {
+		echo "setupGpio(): runtime_version = " . $runtime_version . "\n";
+		if ($sensor_pin_1 != 99) {
+			echo "setupGpio(): sensor_pin_1 = " . $sensor_pin_1 . "\n";
+		}
+		if ($sensor_pin_2 != 99) {
+			echo "setupGpio(): sensor_pin_2 = " . $sensor_pin_2 . "\n";
+		}
+		if ($sensor_pin_3 != 99) {
+			echo "setupGpio(): sensor_pin_3 = " . $sensor_pin_3 . "\n";
+		}
+		if ($sensor_pin_4 != 99) {
+			echo "setupGpio(): sensor_pin_4 = " . $sensor_pin_4 . "\n";
+		}
+		if ($trigger_pin_1 != 99) {
+			echo "setupGpio(): trigger_pin_1 = " . $trigger_pin_1 . "\n";
+		}
+		if ($trigger_pin_2 != 99) {
+			echo "setupGpio(): trigger_pin_2 = " . $trigger_pin_2 . "\n";
+		}
+		if ($trigger_pin_3 != 99) {
+			echo "setupGpio(): trigger_pin_3 = " . $trigger_pin_3 . "\n";
+		}
+		if ($trigger_pin_4 != 99) {
+			echo "setupGpio(): trigger_pin_4 = " . $trigger_pin_4 . "\n";
+		}
+		if ($trigger_pin_5 != 99) {
+			echo "setupGpio(): trigger_pin_5 = " . $trigger_pin_5 . "\n";
+		}
+		if ($trigger_pin_6 != 99) {
+			echo "setupGpio(): trigger_pin_6 = " . $trigger_pin_6 . "\n";
+		}
+		if ($button_pin != 99) {
+			echo "setupGpio(): button_pin = " . $button_pin . "\n";
+		}
+		if ($led_pin != 99) {
+			echo "setupGpio(): led_pin = " . $led_pin . "\n";
+		}
 	}
 }
 
