@@ -8,6 +8,86 @@ ini_set ( 'display_errors', 'on' );
 // All calcuations are done in UTC
 date_default_timezone_set ( "UTC" );
 
+function cleanFile($filename, $key) {
+	if (! file_exists ( $filename )) {
+		echo "File '" . $filename . "' cannot be accessed\n";
+		return false;
+	} else {
+		$quiet = false;
+		$output = "";
+		
+		$lines = file ( $filename );
+		foreach ( $lines as $line ) {
+			if (strpos ( $line, $key ) === 0) {
+				$quiet = ! $quiet;
+			} else {
+				if (! $quiet) {
+					$output .= $line;
+				}
+			}
+		}
+		
+		// echo $output;
+		$fn = "/tmp/cleansedata." . time () . ".txt";
+		file_put_contents ( $fn, $output );
+		
+		$cmd = "sudo rm -f " . $filename . ".orig";
+		// echo "Removing .orig file: $cmd\n";
+		exec ( $cmd );
+		
+		$cmd = "sudo cp " . $filename . " " . $filename . ".orig";
+		echo "Backing up original file to '" . $filename . ".orig'\n";
+		exec ( $cmd );
+		
+		$cmd = "sudo cp " . $fn . " " . $filename;
+		// echo "Overwriting original file: $cmd\n";
+		exec ( $cmd );
+		
+		// echo "Removing temp file\n";
+		@unlink ( $fn );
+	}
+	
+	return true;
+}
+
+function installFile($src, $filename) {
+	if (! file_exists ( $filename )) {
+		echo "File '" . $filename . "' cannot be accessed\n";
+		return false;
+	} else {
+		setupGpio ( true );
+		global $led_pin;
+		$repl = array ();
+		$repl ["[[LED_PIN]]"] = $led_pin;
+		
+		$c = file_get_contents ( $src );
+		foreach ( $repl as $k => $v ) {
+			$c = str_replace ( $k, $v, $c );
+		}
+		
+		// echo $c."\n";
+		
+		$fn = "/tmp/cleansedata." . time () . ".txt";
+		file_put_contents ( $fn, $c );
+		$cmd = "sudo rm -f " . $filename . ".orig";
+		echo "Backing up original file to '" . $filename . ".orig'\n";
+		exec ( $cmd );
+		
+		$cmd = "sudo cp " . $filename . " " . $filename . ".orig";
+		// echo "Copying current file to .orig file: $cmd\n";
+		exec ( $cmd );
+		
+		$cmd = "sudo cat " . $fn . " | sudo tee -a " . $filename;
+		// echo "Adding update: $cmd\n";
+		exec ( $cmd );
+		
+		// echo "Removing temp file\n";
+		@unlink ( $fn );
+	}
+	
+	return true;
+}
+
 function getAppId() {
 	$app_id = "xW23vFeww";
 	return $app_id;

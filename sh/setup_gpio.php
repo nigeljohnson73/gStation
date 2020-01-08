@@ -12,7 +12,9 @@ setupTables ();
 setupGpio ();
 setupSensorsScript ();
 setupTriggersScript ();
-cleanFile("/boot/config.txt");
-installFile(dirname ( __FILE__ ) . "/../res/install_boot_config.txt", "/boot/config.txt");
+
+// LED PIN may have changed
+cleanFile ( "/boot/config.txt", $install_tag );
+installFile ( dirname ( __FILE__ ) . "/../res/install_boot_config.txt", "/boot/config.txt" );
 
 ?>

@@ -601,7 +601,7 @@ function enumerateTriggers() {
 }
 
 function enumerateSensors() {
-	echo "enumerateSensors(): called\n";
+	//echo "enumerateSensors(): called\n";
 	global $sensors_enumerated, $sensors;
 
 	if ($sensors_enumerated) {
@@ -758,7 +758,7 @@ function createSensorsSetupScript() {
 	$ret = "";
 
 	foreach ( $sensors as $s ) {
-// echo ob_print_r($s);
+		// echo ob_print_r($s);
 		if (isGpio ( $s->type )) {
 			$ret .= "dtoverlay ";
 			$ret .= overlay ( $s->type );
@@ -1252,7 +1252,7 @@ function setupGpio($quiet = false) {
 		$button_pin = 14;
 	}
 
-	if(!$quiet) {
+	if (! $quiet) {
 		echo "setupGpio(): runtime_version = " . $runtime_version . "\n";
 		if ($sensor_pin_1 != 99) {
 			echo "setupGpio(): sensor_pin_1 = " . $sensor_pin_1 . "\n";
