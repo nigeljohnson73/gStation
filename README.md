@@ -117,6 +117,15 @@ Copy a simple installation config file so you can edit stuff
 
     cp config_install.php config_override.php
 
+Install the heartbeat indicator LED controller
+
+	php sh/install_file.php res/install_boot_config.txt /boot/config.txt
+	# Clean with: php sh/clean_file.php /boot/config.txt \#GSTATION
+    sudo ln -s /webroot/gStation/res/ledbeat.service /etc/systemd/system
+    sudo systemctl daemon-reload
+    sudo systemctl enable ledbeat
+    sudo systemctl start ledbeat 
+
 Set up MySQL with the correct root account and a user for the application.
 
     sudo mysql --user=root < /res/install.sql
