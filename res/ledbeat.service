@@ -1,0 +1,11 @@
+[Unit]
+Description=LED heartbeat
+
+[Service]
+ExecStop=sh /webroot/gStation/sh/ledbeat.sh stop
+Type=oneshot
+RemainAfterExit=yes
+
+
+[Install]
+WantedBy=multi-user.target
