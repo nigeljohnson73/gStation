@@ -1,10 +1,11 @@
 [Unit]
-Description=This service sets the indicator LED into the 'heartbeat' mode on shutdown.
+Description=This service sets the indicator LED into the heartbeat mode on shutdown.
+DefaultDependencies=no
+After=final.target
 
 [Service]
 Type=oneshot
-RemainAfterExit=true
-ExecStop=/webroot/gStation/sh/heartbeat_indicator.sh
+ExecStart=/webroot/gStation/sh/heartbeat_indicator.sh
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=final.target
