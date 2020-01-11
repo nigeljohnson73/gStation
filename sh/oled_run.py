@@ -15,8 +15,7 @@ import adafruit_ssd1306
 
 
 # digital button for pressing and the hold time.
-offGPIO1 = 21
-offGPIO2 = 14
+offGPIO = 9
 holdTime = 1
 
 # Use the big display
@@ -74,11 +73,8 @@ def shutdown():
 
 
 # setup the callback
-btn1 = Button(offGPIO1, hold_time=holdTime)
-btn1.when_held = shutdown
-btn2 = Button(offGPIO2, hold_time=holdTime)
-btn2.when_held = shutdown
-
+btn = Button(offGPIO, hold_time=holdTime)
+btn.when_held = shutdown
 
 # Use I2C for the OLED display
 i2c = board.I2C()
