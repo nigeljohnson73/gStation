@@ -113,11 +113,21 @@ Clone the software into its home.
     sudo chmod -R g+w /webroot
     cd gStation
 
+Set up MySQL with the correct root account and a user for the application.
+
+    sudo mysql --user=root < res/install.sql
+
 Copy a simple installation config file so you can edit stuff
 
-    cp config_install.php config_override.php
+    cp res/install_config.php config_override.php
 
-Install the heartbeat indicator LED controller
+You want to set up the GPIO pins for your sensors, so configure them in `config_override.php` and then 
+run the setup. The parameter supplied is the pin layout in the [Pinout section](#Pinouts) below. When you 
+run this command it should print out the pins that can be used.
+
+    php sh/setup_gpio.php 2.1g
+
+Install the heartbeat indicator LED controller which will install the LED on the correct LED pin setup above.
 
 	php sh/install_file.php res/install_boot_config.txt /boot/config.txt
 	# Clean with: php sh/clean_file.php /boot/config.txt \#GSTATION
@@ -125,16 +135,6 @@ Install the heartbeat indicator LED controller
     sudo systemctl daemon-reload
     sudo systemctl enable ledbeat
     sudo systemctl start ledbeat 
-
-Set up MySQL with the correct root account and a user for the application.
-
-    sudo mysql --user=root < /res/install.sql
-
-You want to set up the GPIO pins for your sensors, so configure them in `config_override.php` and then 
-run the setup. The parameter supplied is the pin layout in the [Pinout section](#Pinouts) below. When you 
-run this command it should print out the pins that can be used. More detail below.
-
-    php sh/setup_gpio.php 2.1g
 
 Move the new DHT11 overlay into the correct place.
 

@@ -87,6 +87,34 @@ $outlier_humidity_min = 15;
 $outlier_humidity_max = 95;
 
 /**
+ * START DEMAND ENVIRONMENT
+ */
+$demand_solstice = "1201";
+$demand = [];
+$demand[] = ( object ) [
+		"sunset" => 22,
+		"day_temperature" => 19,
+		"night_temperature" => 12,
+		"day_humidity" => 40,
+		"night_humidity" => 50,
+		"daylight_hours" => 18,
+		"period_length" => 6
+];
+
+$demand[] = ( object ) [
+		"sunset" => 20,
+		"day_temperature" => 25,
+		"night_temperature" => 17,
+		"day_humidity" => 34,
+		"night_humidity" => 44,
+		"daylight_hours" => 12,
+		"period_length" => 6
+];
+
+/**
+ * END DEMAND ENVIRONMENT
+ */
+/**
  * START SIMULATION ENVIRONMENT
  */
 $summer_solstice = "0621"; // June 21 is summer solstice in the northern hemisphere
