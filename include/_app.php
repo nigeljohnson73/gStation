@@ -330,16 +330,124 @@ function getDarkSkyApiData($force_recall) {
 	}
 }
 
-function rebuildDataModel() {
-	global $mysql, $darksky_key;
-	$model = array ();
+function rebuildModelFromDemands() {
+	$msg = "rebuildDataModel(): Using environmental demands";
+	echo "\n" . $msg . "\n";
+	logger ( LL_INFO, $msg );
 
-	$hist = null;
-	// IF we have signed up for DarkSky and have a key, check how much data we have
-	if ($darksky_key != "") {
-		// Get all the data we have. This will pop at some point. TODO: probably cap this to something!!
-		$hist = getDarkSkyDataPoints ();
+	$model = [ ]; // return this
+
+	global $demand, $demand_solstice;
+
+	$tssol = timestampFormat ( timestampNow (), "Y" ) . $demand_solstice . "000000";
+
+	$dcount = 0;
+	$dts = $tssol;
+	$next_dts = $tssol;
+
+	$dtemp_step = 0;
+	$ntemp_step = 0;
+	$dhumd_step = 0;
+	$nhumd_step = 0;
+	$suns_step = 0;
+	$dlen_step = 0;
+
+	$dtemp = $demand [0]->day_temperature;
+	$ntemp = $demand [0]->night_temperature;
+	$dhumd = $demand [0]->day_humidity;
+	$nhumd = $demand [0]->night_humidity;
+	$suns = $demand [0]->sunset;
+	$dlen = $demand [0]->daylight_hours;
+
+	// for($i = 0; $i < 7; $i ++) {
+	for($i = 0; $i < 365; $i ++) {
+		$obj = new StdClass ();
+		$obj->temperatureHigh = $dtemp;
+		$obj->temperatureLow = $ntemp;
+		$obj->humidityHigh = $nhumd;
+		$obj->humidityLow = $dhumd;
+		$obj->sunsetOffset = $suns * (60 * 60);
+		$obj->sunriseOffset = ($suns - $dlen) * (60 * 60);
+		$obj->daylightHours = $dlen;
+
+		// Stash the data
+		$model [timestampFormat ( $dts, "md" )] = $obj;
+		if (false) {
+			if ($i < 3) {
+				echo sprintf ( "Day: %03d", $i ) . " - " . timestampFormat ( $dts, "Ymd" ) . ", MD: " . timestampFormat ( $dts, "md" ) . ", Sunset: " . number_format ( $suns, 2 ) . ", Daylen: " . number_format ( $dlen, 2 ) . ", Model: " . ob_print_r ( $obj ) . "\n";
+			} else {
+				echo sprintf ( "Day: %03d", $i ) . " - " . timestampFormat ( $dts, "Ymd" ) . ", MD: " . timestampFormat ( $dts, "md" ) . ", Sunset: " . number_format ( $suns, 2 ) . ", Daylen: " . number_format ( $dlen, 2 ) . "\n";
+			}
+		}
+
+		if ($dts >= $next_dts) {
+			// Reset the deltas
+			// echo "Next period available: " . ((count ( $demand ) > ($dcount + 1)) ? ("Yes") : ("No")) . "\n";
+			$dtemp_step = (count ( $demand ) > ($dcount + 1)) ? (($demand [$dcount + 1]->day_temperature - $demand [$dcount]->day_temperature) / ($demand [$dcount]->period_length)) : (0);
+			$ntemp_step = (count ( $demand ) > ($dcount + 1)) ? (($demand [$dcount + 1]->night_temperature - $demand [$dcount]->night_temperature) / ($demand [$dcount]->period_length)) : (0);
+			$dhumd_step = (count ( $demand ) > ($dcount + 1)) ? (($demand [$dcount + 1]->day_humidity - $demand [$dcount]->day_humidity) / ($demand [$dcount]->period_length)) : (0);
+			$nhumd_step = (count ( $demand ) > ($dcount + 1)) ? (($demand [$dcount + 1]->night_humidity - $demand [$dcount]->night_humidity) / ($demand [$dcount]->period_length)) : (0);
+			$suns_step = (count ( $demand ) > ($dcount + 1)) ? (($demand [$dcount + 1]->sunset - $demand [$dcount]->sunset) / ($demand [$dcount]->period_length)) : (0);
+			$dlen_step = (count ( $demand ) > ($dcount + 1)) ? (($demand [$dcount + 1]->daylight_hours - $demand [$dcount]->daylight_hours) / ($demand [$dcount]->period_length)) : (0);
+
+			// echo "Next Period: " . timestampFormat ( $next_dts, "md" ) . "\n";
+			// echo " day temp step: " . $dtemp_step . "\n";
+			// echo " night temp step: " . $ntemp_step . "\n";
+			// echo " day humidity step: " . $dhumd_step . "\n";
+			// echo " night humidity step: " . $nhumd_step . "\n";
+			// echo " sunset step: " . $suns_step . "\n";
+			// echo " day length step: " . $dlen_step . "\n";
+
+			// Increment the next time we gotta do this
+			$next_dts = (count ( $demand ) > ($dcount + 1)) ? (timestampAdd ( $next_dts, numDays ( $demand [$dcount]->period_length ) )) : (timestampAdd ( $tssol, numDays ( 366 ) ));
+			$dcount += 1;
+		}
+
+		// Increment the values
+		$dtemp += $dtemp_step;
+		$ntemp += $ntemp_step;
+		$dhumd += $dhumd_step;
+		$nhumd += $nhumd_step;
+		$suns += $suns_step;
+		$dlen += $dlen_step;
+
+		// Increment the day
+		$dts = timestampAdd ( $dts, numDays ( 1 ) );
+
+		// Skip leap years
+		if (timestampFormat ( $dts, "md" ) == "0229") {
+			// $model [timestampFormat ( $dts, "md" )] = $obj;
+			$dts = timestampAdd ( $dts, numDays ( 1 ) );
+		}
 	}
+
+	return $model;
+}
+
+function rebuildModelFromDarkSky() {
+	$msg = "rebuildDataModel(): Attempting DarkSky download";
+	echo "\n" . $msg . "\n";
+	logger ( LL_INFO, $msg );
+
+	$model = [ ]; // return this
+
+	global $darksky_key;
+
+	if ($darksky_key == "") {
+		// Not sure how we got here really
+		logger ( LL_INFO, "rebuildDataModel(): DarkSky API not enabled" );
+		$model = rebuildModelFromSimulation ();
+		return $model;
+	}
+
+	global $force_api_history;
+
+	echo "Retrieving historic data from Dark Sky\n";
+	getDarkSkyApiData ( $force_api_history );
+	echo "\n";
+
+	// Get all the data we have. This will pop at some point. TODO: probably cap this to something!!
+	$hist = getDarkSkyDataPoints ();
 
 	// IF we have data, make sure we have enough to process
 	if ($hist && count ( $hist ) >= 365) {
@@ -434,82 +542,118 @@ function rebuildDataModel() {
 		}
 		logger ( LL_INFO, "rebuildDataModel(): Smoothing: updated model" );
 	} else {
-		global $summer_solstice, $day_temperature_winter, $day_temperature_summer, $night_temperature_winter, $night_temperature_summer, $day_humidity_summer, $day_humidity_winter, $night_humidity_summer, $night_humidity_winter, $sunset_summer, $sunset_winter, $daylight_summer, $daylight_winter;
+		logger ( LL_INFO, "rebuildDataModel(): Not enough DarkSky data for valid environment" );
+		$model = rebuildModelFromSimulation ();
+	}
 
-		if ($darksky_key == "") {
-			logger ( LL_INFO, "rebuildDataModel(): Simulating data" );
-		} else {
-			logger ( LL_INFO, "rebuildDataModel(): Simulating data (not enough real data yet)" );
-		}
-		$tsnow = timestampNow ();
-		$yr = timestampFormat ( $tsnow, "Y" );
+	return $model;
+}
 
-		$high_delta_temperature = ($day_temperature_summer - $day_temperature_winter) / 2;
-		$high_mid_temperature = $day_temperature_winter + $high_delta_temperature;
+function rebuildModelFromSimulation() {
+	$msg = "rebuildDataModel(): Using environmental simulation";
+	echo "\n" . $msg . "\n";
+	logger ( LL_INFO, $msg );
 
-		$low_delta_temperature = ($night_temperature_summer - $night_temperature_winter) / 2;
-		$low_mid_temperature = $night_temperature_winter + $low_delta_temperature;
+	$model = [ ]; // return this
 
-		$high_delta_humidity = ($day_humidity_winter - $day_humidity_summer) / 2;
-		$high_mid_humidity = $day_humidity_summer + $high_delta_humidity;
+	// global $darksky_key;
+	// if ($darksky_key == "") {
+	// logger ( LL_INFO, "rebuildDataModel(): Simulating data" );
+	// } else {
+	// logger ( LL_INFO, "rebuildDataModel(): Simulating data (not enough real data yet)" );
+	// }
 
-		$low_delta_humidity = ($night_humidity_winter - $night_humidity_summer) / 2;
-		$low_mid_humidity = $night_humidity_summer + $low_delta_humidity;
+	global $summer_solstice, $day_temperature_winter, $day_temperature_summer, $night_temperature_winter, $night_temperature_summer, $day_humidity_summer, $day_humidity_winter, $night_humidity_summer, $night_humidity_winter, $sunset_summer, $sunset_winter, $daylight_summer, $daylight_winter;
 
-		$sunset_delta_offset = ($sunset_summer - $sunset_winter) / 2;
-		$sunset_mid_offset = $sunset_winter + $sunset_delta_offset;
+	$tsnow = timestampNow ();
+	$yr = timestampFormat ( $tsnow, "Y" );
 
-		// echo "Sunset MIN: $sunset_winter. MAX: $sunset_summer\n";
-		// echo "Sunset AVG: $sunset_mid_offset. delta: $sunset_delta_offset\n";
+	$high_delta_temperature = ($day_temperature_summer - $day_temperature_winter) / 2;
+	$high_mid_temperature = $day_temperature_winter + $high_delta_temperature;
 
-		$sunrise_min = $sunset_summer - $daylight_summer; // longest day
-		$sunrise_max = $sunset_winter - $daylight_winter; // shortesst
-		$sunrise_delta_offset = ($sunrise_max - $sunrise_min) / 2;
-		$sunrise_mid_offset = $sunrise_min + $sunrise_delta_offset;
+	$low_delta_temperature = ($night_temperature_summer - $night_temperature_winter) / 2;
+	$low_mid_temperature = $night_temperature_winter + $low_delta_temperature;
 
-		// echo "Sunrise MIN: $sunrise_min. MAX: $sunrise_max\n";
-		// echo "Sunrise AVG: $sunrise_mid_offset. delta: $sunrise_delta_offset\n";
+	$high_delta_humidity = ($day_humidity_winter - $day_humidity_summer) / 2;
+	$high_mid_humidity = $day_humidity_summer + $high_delta_humidity;
 
-		$deg_step = 360 / 365;
-		$tsnow = $yr . $summer_solstice . "000000";
-		$model = array ();
-		for($i = 0; $i < 365; $i ++) {
-			$obj = new StdClass ();
+	$low_delta_humidity = ($night_humidity_winter - $night_humidity_summer) / 2;
+	$low_mid_humidity = $night_humidity_summer + $low_delta_humidity;
 
-			if (timestampFormat ( $tsnow, "md" ) == "0229") {
-				// Skip leap years
-				$tsnow = timestampAdd ( $tsnow, numDays ( 1 ) );
-			}
+	$sunset_delta_offset = ($sunset_summer - $sunset_winter) / 2;
+	$sunset_mid_offset = $sunset_winter + $sunset_delta_offset;
 
-			// Highest temps happen about 60 days after the solstice
-			$obj->temperatureHigh = round ( $high_mid_temperature + $high_delta_temperature * cos ( deg2rad ( ($i - 60) * $deg_step ) ), 3 );
-			$obj->temperatureLow = round ( $low_mid_temperature + $low_delta_temperature * cos ( deg2rad ( ($i - 60) * $deg_step ) ), 3 );
+	// echo "Sunset MIN: $sunset_winter. MAX: $sunset_summer\n";
+	// echo "Sunset AVG: $sunset_mid_offset. delta: $sunset_delta_offset\n";
 
-			// Humidity is also offset from the solstice
-			$obj->humidityHigh = round ( $high_mid_humidity + $high_delta_humidity * cos ( deg2rad ( 180 + ($i - 60) * $deg_step ) ), 3 );
-			$obj->humidityLow = round ( $low_mid_humidity + $low_delta_humidity * cos ( deg2rad ( 180 + ($i - 60) * $deg_step ) ), 3 );
+	$sunrise_min = $sunset_summer - $daylight_summer; // longest day
+	$sunrise_max = $sunset_winter - $daylight_winter; // shortesst
+	$sunrise_delta_offset = ($sunrise_max - $sunrise_min) / 2;
+	$sunrise_mid_offset = $sunrise_min + $sunrise_delta_offset;
 
-			// Daylength is the only real thing that is bount to the solstices
-			$obj->sunsetOffset = round ( ($sunset_mid_offset + $sunset_delta_offset * cos ( deg2rad ( $i * $deg_step ) )) * 3600, 3 );
-			$obj->sunriseOffset = round ( ($sunrise_mid_offset + $sunrise_delta_offset * cos ( deg2rad ( 180 + $i * $deg_step ) )) * 3600, 3 );
-			$obj->daylightHours = round ( ($obj->sunsetOffset - $obj->sunriseOffset) / 3600, 3 );
+	// echo "Sunrise MIN: $sunrise_min. MAX: $sunrise_max\n";
+	// echo "Sunrise AVG: $sunrise_mid_offset. delta: $sunrise_delta_offset\n";
 
-			$model [timestampFormat ( $tsnow, "md" )] = $obj;
+	$deg_step = 360 / 365;
+	$tsnow = $yr . $summer_solstice . "000000";
+	$model = array ();
+	for($i = 0; $i < 365; $i ++) {
+		$obj = new StdClass ();
 
+		if (timestampFormat ( $tsnow, "md" ) == "0229") {
+			// Skip leap years
+			// $model [timestampFormat ( $tsnow, "md" )] = $model ["0228"];
 			$tsnow = timestampAdd ( $tsnow, numDays ( 1 ) );
 		}
+
+		// Highest temps happen about 60 days after the solstice
+		global $solstice_temp_delta_days;
+		$obj->temperatureHigh = round ( $high_mid_temperature + $high_delta_temperature * cos ( deg2rad ( ($i - $solstice_temp_delta_days) * $deg_step ) ), 3 );
+		$obj->temperatureLow = round ( $low_mid_temperature + $low_delta_temperature * cos ( deg2rad ( ($i - $solstice_temp_delta_days) * $deg_step ) ), 3 );
+
+		// Humidity is also offset from the solstice
+		$obj->humidityHigh = round ( $high_mid_humidity + $high_delta_humidity * cos ( deg2rad ( 180 + ($i - $solstice_temp_delta_days) * $deg_step ) ), 3 );
+		$obj->humidityLow = round ( $low_mid_humidity + $low_delta_humidity * cos ( deg2rad ( 180 + ($i - $solstice_temp_delta_days) * $deg_step ) ), 3 );
+
+		// Daylength is the only real thing that is bount to the solstices
+		$obj->sunsetOffset = round ( ($sunset_mid_offset + $sunset_delta_offset * cos ( deg2rad ( $i * $deg_step ) )) * 3600, 3 );
+		$obj->sunriseOffset = round ( ($sunrise_mid_offset + $sunrise_delta_offset * cos ( deg2rad ( 180 + $i * $deg_step ) )) * 3600, 3 );
+		$obj->daylightHours = round ( ($obj->sunsetOffset - $obj->sunriseOffset) / 3600, 3 );
+
+		$model [timestampFormat ( $tsnow, "md" )] = $obj;
+
+		$tsnow = timestampAdd ( $tsnow, numDays ( 1 ) );
+	}
+
+	return $model;
+}
+
+function rebuildDataModel() {
+	global $mysql, $darksky_key, $demand;
+	$model = array ();
+
+	if (count ( $demand ) > 0) {
+		$model = rebuildModelFromDemands ();
+	} else if ($darksky_key != "") {
+		$model = rebuildModelFromDarkSky ();
+	} else {
+		$model = rebuildModelFromSimulation ();
 	}
 
 	// Update the model table
-	foreach ( $model as $k => $v ) {
-		$values = array (
-				"id" => $k,
-				"data" => json_encode ( $v )
-		);
+	if ($model && count ( $model )) {
+		foreach ( $model as $k => $v ) {
+			$values = array (
+					"id" => $k,
+					"data" => json_encode ( $v )
+			);
 
-		$mysql->query ( "REPLACE INTO model (id, data) VALUES(?, ?)", "ss", array_values ( $values ) );
+			$mysql->query ( "REPLACE INTO model (id, data) VALUES(?, ?)", "ss", array_values ( $values ) );
+		}
+		logger ( LL_INFO, "rebuildDataModel(): Stored model to database" );
+	} else {
+		logger ( LL_INFO, "rebuildDataModel(): No model generated" );
 	}
-	logger ( LL_INFO, "rebuildDataModel(): Stored model to database" );
 }
 
 function getModel($ts = null) {
@@ -601,7 +745,7 @@ function enumerateTriggers() {
 }
 
 function enumerateSensors() {
-	//echo "enumerateSensors(): called\n";
+	// echo "enumerateSensors(): called\n";
 	global $sensors_enumerated, $sensors;
 
 	if ($sensors_enumerated) {

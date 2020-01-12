@@ -13,20 +13,16 @@ if (1) {
 	setupTables ();
 	setupGpio ();
 	
-	echo "Retrieving historic data from Dark Sky\n";
-	getDarkSkyApiData ( $force_api_history );
-	echo "\n";
-
 	echo "Rebuilding data model\n";
 	rebuildDataModel ();
 	
-	echo "\n";
+// 	echo "\n";
 	
 	echo "Rebuilding sensor and trigger configurations\n";
 	setupSensorsScript();
 	setupTriggersScript();
 	
-	echo "\n";
+// 	echo "\n";
 
 	echo "Update complete\n\n";
 }

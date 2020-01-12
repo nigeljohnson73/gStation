@@ -89,28 +89,8 @@ $outlier_humidity_max = 95;
 /**
  * START DEMAND ENVIRONMENT
  */
-$demand_solstice = "1201";
+$demand_solstice = "0621";
 $demand = [];
-$demand[] = ( object ) [
-		"sunset" => 22,
-		"day_temperature" => 19,
-		"night_temperature" => 12,
-		"day_humidity" => 40,
-		"night_humidity" => 50,
-		"daylight_hours" => 18,
-		"period_length" => 6
-];
-
-$demand[] = ( object ) [
-		"sunset" => 20,
-		"day_temperature" => 25,
-		"night_temperature" => 17,
-		"day_humidity" => 34,
-		"night_humidity" => 44,
-		"daylight_hours" => 12,
-		"period_length" => 6
-];
-
 /**
  * END DEMAND ENVIRONMENT
  */
@@ -130,6 +110,7 @@ $sunset_winter = 15 + (55 / 60); // In the winter, this is the time of sunset in
 $sunset_summer = 20 + (21 / 60); // In the summer, this is the time of sunset in Malkerns/SZ - 20:21 UTC (London is 19:21 UTC)
 $daylight_summer = 16 + (38 / 60); // In the summer, this is how many hours of daylight there will be
 $daylight_winter = 7 + (51 / 60); // In the winter, this is how many hours of daylight there will be
+$solstice_temp_delta_days = 60; // The number of days after the solstice that the temperatures will peak
 /**
  * END SIMULATION ENVIRONMENT
  */

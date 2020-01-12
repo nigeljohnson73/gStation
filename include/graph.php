@@ -36,35 +36,35 @@ function getLocalMeasurements($what, $name) {
 	global $mysql;
 	$where = "name = '$name'";
 	$bits = explode ( ",", $name );
-	$sqls = [];
+	$sqls = [ ];
 	foreach ( $bits as $k => $v ) {
 		$bit = trim ( $v );
-		if(strtolower($bit) == "demanded") {
-			$sqls[strtolower($bit)] = "SELECT event, 'DEMANDED' as 'name', value FROM demands WHERE param = '" . $what . "'";
+		if (strtolower ( $bit ) == "demanded") {
+			$sqls [strtolower ( $bit )] = "SELECT event, 'DEMANDED' as 'name', value FROM demands WHERE param = '" . $what . "'";
 		} else {
-			$sqls[strtolower($bit)] = "SELECT event, name, value FROM sensors WHERE param = '" . $what . "' and name = '" . $bit . "'";
+			$sqls [strtolower ( $bit )] = "SELECT event, name, value FROM sensors WHERE param = '" . $what . "' and name = '" . $bit . "'";
 		}
 	}
-	foreach($sqls as $sql) {
+	foreach ( $sqls as $sql ) {
 		$res = $mysql->query ( $sql );
 		// echo "SQL: \"" . $sql . "\"\n";
-		// echo "    Count: ".count($res)."\n";
-		echo timestampFormat(timestampNow(), "H:i:s"). ": getLocalMeasurements(): ".count($res)." rows from \"$sql\"\n";
+		// echo " Count: ".count($res)."\n";
+		//echo timestampFormat ( timestampNow (), "H:i:s" ) . ": getLocalMeasurements(): " . count ( $res ) . " rows from \"$sql\"\n";
 		if (is_array ( $res ) && count ( $res ) > 0) {
-			if($ret == null) {
+			if ($ret == null) {
 				$ret = array ();
 			}
 			foreach ( $res as $r ) {
 				$ret [$r ["name"]] [timestamp2Time ( $r ["event"] )] = $r ["value"];
 			}
 		}
-		sleep(1);
+		sleep ( 1 );
 	}
 	return $ret;
 }
 
 function drawMeasuredGraph($what, $zone) {
-	echo timestampFormat(timestampNow(), "H:i:s"). ": drawMeasuredGraph(): started\n";
+	echo timestampFormat ( timestampNow (), "H:i:s" ) . ": drawMeasuredGraph(): started\n";
 
 	$legend_keys = [ ];
 	$legend_key ["temperature"] = "C";
@@ -85,39 +85,41 @@ function drawMeasuredGraph($what, $zone) {
 	$max_y = 5;
 	$y_ticks = array ();
 
-	echo timestampFormat(timestampNow(), "H:i:s"). ": drawMeasuredGraph(): Processing data points\n";
-	foreach ( $vals as $k => $v ) {
-		if ($v && count ( array_keys ( $v ) ) > 2) {
-			$legend = "Measured " . $what . " (" . $zone . ")";
-			$vc = count ( $v );
+	echo timestampFormat ( timestampNow (), "H:i:s" ) . ": drawMeasuredGraph(): Processing data points\n";
+	if ($vals && count ( $vals )) {
+		foreach ( $vals as $k => $v ) {
+			if ($v && count ( array_keys ( $v ) ) > 2) {
+				$legend = "Measured " . $what . " (" . $zone . ")";
+				$vc = count ( $v );
 
-			$ll = LL_DEBUG;
-			logger ( $ll, "graphLocalValues(" . $what . "): Got count: " . $vc );
+				$ll = LL_DEBUG;
+				logger ( $ll, "graphLocalValues(" . $what . "): Got count: " . $vc );
 
-			$vc_max = 400;
-			if ($vc >= (2 * $vc_max)) {
-				logger ( $ll, "graphLocalValues(" . $what . ", " . $k . "): calling deltaDecimateArray()" );
-				$temps [$k] = deltaDecimateArray ( $v, 0.1, floor ( $vc / $vc_max ) );
-			} else if ($vc >= ($vc_max)) {
-				logger ( $ll, "graphLocalValues(" . $what . ", " . $k . "): calling smoothArray()" );
-				$temps [$k] = smoothArray ( $v, 1, 1 );
-			} else {
-				logger ( $ll, "graphLocalValues(" . $what . ", " . $k . "): no need for point reduction" );
+				$vc_max = 400;
+				if ($vc >= (2 * $vc_max)) {
+					logger ( $ll, "graphLocalValues(" . $what . ", " . $k . "): calling deltaDecimateArray()" );
+					$temps [$k] = deltaDecimateArray ( $v, 0.1, floor ( $vc / $vc_max ) );
+				} else if ($vc >= ($vc_max)) {
+					logger ( $ll, "graphLocalValues(" . $what . ", " . $k . "): calling smoothArray()" );
+					$temps [$k] = smoothArray ( $v, 1, 1 );
+				} else {
+					logger ( $ll, "graphLocalValues(" . $what . ", " . $k . "): no need for point reduction" );
+				}
+				logger ( $ll, "graphLocalValues(" . $what . ", " . $k . "): Render count: " . $vc );
 			}
-			logger ( $ll, "graphLocalValues(" . $what . ", " . $k . "): Render count: " . $vc );
 		}
-	}
 
-	$min_y = floor ( graphValMin ( $vals ) );
-	$max_y = ceil ( graphValMax ( $vals ) );
-	$y_ticks = array ();
-	for($i = $min_y; $i <= $max_y; $i ++) {
-		$y_ticks [$i] = $i . $legend_key;
+		$min_y = floor ( graphValMin ( $vals ) );
+		$max_y = ceil ( graphValMax ( $vals ) );
+		$y_ticks = array ();
+		for($i = $min_y; $i <= $max_y; $i ++) {
+			$y_ticks [$i] = $i . $legend_key;
+		}
 	}
 
 	$x_ticks = 12;
 	$x_subticks = 1;
-	echo timestampFormat(timestampNow(), "H:i:s"). ": drawMeasuredGraph(): Generating graph\n";
+	echo timestampFormat ( timestampNow (), "H:i:s" ) . ": drawMeasuredGraph(): Generating graph\n";
 	return drawTimeGraph ( $vals, $legend, $x_ticks, $x_subticks, $min_y, $max_y, $max_y - $min_y, 1, $y_ticks );
 }
 
