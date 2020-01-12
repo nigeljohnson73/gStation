@@ -1454,12 +1454,14 @@ function getModeledDataFields($arr) {
 }
 
 function modelStatus() {
-	global $mysql;
+	global $mysql, $demand, $darksky_key;
 
 	$ret = new StdClass ();
 
 	global $darksky_key;
-	if ($darksky_key !== "") {
+	if ($demand && count ( $demand )) {
+		$ret->modelUsed = "Demand Ramp";
+	} elseif ($darksky_key !== "") {
 		$ret->modelUsed = "DarkSky";
 		$raw = getDarkSkyDataPoints ( null, true );
 		$valid = getDarkSkyDataPoints ( null, false );
@@ -1468,7 +1470,7 @@ function modelStatus() {
 		$ret->dataPointInvalid = count ( $raw ) - count ( $valid );
 		$ret->dataPointPerDay = floor ( count ( $raw ) / 365 );
 	} else {
-		$ret->modelUsed = "Simulation";
+		$ret->modelUsed = "Environment Simulation";
 	}
 	$rows = $mysql->query ( "select max(last_updated) as ud from model" );
 	if ($rows && count ( $rows )) {
