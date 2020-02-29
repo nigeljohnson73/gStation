@@ -87,32 +87,41 @@ function nextSunChange() {
 	$nowoffset = timestamp2Time ( $tsnow ) - $midnight;
 	$today = timestampFormat ( $tsnow, "Ymd" );
 	$tomorrow = timestampFormat ( timestampAdd ( $tsnow, numDays ( 1 ) ), "Ymd" );
-	// echo "Today: $today\n";
-	// echo "Tomorrow: $tomorrow\n";
+
+	$today = timestampFormat ( $today, "md" );
+	if($today == "0229") {
+		$today = "0228";
+	}
+	$tomorrow = timestampFormat ( $tomorrow, "md" );
+	if($tomorrow == "0229") {
+		$today = "0228";
+	}
+	//echo "Today: $today\n";
+	//echo "Tomorrow: $tomorrow\n";
 
 	$model = getModel ( array (
 			$today,
 			$tomorrow
 	) );
-	// print_r ( $model );
+	//print_r ( $model );
 
 	$ret = "";
-	if ($nowoffset < $model [timestampFormat ( $today, "md" )]->sunriseOffset) {
-		$secs = $model [timestampFormat ( $today, "md" )]->sunriseOffset - $nowoffset;
+	if ($nowoffset < $model [$today]->sunriseOffset) {
+		$secs = $model [$today]->sunriseOffset - $nowoffset;
 		if ($secs > 59) {
 			$ret = "Sunrise " . periodFormat ( $secs, true );
 		} else {
 			$ret = "Sunrise < 1m";
 		}
-	} elseif ($nowoffset < $model [timestampFormat ( $today, "md" )]->sunsetOffset) {
-		$secs = $model [timestampFormat ( $today, "md" )]->sunsetOffset - $nowoffset;
+	} elseif ($nowoffset < $model [$today]->sunsetOffset) {
+		$secs = $model [$today]->sunsetOffset - $nowoffset;
 		if ($secs > 59) {
 			$ret = "Sunset " . periodFormat ( $secs, true );
 		} else {
 			$ret = "Sunset < 1m";
 		}
 	} else {
-		$secs = $model [timestampFormat ( $tomorrow, "md" )]->sunriseOffset - $nowoffset + (24 * 60 * 60);
+		$secs = $model [$tomorrow]->sunriseOffset - $nowoffset + (24 * 60 * 60);
 		if ($secs > 59) {
 			$ret = "Sunrise " . periodFormat ( $secs, true );
 		} else {
@@ -662,6 +671,7 @@ function getModel($ts = null) {
 				$ts
 		);
 	}
+
 	$expected = 365;
 	$sql = "SELECT * FROM model";
 
@@ -676,10 +686,13 @@ function getModel($ts = null) {
 		$expected = count ( $ts );
 		$comma = "";
 		foreach ( $ts as $t ) {
+			if(strlen($t) > 4) {
+				$t = timestampFormat ( $t, "md" );
+			}
 			if ($t == "0229") {
 				$t = "0228"; // No leap years
 			}
-			$sql .= $comma . "'" . timestampFormat ( $t, "md" ) . "'";
+			$sql .= $comma . "'" . $t. "'";
 			$comma = ", ";
 		}
 		$sql .= $esql;
