@@ -107,7 +107,8 @@ Current environment: <?php print_r(json_decode(getConfig("env"))) ?></pre>
 <?php if ($darksky_key !== ""): ?>
 		<a target="DarkSky" href="https://darksky.net/poweredby/"><img src="https://darksky.net/dev/img/attribution/poweredby.png" alt="Powered by Dark Sky" style="width:150px;" /></a>
 <?php else: ?>
-		<a target="DarkSky" href="https://tribalrhino.com/"><img src="gfx/poweredby.png" alt="Powered by Tribal Rhino" style="width:150px;" /></a>
+		<a target="TribalRhino" href="https://tribalrhino.com/"><img src="gfx/poweredby.png" alt="Powered by Tribal Rhino" style="width:150px;" /></a>
+		<!-- <img src="gfx/angrysnail.php" alt="andy snail" style="width:50px; margin-bottom:8px; margin-right:5px;" /> -->
 <?php endif ?>
 		</div>
 	</div>
