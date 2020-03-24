@@ -109,13 +109,17 @@ Clone the software into its home.
 
     cd /webroot
     sudo git clone https://github.com/nigeljohnson73/gStation.git
-    sudo chown -R pi:www-data /webroot
-    sudo chmod -R g+w /webroot
+    sudo chown -R pi:www-data gStation
+    sudo chmod -R g+w gStation
     cd gStation
 
-Set up MySQL with the correct root account and a user for the application.
+Set up MySQL with a secure root account.
 
     sudo mysql --user=root < res/install.sql
+
+Set up application database and user.
+
+    sudo mysql -uroot -pEarl1er2day < res/install_db.sql
 
 Copy a simple installation config file so you can edit stuff
 
