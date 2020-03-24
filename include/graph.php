@@ -111,8 +111,12 @@ function drawMeasuredGraph($what, $zone) {
 
 		$min_y = floor ( graphValMin ( $vals ) );
 		$max_y = ceil ( graphValMax ( $vals ) );
+		$c_y = $max_y - $min_y;
+		$c_step = ($c_y < 20)?(1):(($c_y < 40)?(2):(($c_y < 60)?(3):(($c_y < 80)?(4):(5))));
+		$max_y = $min_y + ceil ( ($max_y-$min_y )/$c_step ) * $c_step;
+
 		$y_ticks = array ();
-		for($i = $min_y; $i <= $max_y; $i ++) {
+		for($i = $min_y; $i <= $max_y; $i += $c_step) {
 			$y_ticks [$i] = $i . $legend_key;
 		}
 	}
@@ -120,7 +124,8 @@ function drawMeasuredGraph($what, $zone) {
 	$x_ticks = 12;
 	$x_subticks = 1;
 	echo timestampFormat ( timestampNow (), "H:i:s" ) . ": drawMeasuredGraph(): Generating graph\n";
-	return drawTimeGraph ( $vals, $legend, $x_ticks, $x_subticks, $min_y, $max_y, $max_y - $min_y, 1, $y_ticks );
+	//return drawTimeGraph ( $vals, $legend, $x_ticks, $x_subticks, $min_y, $max_y, $max_y - $min_y, 1, $y_ticks );
+	return drawTimeGraph ( $vals, $legend, $x_ticks, $x_subticks, $min_y, $max_y, count($y_ticks), 1, $y_ticks );
 }
 
 function _graphMinMax($arr, $compfunc, $blankval, $kvfunc) {
