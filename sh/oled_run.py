@@ -15,7 +15,7 @@ import adafruit_ssd1306
 
 
 # digital button for pressing and the hold time.
-offGPIO = 9
+offGPIO = 10
 holdTime = 1
 
 # Use the big display

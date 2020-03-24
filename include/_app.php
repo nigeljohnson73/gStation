@@ -768,9 +768,13 @@ function enumerateSensors() {
 
 	foreach ( $sensors as $k => $s ) {
 		$s->enumeration = sensorEnumeration ( $s->type );
-		$gpio_pin = "sensor_pin_" . ($k);
-		global $$gpio_pin;
-		$s->pin = $$gpio_pin;
+		if($s->type == "PI") {
+			$s->pin = 0;
+		} else {
+			$gpio_pin = "sensor_pin_" . ($k);
+			global $$gpio_pin;
+			$s->pin = $$gpio_pin;
+		}
 		$s->ofn = "/tmp/sensor_data_" . ($k) . ".json";
 		// echo "sensor: ".$s->type.", k: ".$k.", pin: ".$gpio_pin.", value: ".($$gpio_pin)."\n";
 	}
