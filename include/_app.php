@@ -89,21 +89,21 @@ function nextSunChange() {
 	$tomorrow = timestampFormat ( timestampAdd ( $tsnow, numDays ( 1 ) ), "Ymd" );
 
 	$today = timestampFormat ( $today, "md" );
-	if($today == "0229") {
+	if ($today == "0229") {
 		$today = "0228";
 	}
 	$tomorrow = timestampFormat ( $tomorrow, "md" );
-	if($tomorrow == "0229") {
+	if ($tomorrow == "0229") {
 		$today = "0228";
 	}
-	//echo "Today: $today\n";
-	//echo "Tomorrow: $tomorrow\n";
+	// echo "Today: $today\n";
+	// echo "Tomorrow: $tomorrow\n";
 
 	$model = getModel ( array (
 			$today,
 			$tomorrow
 	) );
-	//print_r ( $model );
+	// print_r ( $model );
 
 	$ret = "";
 	if ($nowoffset < $model [$today]->sunriseOffset) {
@@ -686,13 +686,13 @@ function getModel($ts = null) {
 		$expected = count ( $ts );
 		$comma = "";
 		foreach ( $ts as $t ) {
-			if(strlen($t) > 4) {
+			if (strlen ( $t ) > 4) {
 				$t = timestampFormat ( $t, "md" );
 			}
 			if ($t == "0229") {
 				$t = "0228"; // No leap years
 			}
-			$sql .= $comma . "'" . $t. "'";
+			$sql .= $comma . "'" . $t . "'";
 			$comma = ", ";
 		}
 		$sql .= $esql;
@@ -768,7 +768,7 @@ function enumerateSensors() {
 
 	foreach ( $sensors as $k => $s ) {
 		$s->enumeration = sensorEnumeration ( $s->type );
-		if($s->type == "PI") {
+		if ($s->type == "PI") {
 			$s->pin = 0;
 		} else {
 			$gpio_pin = "sensor_pin_" . ($k);
