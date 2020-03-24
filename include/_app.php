@@ -1157,7 +1157,6 @@ function getVmStats() {
 	$keys [] = "io_bo";
 	$keys [] = "sys_in";
 	$keys [] = "sys_cs";
-	$keys [] = "procs_r";
 	$keys [] = "cpu_us";
 	$keys [] = "cpu_sy";
 	$keys [] = "cpu_id";
@@ -1168,6 +1167,7 @@ function getVmStats() {
 	foreach ( $bits as $k => $v ) {
 		$key = $keys [$k];
 		$vmstat->$key = $v;
+		// echo "(".$k.") '".$key."' - '" .$v."'\n";
 	}
 
 	$throt = exec ( "vcgencmd get_throttled" );
