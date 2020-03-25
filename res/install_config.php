@@ -3,8 +3,8 @@
 
 $sensors [1]->type = "DS18B20"; // EMPTY, DS18B20, DHT11 or DHT22
 $sensors [2]->type = "DHT22"; // EMPTY, DS18B20, DHT11 or DHT22
+$triggers [0]->type = "SSR"; // EMPTY, SSR, iSSR or LED
 $triggers [1]->type = "SSR"; // EMPTY, SSR, iSSR or LED
-$triggers [2]->type = "SSR"; // EMPTY, SSR, iSSR or LED
 
 $conditions = [ ];
 $conditions [] = "T1 IF [[ZONE1.TEMPERATURE]] < [[DEMAND.TEMPERATURE]]";
@@ -19,24 +19,34 @@ $graphs [] = "temperature.Zone2, Zone1";
 //$graphs [] = "temperature.Zone2, Zone1, Demanded";
 $graphs [] = "humidity.Zone2";
 
-// Set this to the month and day you want the ramp to tart on, for example 24th of January is 0124 
+// Set this to the month and day you want the ramp to start on, for example 24th of January is 0124 
 // $demand_solstice = "0000";
 // $demand = [ ];
 // $demand [] = ( object ) [
-// 		"period_length" => 28,
-// 		"sunset" => 23 + (59/60) + (59/(60 * 60)),
-// 		"daylight_hours" => 18,
-// 		"day_temperature" => 19,
-// 		"night_temperature" => 12,
-// 		"day_humidity" => 30.5,
-// 		"night_humidity" => 40.5
+// 		"period_length" => 7,
+// 		"sunset" => 21 + (59/60) + (59/(60 * 60)),
+// 		"daylight_hours" => 18.1,
+// 		"day_temperature" => 24.1,
+// 		"night_temperature" => 21.5,
+// 		"day_humidity" => 40.5,
+// 		"night_humidity" => 45.5
 // ];
 
 // $demand [] = ( object ) [
-// 		"sunset" => 21,
-// 		"daylight_hours" => 12,
-// 		"day_temperature" => 26,
-// 		"night_temperature" => 20,
+// 		"period_length" => 21,
+// 		"sunset" => 21 + (59/60) + (59/(60 * 60)),
+// 		"daylight_hours" => 18.1,
+// 		"day_temperature" => 24.1,
+// 		"night_temperature" => 21.5,
+// 		"day_humidity" => 40.5,
+// 		"night_humidity" => 45.5
+// ];
+
+// $demand [] = ( object ) [
+// 		"sunset" => 21 + (59/60) + (59/(60 * 60)),
+// 		"daylight_hours" => 12.1,
+// 		"day_temperature" => 23.5,
+// 		"night_temperature" => 19.5,
 // 		"day_humidity" => 30.5,
 // 		"night_humidity" => 40.5
 // ];
