@@ -15,7 +15,6 @@ include_once ("functions.php");
 setupTables();
 $day = timestampFormat ( timestampNow (), "d" ); // 4;
 $mon = timestampFormat ( timestampNow (), "m" ); // 10;
-                                                 // $mon = 10;
 
 // $call = "https://api.darksky.net/forecast/" . $darksky_key . "/" . $dark_sky_lat . "," . $dark_sky_lng . "," . $time . "T00:00:00?units=si&exclude=currently,minutely,hourly,alerts,flags";
 // $json = file_get_contents ( $call );
@@ -53,16 +52,22 @@ $mon = timestampFormat ( timestampNow (), "m" ); // 10;
 	&nbsp;
 		<div class="row">
 			<div class="col-sm-4">
+<?php
+$fn = getSnapshotFile();
+if($fn) {
+echo "<a href='".getSnapshotUrl()."' target='liveStream'><img  src='/gfx/snapshot.php' alt='Video capture snapshot' class='img-thumbnail' style='margin-bottom:8px; margin-right:5px;' /></a>\n";
+} else {
+echo "<p>No snapshot available.</p>\n";
+}
+?>
 				<pre><?php
-					// tick();
-					// $status = getConfig("STATUS", "NIGHT");
 					echo "Processing environment at " . timestampFormat ( timestampNow (), "Y-m-d\TH:i:s T" ) . "\n";
-// 					if($darksky_key) {
-// 						echo "Location: " . $loc . " (" . latToDms ( $lat ) . ", " . lngToDms ( $lng ) . ")\n";
-// 					} else {
-// 						echo "Location: SIMULATED ENVIRONMENT\n";
-// 					}
-// 					echo "Current status: '" . getConfig ( "STATUS", "---" ) . "'\n";
+ 					if($darksky_key) {
+ 						echo "Location: " . $loc . " (" . latToDms ( $lat ) . ", " . lngToDms ( $lng ) . ")\n";
+ 					} else {
+ 						echo "Location: SIMULATED ENVIRONMENT\n";
+ 					}
+ 					echo "Current status: '" . getConfig ( "STATUS", "---" ) . "'\n";
 ?>
 Model status: <?php print_r(modelStatus()) ?>
 

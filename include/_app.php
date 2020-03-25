@@ -1,4 +1,23 @@
 <?php
+function getSnapshotUrl() {
+        $host = $_SERVER['HTTP_HOST'];
+        return "http://".$host.":8081/?action=stream";
+}
+
+function getSnapshotFile() {
+        $fn = "/logs/gcam_snapshot.jpg";
+        if(file_exists($fn)){
+                $ftime = filemtime($fn);
+                $now = time();
+                $live = 5*60;
+                if(($now - $ftime) <= $live) {
+                        return $fn;
+                }
+        }
+        return false;
+}
+
+
 $tables_setup = false;
 
 function setupTables() {
