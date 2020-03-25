@@ -56,8 +56,6 @@ $mon = timestampFormat ( timestampNow (), "m" ); // 10;
 $fn = getSnapshotFile();
 if($fn) {
 echo "<a href='".getSnapshotUrl()."' target='liveStream'><img  src='/gfx/snapshot.php' alt='Video capture snapshot' class='img-thumbnail' style='margin-bottom:8px; margin-right:5px;' /></a>\n";
-} else {
-echo "<p>No snapshot available.</p>\n";
 }
 ?>
 				<pre><?php
