@@ -1735,12 +1735,20 @@ function tick() {
 	// TODO: Get OLED Working correctly
 	$retvar = 0;
 	$ouput = "";
+	$cmd = "hostname 2>/dev/null";
+	$val = null;
+	exec ( $cmd, $output, $retvar );
+	$hostname = $output[0];
+
+	$retvar = 0;
+	$ouput = "";
 	$cmd = "hostname -I 2>/dev/null";
 	$val = null;
 	exec ( $cmd, $output, $retvar );
 	@list ( $ipaddress, $dummy ) = explode ( " ", $output [0] );
 	$next_sun = nextSunChange ();
 	$data ["INFO.IPADDR"] = $ipaddress;
+	$data ["INFO.HOSTNAME"] = $hostname;
 	$data ["INFO.NEXTSUN"] = $next_sun;
 
 	$ostr = "";
