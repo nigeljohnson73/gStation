@@ -1,15 +1,20 @@
 <?php
 // This is all the stuff that should go into the database configurator... plus probably some more... Later... Much... later.
 
-// Sensor zero is the host itself
-$sensors [1]->type = "DS18B20"; // EMPTY, DS18B20, DHT11 or DHT22 // Root zone with the heater in it
-$sensors [2]->type = "DHT22"; // EMPTY, DS18B20, DHT11 or DHT22   // Inside the grow tent
-//$sensors [3]->type = "DHT22"; // EMPTY, DS18B20, DHT11 or DHT22  // Outside the grow tent (Ambient)
+// Sensor zero is the PI itself.
+$sensors [1]->type = "DS18B20"; // EMPTY, DS18B20, DHT11 or DHT22 // Root Zone (ZONE1)
+$sensors [2]->type = "DHT22"; // EMPTY, DS18B20, DHT11 or DHT22   // Air Zone (ZONE2)
+//$sensors [3]->type = "DHT22"; // EMPTY, DS18B20, DHT11 or DHT22   // Ambient (ZONE3)
+//$sensors [4]->type = "EMPTY"; // EMPTY, DS18B20, DHT11 or DHT22
+//$sensors [5]->type = "EMPTY"; // EMPTY or MH-Z19B                // Carbon Dioxide monitor - once implemented (ZONE2)
 
-
-$triggers [0]->type = "SSR"; // EMPTY, SSR, iSSR or LED
-$triggers [1]->type = "SSR"; // EMPTY, SSR, iSSR or LED
+// Triggers start at zero
+$triggers [0]->type = "SSR"; // EMPTY, SSR, iSSR or LED           // Heater
+$triggers [1]->type = "SSR"; // EMPTY, SSR, iSSR or LED           // Lighting
+//$triggers [2]->type = "SSR"; // EMPTY, SSR, iSSR or LED           // Air-zone vent
 //$triggers [3]->type = "SSR"; // EMPTY, SSR, iSSR or LED
+//$triggers [4]->type = "SSR"; // EMPTY, SSR, iSSR or LED
+//$triggers [5]->type = "SSR"; // EMPTY, SSR, iSSR or LED
 
 $conditions = [ ];
 $conditions [] = "T1 IF [[ZONE1.TEMPERATURE]] < [[DEMAND.TEMPERATURE]]";       // Root zone up to demanded temperature
@@ -18,48 +23,52 @@ $conditions [] = "T2 IF [[DEMAND.LIGHT]] == 'SUN'";                            /
 //$conditions [] = "T3 IF [[DATA.HOUR]] >= 0.1 && [[DATA.HOUR]] < 0.2";          // vent the air overnight regarldess of temperature
 
 $graphs = [ ];
-// $graphs [] = "cpu_wait.Pi";
-// $graphs [] = "cpu_load.Pi";
-// $graphs [] = "mem_load.Pi";
-// $graphs [] = "temperature.Pi";
 $graphs [] = "temperature.Zone2, Zone1";
-//$graphs [] = "temperature.Zone2, Zone1, Demanded";
-$graphs [] = "humidity.Zone2";
+$graphs [] = "humidity.Zone1";
+$graphs [] = "temperature.PI";
+$graphs [] = "mem_load.PI";
+$graphs [] = "cpu_load.PI";
+$graphs [] = "cpu_wait.PI";
+$graphs [] = "sd_free.PI";
+$graphs [] = "triggers.T1, T2";
 
-// Set this to the month and day you want the ramp to start on, for example 24th of January is 0124 
-// $demand_solstice = "0000";
-// $demand = [ ];
-// $demand [] = ( object ) [
-// 		"period_length" => 7,
-// 		"sunset" => 21 + (59/60) + (59/(60 * 60)),
-// 		"daylight_hours" => 18.1,
-// 		"day_temperature" => 24.1,
-// 		"night_temperature" => 21.5,
-// 		"day_humidity" => 40.5,
-// 		"night_humidity" => 45.5
-// ];
+// Set this to the month and day you want the ramp to start on, for example 24th of January is 0124
+$demand_solstice = "0000";
 
-// $demand [] = ( object ) [
-// 		"period_length" => 21,
-// 		"sunset" => 21 + (59/60) + (59/(60 * 60)),
-// 		"daylight_hours" => 18.1,
-// 		"day_temperature" => 24.1,
-// 		"night_temperature" => 21.5,
-// 		"day_humidity" => 40.5,
-// 		"night_humidity" => 45.5
-// ];
+// Will have an 18hr day for 14 days, then ramp down to 12 hours over the following 21 days, a small temp drop over te day length cycle as well
+$demand = [ ];
+$demand [] = ( object ) [
+             "period_length" => 14,
+             "sunset" => 21 + (59/60) + (59/(60 * 60)),
+             "daylight_hours" => 18.1,
+             "day_temperature" => 24.1,
+             "night_temperature" => 21.5,
+             "day_humidity" => 40.5,
+             "night_humidity" => 45.5
+];
 
-// $demand [] = ( object ) [
-// 		"sunset" => 21 + (59/60) + (59/(60 * 60)),
-// 		"daylight_hours" => 12.1,
-// 		"day_temperature" => 23.5,
-// 		"night_temperature" => 19.5,
-// 		"day_humidity" => 30.5,
-// 		"night_humidity" => 40.5
-// ];
+$demand [] = ( object ) [
+             "period_length" => 21,
+             "sunset" => 21 + (59/60) + (59/(60 * 60)),
+             "daylight_hours" => 18.1,
+             "day_temperature" => 24.1,
+             "night_temperature" => 21.5,
+             "day_humidity" => 40.5,
+             "night_humidity" => 45.5
+];
+
+$demand [] = ( object ) [
+             "sunset" => 21 + (59/60) + (59/(60 * 60)),
+             "daylight_hours" => 12.1,
+             "day_temperature" => 23.5,
+             "night_temperature" => 19.5,
+             "day_humidity" => 30.5,
+             "night_humidity" => 40.5
+];
 
 // Update this to where you are
 $local_timezone = "Europe/London";
+$loc = "GS0";
 
 // If you're using bulksms for alerting, configure it here
 $bulksms_username = "YourUserName";
