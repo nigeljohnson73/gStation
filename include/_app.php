@@ -1202,7 +1202,7 @@ function getVmStats() {
 	$ret->cpu_wait = $vmstat->cpu_wa;
 	$ret->cpu_load = $vmstat->cpu_sy + $vmstat->cpu_us;
 	$ret->mem_total = $free->total;
-	$ret->mem_avail = $free->available + $vmstat->mem_cache;
+	$ret->mem_avail = $free->available;
 	$ret->mem_load = round ( 100 * ($ret->mem_total - $ret->mem_avail) / $ret->mem_total, 3 );
 	$ret->temperature = $temp;
 	$ret->under_voltage = bitCompare ( "UNDERVOLT", $throt, (1 << 0), (1 << 16) );
