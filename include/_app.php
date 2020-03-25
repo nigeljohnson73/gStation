@@ -1649,8 +1649,8 @@ function tick() {
 		$data [strtoupper ( $name . "." . $param )] = $val;
 	}
 
-	echo "\nEnvironmental data:\n";
-	print_r ( $data );
+	//echo "\nEnvironmental data:\n";
+	//print_r ( $data );
 
 	// Now we get the triggers and see what we need to set
 
@@ -1749,9 +1749,9 @@ function tick() {
 	$ostr .= $next_sun;
 	file_put_contents ( "/tmp/oled.txt", $ostr );
 
-	// echo "\nEnvironmental data:\n";
-	// print_r ( $data );
-	// Wite this to the config so I can pull trigger data. TODO: Make INFO section
+	ksort($data);
+	echo "\nEnvironmental data:\n";
+	print_r ( $data );
 	setConfig ( "env", json_encode ( $data ) );
 }
 

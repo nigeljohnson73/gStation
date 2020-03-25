@@ -1,14 +1,21 @@
 <?php
 // This is all the stuff that should go into the database configurator... plus probably some more... Later... Much... later.
 
-$sensors [1]->type = "DS18B20"; // EMPTY, DS18B20, DHT11 or DHT22
-$sensors [2]->type = "DHT22"; // EMPTY, DS18B20, DHT11 or DHT22
+// Sensor zero is the host itself
+$sensors [1]->type = "DS18B20"; // EMPTY, DS18B20, DHT11 or DHT22 // Root zone with the heater in it
+$sensors [2]->type = "DHT22"; // EMPTY, DS18B20, DHT11 or DHT22   // Inside the grow tent
+//$sensors [3]->type = "DHT22"; // EMPTY, DS18B20, DHT11 or DHT22  // Outside the grow tent (Ambient)
+
+
 $triggers [0]->type = "SSR"; // EMPTY, SSR, iSSR or LED
 $triggers [1]->type = "SSR"; // EMPTY, SSR, iSSR or LED
+//$triggers [3]->type = "SSR"; // EMPTY, SSR, iSSR or LED
 
 $conditions = [ ];
-$conditions [] = "T1 IF [[ZONE1.TEMPERATURE]] < [[DEMAND.TEMPERATURE]]";
-$conditions [] = "T2 IF [[DEMAND.LIGHT]] == 'SUN'";
+$conditions [] = "T1 IF [[ZONE1.TEMPERATURE]] < [[DEMAND.TEMPERATURE]]";       // Root zone up to demanded temperature
+$conditions [] = "T2 IF [[DEMAND.LIGHT]] == 'SUN'";                            // Light on if it's day time
+//$conditions [] = "T3 IF [[ZONE2.TEMPERATURE]] > ([[ZONE3.TEMPERATURE]] + 5)";  // Vent the atmosphere if its 5 degrees over ambient
+//$conditions [] = "T3 IF [[DATA.HOUR]] >= 0.1 && [[DATA.HOUR]] < 0.2";          // vent the air overnight regarldess of temperature
 
 $graphs = [ ];
 // $graphs [] = "cpu_wait.Pi";

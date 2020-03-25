@@ -2,15 +2,19 @@
 
 function getLocalMeasurements_orig($what, $name) {
 	global $mysql;
-	$where = "name = '$name'";
+	$swhere = "name = '$name'";
+	$twhere = "param = '$name'";
 	$bits = explode ( ",", $name );
 	foreach ( $bits as $k => $v ) {
 		$bits [$k] = trim ( $v );
 	}
 	if (count ( $bits ) > 1) {
-		$where = "name in ('" . implode ( "','", $bits ) . "')";
+		$swhere = "name in ('" . implode ( "','", $bits ) . "')";
+		$twhere = "param in ('" . implode ( "','", $bits ) . "')";
 	}
-	$sql = "SELECT event, name, value FROM sensors where param = '" . $what . "' and " . $where . " union select event, 'DEMANDED' as 'name', value from demands where param = '" . $what . "'";
+	$sql = "SELECT event, name, value FROM sensors where param = '" . $what . "' and " . $where . " ";
+	$sql .= "union select event, 'DEMANDED' as 'name', value from demands where param = '" . $what . "' ";
+	$sql .= "union select event, 'TRIGGER' as 'name', value from triggers where ".$twhere;
 	// echo "SQL: \"" . $sql . "\"\n";
 	$res = $mysql->query ( $sql );
 	// echo "Local temp count: ".count($res)."\n";
@@ -39,7 +43,11 @@ function getLocalMeasurements($what, $name) {
 	$sqls = [ ];
 	foreach ( $bits as $k => $v ) {
 		$bit = trim ( $v );
-		if (strtolower ( $bit ) == "demanded") {
+		if (in_array(strtolower ( $what ), array("trigger", "triggers"))) {
+			$mult = ($bit[1] + 0)*0.015;
+			
+			$sqls [strtolower ( $bit )] = "SELECT event, param as 'name', (value+".$mult." - (value*2*".$mult.")) as value FROM triggers WHERE param = '" . $bit . "'";
+		} else if (strtolower ( $bit ) == "demanded") {
 			$sqls [strtolower ( $bit )] = "SELECT event, 'DEMANDED' as 'name', value FROM demands WHERE param = '" . $what . "'";
 		} else {
 			$sqls [strtolower ( $bit )] = "SELECT event, name, value FROM sensors WHERE param = '" . $what . "' and name = '" . $bit . "'";
@@ -47,7 +55,7 @@ function getLocalMeasurements($what, $name) {
 	}
 	foreach ( $sqls as $sql ) {
 		$res = $mysql->query ( $sql );
-		// echo "SQL: \"" . $sql . "\"\n";
+		echo "SQL: \"" . $sql . "\"\n";
 		// echo " Count: ".count($res)."\n";
 		// echo timestampFormat ( timestampNow (), "H:i:s" ) . ": getLocalMeasurements(): " . count ( $res ) . " rows from \"$sql\"\n";
 		if (is_array ( $res ) && count ( $res ) > 0) {
@@ -73,6 +81,8 @@ function drawMeasuredGraph($what, $zone) {
 	$legend_key ["cpu_load"] = "%";
 	$legend_key ["cpu_wait"] = "%";
 	$legend_key ["sd_free"] = "%";
+	$legend_key ["trigger"] = "";
+	$legend_key ["triggers"] = "";
 
 	$legend_key = $legend_key [$what];
 
