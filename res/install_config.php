@@ -33,38 +33,39 @@ $graphs [] = "sd_free.PI";
 $graphs [] = "triggers.T1, T2";
 
 // Set this to the month and day you want the ramp to start on, for example 24th of January is 0124
-$demand_solstice = "0000";
+//$demand_solstice = "0000";
 
-// Will have an 18hr day for 14 days, then ramp down to 12 hours over the following 21 days, a small temp drop over te day length cycle as well
-$demand = [ ];
-$demand [] = ( object ) [
-             "period_length" => 14,
-             "sunset" => 21 + (59/60) + (59/(60 * 60)),
-             "daylight_hours" => 18.1,
-             "day_temperature" => 24.1,
-             "night_temperature" => 21.5,
-             "day_humidity" => 40.5,
-             "night_humidity" => 45.5
-];
-
-$demand [] = ( object ) [
-             "period_length" => 21,
-             "sunset" => 21 + (59/60) + (59/(60 * 60)),
-             "daylight_hours" => 18.1,
-             "day_temperature" => 24.1,
-             "night_temperature" => 21.5,
-             "day_humidity" => 40.5,
-             "night_humidity" => 45.5
-];
-
-$demand [] = ( object ) [
-             "sunset" => 21 + (59/60) + (59/(60 * 60)),
-             "daylight_hours" => 12.1,
-             "day_temperature" => 23.5,
-             "night_temperature" => 19.5,
-             "day_humidity" => 30.5,
-             "night_humidity" => 40.5
-];
+// This config ill have an 18hr day for 14 days, then ramp down to 12 hours over the following 21 days. 
+// There will be a small temp drop over the day length cycle as well
+//$demand = [ ];
+//$demand [] = ( object ) [
+//	"period_length" => 14,
+//	"sunset" => 21 + (59/60) + (59/(60 * 60)),
+//	"daylight_hours" => 18.1,
+//	"day_temperature" => 24.1,
+//	"night_temperature" => 21.5,
+//	"day_humidity" => 40.5,
+//	"night_humidity" => 45.5
+//	];
+//
+//$demand [] = ( object ) [
+//	"period_length" => 21,
+//	"sunset" => 21 + (59/60) + (59/(60 * 60)),
+//	"daylight_hours" => 18.1,
+//	"day_temperature" => 24.1,
+//	"night_temperature" => 21.5,
+//	"day_humidity" => 40.5,
+//	"night_humidity" => 45.5
+//];
+//
+//$demand [] = ( object ) [
+//	"sunset" => 21 + (59/60) + (59/(60 * 60)),
+//	"daylight_hours" => 12.1,
+//	"day_temperature" => 23.5,
+//	"night_temperature" => 19.5,
+//	"day_humidity" => 30.5,
+//	"night_humidity" => 40.5
+//];
 
 // Update this to where you are
 $local_timezone = "Europe/London";
