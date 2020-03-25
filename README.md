@@ -3,6 +3,7 @@
  * [Overview](#Overview)
  * [Limitations](#Limitations)
  * [Setting up the Pi](#Setting-up-the-Pi)
+ * [Adding the timelase software](#Adding-the-camera-timelapse)
  * [Hardware pinouts used](#Pinouts)
  * [The Journey so far (Wiki)](https://github.com/nigeljohnson73/gStation/wiki/The-Journey)
  * [Roadmap (GitHub)](https://github.com/nigeljohnson73/gStation/projects/1)
@@ -178,6 +179,58 @@ Add these lines:
 
 Once you reboot, things should start kicking off in a few minutes and you should see the IP address you can 
 connect to for the web interface appear on the OLED screen.
+
+## Adding the camera timelapse
+This is a project itself [on github](https://github.com/nigeljohnson73/gCam) and is not quite ready for public release. These are the additional steps needed to get things working assuming you've completed the above setup.
+
+First, go head over to [Dropbox developer console](https://www.dropbox.com/developers/apps) and get the API key where you want to store your timelapse files.
+
+Install the missing software packages
+
+    sudo apt install -y php-curl git imagemagick build-essential libv4l-dev libjpeg-dev cmake
+
+Download, make and install the mjpeg streamer software
+
+    cd /tmp
+    git clone https://github.com/jacksonliam/mjpg-streamer.git
+    cd mjpg-streamer/mjpg-streamer-experimental
+    make
+    sudo make install
+
+Clone the gCam software into its home.
+
+    cd /webroot
+    sudo git clone https://github.com/nigeljohnson73/gCam.git
+    sudo chown -R pi:www-data gCam
+    sudo chmod -R g+w gCam
+    cd gCam
+
+Set up application database and user.
+
+    sudo mysql -uroot -pEarl1er2day < res/install_db.sql
+
+Copy a simple installation config file so you can edit stuff and put your Dropbox API key in.
+
+    cp res/install_config.php config_override.php
+
+Configure the system to run our startup commands in the rc.local file.
+
+    cat /etc/rc.local | grep -v 'exit 0' | sudo tee /etc/rc.local
+    echo ". /webroot/gCam/res/rc.local" | sudo tee -a /etc/rc.local
+    echo "exit 0" | sudo tee -a /etc/rc.local
+
+Install a "local" cam stream (you will need a dropbox API key in config_override.php)
+
+    php sh/lapse_create.php local localhost:8081/?action=stream start
+
+Update the crontab to have our update commands.
+
+    crontab -e
+
+Add these lines:
+
+    1 0 * * * /usr/bin/php /webroot/gCam/sh/_update.php > /tmp/gcam_update.txt 2>&1
+    * * * * * /usr/bin/php /webroot/gCam/sh/_tick.php > /tmp/gcam_tick.txt 2>&1
 
 ## Pinouts
 
