@@ -1198,9 +1198,11 @@ function getVmStats() {
 	$temp = explode ( "'", $temp ) [0];
 
 	$ret = new StdClass ();
-	$ret->sd_free = round ( 100 * $hdd->available / $hdd->blocks, 3 );
+	$ret->sd_total = $hdd->blocks;
+	$ret->sd_avail = $hdd->available;
+	$ret->sd_load = round ( 100 * $hdd->used / $hdd->blocks, 3 );
 	$ret->cpu_wait = $vmstat->cpu_wa;
-	$ret->cpu_load = $vmstat->cpu_sy + $vmstat->cpu_us;
+	$ret->cpu_load = 100 - $vmstat->cpu_id;
 	$ret->mem_total = $free->total;
 	$ret->mem_avail = $free->available;
 	$ret->mem_load = round ( 100 * ($ret->mem_total - $ret->mem_avail) / $ret->mem_total, 3 );
@@ -1674,9 +1676,10 @@ function tick() {
 		if (preg_match ( "/\[\[(.*?)\]\]/", $c, $matches ) == 0) {
 			list ( $k, $expr ) = explode ( " IF ", $c );
 			if (isset ( $fires [$k] )) {
-				echo $k . " = (" . $expr . ")?(1):(0);\n";
 				$eval = '$fires[$k]->demand = (' . $expr . ')?(highValue($fires[$k]->type)):(lowValue($fires[$k]->type));';
 				eval ( $eval );
+				//echo $k . " = (" . $expr . ")?(1):(0); // ## ".$oc." ##".(($fires[$k]->demand)?(" - FIRED"):(""))."\n";
+				echo (($fires[$k]->demand)?("FIRED"):("-----")).": ". $k . " = (" . $expr . ")?(1):(0); // ".$oc."\n";
 			} else {
 				echo "Skipping damaged condition - Trigger '" . $k . "' not found (" . $oc . ")\n";
 			}

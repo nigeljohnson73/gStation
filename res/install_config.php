@@ -29,7 +29,7 @@ $graphs [] = "temperature.PI";
 $graphs [] = "mem_load.PI";
 $graphs [] = "cpu_load.PI";
 $graphs [] = "cpu_wait.PI";
-$graphs [] = "sd_free.PI";
+$graphs [] = "sd_load.PI";
 $graphs [] = "triggers.T1, T2";
 
 // Set this to the month and day you want the ramp to start on, for example 24th of January is 0124
