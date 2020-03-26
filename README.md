@@ -106,7 +106,7 @@ Download the pigpiod daemon to manage fast access to GPIO stuff (DHT22 for examp
     cd pigpio-master
     make
     sudo make install
-    sudo pigpio
+    sudo pigpiod
 
 Make the directories we require for our software
 
