@@ -1,6 +1,7 @@
 <?php
 $local_timezone = "Europe/London"; // Where are you locally based for time references
 
+$sensor_age = 30; // sensor data older than this will be ignored
 $sensors = [ ];
 $sensors [] = ( object ) [
 		"name" => "PI", 

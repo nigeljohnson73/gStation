@@ -99,6 +99,15 @@ The current version of WiringPi does not work proerly on the Pi 4B so upgrade it
     wget https://project-downloads.drogon.net/wiringpi-latest.deb
     sudo dpkg -i wiringpi-latest.deb
 
+Download the pigpiod daemon to manage fast access to GPIO stuff (DHT22 for example)
+
+    wget https://github.com/joan2937/pigpio/archive/master.zip
+    unzip master.zip
+    cd pigpio-master
+    make
+    sudo make install
+    sudo pigpio
+
 Make the directories we require for our software
 
     sudo mkdir /logs
@@ -112,7 +121,13 @@ Clone the software into its home.
     sudo git clone https://github.com/nigeljohnson73/gStation.git
     sudo chown -R pi:www-data gStation
     sudo chmod -R g+w gStation
-    cd gStation
+
+Make and install the DHT22 access software
+
+    cd gStation/sh/dhtxx
+    gcc -Wall -pthread -o DHTXXD test_DHTXXD.c DHTXXD.c -lpigpiod_if2
+    mv DHTXXD ../
+    cd ../../
 
 Set up MySQL with a secure root account.
 

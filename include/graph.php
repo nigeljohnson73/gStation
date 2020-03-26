@@ -45,10 +45,11 @@ function getLocalMeasurements($what, $name) {
 		$bit = trim ( $v );
 		if (in_array(strtolower ( $what ), array("trigger", "triggers"))) {
 			$mult = ($bit[1] + 0)*0.015;
-			
 			$sqls [strtolower ( $bit )] = "SELECT event, param as 'name', (value+".$mult." - (value*2*".$mult.")) as value FROM triggers WHERE param = '" . $bit . "'";
 		} else if (strtolower ( $bit ) == "demanded") {
 			$sqls [strtolower ( $bit )] = "SELECT event, 'DEMANDED' as 'name', value FROM demands WHERE param = '" . $what . "'";
+		} else if (in_array(strtolower ( $what ), array("sensor_age", "sensor_ages"))) {
+			$sqls [strtolower ( $bit )] = "SELECT DISTINCT event, name, age as value FROM sensors WHERE name = '" . $bit . "' and age IS NOT NULL";
 		} else {
 			$sqls [strtolower ( $bit )] = "SELECT event, name, value FROM sensors WHERE param = '" . $what . "' and name = '" . $bit . "'";
 		}
@@ -83,6 +84,8 @@ function drawMeasuredGraph($what, $zone) {
 	$legend_key ["sd_load"] = "%";
 	$legend_key ["trigger"] = "";
 	$legend_key ["triggers"] = "";
+	$legend_key ["sensor_age"] = "s";
+	$legend_key ["sensor_ages"] = "s";
 
 	$legend_key = $legend_key [$what];
 
@@ -122,7 +125,7 @@ function drawMeasuredGraph($what, $zone) {
 		$min_y = floor ( graphValMin ( $vals ) );
 		$max_y = ceil ( graphValMax ( $vals ) );
 		$c_y = $max_y - $min_y;
-		$c_step = ($c_y < 20) ? (1) : (($c_y < 40) ? (2) : (($c_y < 60) ? (3) : (($c_y < 80) ? (4) : (5))));
+		$c_step = ($c_y < 20) ? (1) : (($c_y < 40) ? (2) : (($c_y < 60) ? (3) : (($c_y < 80) ? (4) : (($c_y < 100) ? (5) : (($c_y < 200) ? (10) : ((($c_y < 300) ? (20) : ((($c_y < 400) ? (30) : ((($c_y < 500) ? (40) : (50))))))))))));
 		$max_y = $min_y + ceil ( ($max_y - $min_y) / $c_step ) * $c_step;
 
 		$y_ticks = array ();

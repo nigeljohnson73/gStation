@@ -61,6 +61,7 @@ function setupTables() {
 			name VARCHAR(255) NOT NULL,
 			param VARCHAR(255) NOT NULL,
 			value VARCHAR(255) NOT NULL,
+			age SMALLINT NULL,
 			KEY(event),
 			KEY(name), 
 			KEY(param, name)
@@ -845,10 +846,10 @@ function overlay($type) {
 		case "LED" :
 			$ret = "pi3-act-led";
 			break;
-		case "DHT11" :
-		case "DHT22" :
-			$ret = "dht11";
-			break;
+//		case "DHT11" :
+//		case "DHT22" :
+//			$ret = "dht11";
+//			break;
 	}
 
 	return $ret;
@@ -885,6 +886,8 @@ function isGpio($type) {
 	switch ($type) {
 		case "PI" :
 		case "EMPTY" :
+		case "DHT11" :
+		case "DHT22" :
 		case "MH-Z19B" :
 			$ret = false;
 			break;
@@ -1001,6 +1004,75 @@ function readSensorRaw_DHT11($sensor) {
 	$ret = new StdClass ();
 	global $outlier_temperature_min, $outlier_temperature_max, $outlier_humidity_min, $outlier_humidity_max;
 
+		$output = null;
+		$retvar = 0;
+		$cmd = "/webroot/gStation/sh/DHTXXD -g".$sensor->pin." 2>&1";
+		$val = null;
+
+		$retry_count = 0;
+		$retry_limit = 5;
+		$retry = false;
+		do {
+			if ($retry) {
+				//$sleep_ms = mt_rand(2250,5000);
+				$sleep_ms = 500;
+				echo ("Read $retry_count failed, pausing for ".$sleep_ms."ms and retrying\n");
+				usleep($sleep_ms * 1000);
+			}
+			$retry_count = $retry_count + 1;
+			$retry = true;
+
+			exec ( $cmd, $output, $retvar );
+			@list($err, $temp, $humidity) = explode(" ", $output[0]);
+			if($err == 0) {
+				echo "Got zero error status. T: ".$temp.", H: ".$humidity."\n";
+				$ret->temperature = $temp;
+				$ret->humidity = $humidity;
+				$val = true;
+			} else {
+				echo "Got a non-zero error code: ".$err."\n";
+			}
+/*
+			if (strlen ( $output [0] ) == 5) {
+				echo ("Got correct character count '" . $output [0] . "'\n");
+				if (is_numeric ( $output [0] )) {
+					echo ("Integer conversion works\n");
+					$val = (( double ) $output [0]) / 1000.00;
+					$olmax = "outlier_" . ($e->name) . "_max";
+					$olmin = "outlier_" . ($e->name) . "_min";
+					if ($$olmin != "" && $val < $olmin) {
+						$msg = ($e - name . " reading of " . $val . " is out of tolerance (< " . ($$olmin) . ")\n");
+						echo $msg;
+						logger ( LL_WARNING, $msg );
+						$val = null;
+					} elseif ($$olmax != "" && $val < $olmax) {
+						$msg = ($e - name . " reading of " . $val . " is out of tolerance (> " . ($$olmax) . ")\n");
+						echo $msg;
+						logger ( LL_WARNING, $msg );
+						$val = null;
+					}
+				} else {
+					echo ("Integer conversion failed '" . $output [0] . "'\n");
+				}
+			} else {
+				echo ("Got incorrect character count:\n" . ob_print_r ( $output ) . "\n");
+			}
+*/
+			$output = null;
+		} while ( $val == null && $retry_count < $retry_limit );
+
+		if ($val == null) {
+			echo "Read sensor failed.\n";
+			return null;
+		}
+
+	return $ret;
+}
+
+function readSensorRaw_DHT11_orig($sensor) {
+	$ret = new StdClass ();
+	global $outlier_temperature_min, $outlier_temperature_max, $outlier_humidity_min, $outlier_humidity_max;
+
 	foreach ( $sensor->enumeration as $e ) {
 		$output = null;
 		$retvar = 0;
@@ -1008,12 +1080,15 @@ function readSensorRaw_DHT11($sensor) {
 		$val = null;
 
 		$retry_count = 0;
-		$retry_limit = 10;
+		$retry_limit = 5;
 		$retry = false;
 		do {
 			if ($retry) {
-				echo ("Read $retry_count failed, pausing and retrying\n");
-				sleep ( 1 );
+				$sleep_ms = mt_rand(2250,5000);
+				echo ("Read $retry_count failed, pausing for ".$sleep_ms."ms and retrying\n");
+				usleep($sleep_ms * 1000);
+				//usleep(2250000); // 2.25 seconds
+				//sleep(5);
 			}
 			$retry_count = $retry_count + 1;
 			$retry = true;
@@ -1336,6 +1411,7 @@ function readSensor($i) {
 }
 
 function gatherSensors() {
+	global $sensor_age;
 	$key = "/tmp/sensor_data_";
 	$files = directoryListing ( "/tmp", "*.json" );
 	$ret = array ();
@@ -1353,7 +1429,7 @@ function gatherSensors() {
 			// echo "time now: ".time()." (".timestampFormat(time2Timestamp(time())).")\n";
 			// echo "time file: ".$t." (".timestampFormat(time2Timestamp($t)).")\n";
 			// echo "age: ".$age." (".$age_str.")\n";
-			if ($age >= 30) {
+			if ($age >= $sensor_age) {
 				echo "Skipping '$file' - data too old (age: " . $age_str . ")\n";
 			} else {
 				echo "Processing '$file' (age: " . $age_str . ")\n";
@@ -1365,6 +1441,7 @@ function gatherSensors() {
 					$o->name = $name;
 					$o->param = $k;
 					$o->value = $v;
+					$o->age = $age;
 					$ret [] = $o;
 				}
 			}
@@ -1644,11 +1721,14 @@ function tick() {
 
 	echo "\nGathering sensor data\n";
 	$sensors = gatherSensors ();
+	$ages = array();
 	foreach ( $sensors as $s ) {
 		$name = $s->name;
 		$param = $s->param;
 		$val = $s->value;
+		$age = $s->age;
 		$data [strtoupper ( $name . "." . $param )] = $val;
+		$ages [strtoupper ( $name )] = $age;
 	}
 
 	//echo "\nEnvironmental data:\n";
@@ -1676,10 +1756,10 @@ function tick() {
 		if (preg_match ( "/\[\[(.*?)\]\]/", $c, $matches ) == 0) {
 			list ( $k, $expr ) = explode ( " IF ", $c );
 			if (isset ( $fires [$k] )) {
-				$eval = '$fires[$k]->demand = (' . $expr . ')?(highValue($fires[$k]->type)):(lowValue($fires[$k]->type));';
+				$eval = '$fire = (' . $expr . ')?(highValue($fires[$k]->type)):(lowValue($fires[$k]->type));';
 				eval ( $eval );
-				//echo $k . " = (" . $expr . ")?(1):(0); // ## ".$oc." ##".(($fires[$k]->demand)?(" - FIRED"):(""))."\n";
-				echo (($fires[$k]->demand)?("FIRED"):("-----")).": ". $k . " = (" . $expr . ")?(1):(0); // ".$oc."\n";
+				$fires[$k]->demand = ($fire)?($fire):($fires[$k]->demand);
+				echo (($fire)?("FIRED"):("-----")).": ". $k . " = (" . $expr . ")?(1):(0); // ".$oc."\n";
 			} else {
 				echo "Skipping damaged condition - Trigger '" . $k . "' not found (" . $oc . ")\n";
 			}
@@ -1722,38 +1802,47 @@ function tick() {
 					$k,
 					$v
 			) );
+		} elseif ($what == "DATA") {
+			// We know about it, but we can ignore it
 		} elseif ($what == "INFO") {
 			// We know about it, but we can ignore it
 		} else {
+			$age = isset($ages[$what])?($ages[$what]):(null);
+			//echo "writing ".$what." to database k: ".$k.", v: ".$v.", age: ".tfn($age)."\n";
 			// Must be a zone name
-			$mysql->query ( "REPLACE INTO sensors (event, name, param, value) VALUES (?, ?, ?, ?)", "isss", array (
+			$mysql->query ( "REPLACE INTO sensors (event, name, param, value, age) VALUES (?, ?, ?, ?, ?)", "isssi", array (
 					$tsnow,
 					$what,
 					$k,
-					$v
+					$v,
+					$age
 			) );
 		}
 	}
 
 	// TODO: Get OLED Working correctly
 	$retvar = 0;
-	$ouput = "";
+	$output = "";
 	$cmd = "hostname 2>/dev/null";
-	$val = null;
 	exec ( $cmd, $output, $retvar );
+	// echo "Ran: '".$cmd."' : ".ob_print_r($output)."\n";
 	$hostname = $output[0];
 
 	$retvar = 0;
-	$ouput = "";
+	$output = "";
 	$cmd = "hostname -I 2>/dev/null";
-	$val = null;
 	exec ( $cmd, $output, $retvar );
+	// echo "Ran: '".$cmd."' : ".ob_print_r($output)."\n";
 	@list ( $ipaddress, $dummy ) = explode ( " ", $output [0] );
+
 	$next_sun = nextSunChange ();
+
+	// Update the info parameters
 	$data ["INFO.IPADDR"] = $ipaddress;
 	$data ["INFO.HOSTNAME"] = $hostname;
 	$data ["INFO.NEXTSUN"] = $next_sun;
 
+	// Set the display message
 	$ostr = "";
 	$ostr .= $ipaddress;
 	$ostr .= "|";

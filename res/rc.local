@@ -1,3 +1,6 @@
+echo "Starting pigpod daemon"
+pigpiod
+
 fn=/webroot/gStation/sh/start_sensors.sh
 if [ -f "$fn" ]; then
         echo "Starting gStation sensors"
