@@ -1,0 +1,24 @@
+REQUIRES
+
+One or more DHT11/DHT21/DHT22/DHT33/DHT44.
+
+TO BUILD
+
+gcc -Wall -pthread -o DHTXXD test_DHTXXD.c DHTXXD.c -lpigpiod_if2
+
+TO RUN
+
+./DHTXXD -g17 # one reading from DHT connected to GPIO 17
+
+./DHTXXD -g14 -i3 # read DHT connected to GPIO 14 every 3 seconds
+
+DHTXXD returns three values.  A status, the temperature, and the
+humidity.  The status is one of the following.  0 (good)
+indicates a successful read.  The other values indicate a read failure
+and the last good read of temperature and humidity will be returned.
+
+#define DHT_GOOD         0
+#define DHT_BAD_CHECKSUM 1
+#define DHT_BAD_DATA     2
+#define DHT_TIMEOUT      3
+
