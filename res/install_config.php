@@ -4,14 +4,14 @@
 // Sensor zero is the PI itself.
 $sensors [1]->type = "DS18B20"; // EMPTY, DS18B20, DHT11 or DHT22 // Root Zone (ZONE1)
 $sensors [2]->type = "DHT22"; // EMPTY, DS18B20, DHT11 or DHT22   // Air Zone (ZONE2)
-//$sensors [3]->type = "DHT22"; // EMPTY, DS18B20, DHT11 or DHT22   // Ambient (ZONE3)
-//$sensors [4]->type = "EMPTY"; // EMPTY, DS18B20, DHT11 or DHT22
-//$sensors [5]->type = "EMPTY"; // EMPTY or MH-Z19B                // Carbon Dioxide monitor - once implemented (ZONE2)
+$sensors [3]->type = "DHT22"; // EMPTY, DS18B20, DHT11 or DHT22   // Ambient (ZONE3)
+//$sensors [4]->type = "DHT22"; // EMPTY, DS18B20, DHT11 or DHT22
+//$sensors [5]->type = "empty"; // EMPTY or MH-Z19B                // Carbon Dioxide monitor - once implemented (ZONE2)
 
 // Triggers start at zero
 $triggers [0]->type = "SSR"; // EMPTY, SSR, iSSR or LED           // Heater
 $triggers [1]->type = "SSR"; // EMPTY, SSR, iSSR or LED           // Lighting
-//$triggers [2]->type = "SSR"; // EMPTY, SSR, iSSR or LED           // Air-zone vent
+$triggers [2]->type = "SSR"; // EMPTY, SSR, iSSR or LED           // Air-zone vent
 //$triggers [3]->type = "SSR"; // EMPTY, SSR, iSSR or LED
 //$triggers [4]->type = "SSR"; // EMPTY, SSR, iSSR or LED
 //$triggers [5]->type = "SSR"; // EMPTY, SSR, iSSR or LED
@@ -19,18 +19,19 @@ $triggers [1]->type = "SSR"; // EMPTY, SSR, iSSR or LED           // Lighting
 $conditions = [ ];
 $conditions [] = "T1 IF [[ZONE1.TEMPERATURE]] < [[DEMAND.TEMPERATURE]]";       // Root zone up to demanded temperature
 $conditions [] = "T2 IF [[DEMAND.LIGHT]] == 'SUN'";                            // Light on if it's day time
-//$conditions [] = "T3 IF [[ZONE2.TEMPERATURE]] > ([[ZONE3.TEMPERATURE]] + 5)";  // Vent the atmosphere if its 5 degrees over ambient
-//$conditions [] = "T3 IF [[DATA.HOUR]] >= 0.1 && [[DATA.HOUR]] < 0.2";          // vent the air overnight regarldess of temperature
+$conditions [] = "T3 IF [[ZONE2.TEMPERATURE]] > ([[ZONE3.TEMPERATURE]] + 5)";  // Vent the atmosphere if its 5 degrees over ambient
+$conditions [] = "T3 IF [[DATA.HOUR]] >= 0.1 && [[DATA.HOUR]] < 0.2";          // vent the air overnight regarldess of temperature
 
 $graphs = [ ];
-$graphs [] = "temperature.Zone2, Zone1";
-$graphs [] = "humidity.Zone1";
-$graphs [] = "temperature.PI";
-$graphs [] = "mem_load.PI";
+$graphs [] = "temperature.Zone3 (Ambient), Zone2 (Air zone), Zone1 (Root zone)";
+$graphs [] = "humidity.Zone3 (Ambient), Zone2 (Air zone)";
+$graphs [] = "trigger.T3 (Vent), T2 (Light), T1 (Heat)";
 $graphs [] = "cpu_load.PI";
+$graphs [] = "temperature.PI";
+//$graphs [] = "sensor_age.Zone3 (".$sensors[3]->type."), Zone2 (".$sensors[2]->type."), Zone1 (".$sensors[1]->type.")";
 $graphs [] = "cpu_wait.PI";
 $graphs [] = "sd_load.PI";
-$graphs [] = "triggers.T1, T2";
+$graphs [] = "mem_load.PI";
 
 // Set this to the month and day you want the ramp to start on, for example 24th of January is 0124
 //$demand_solstice = "0000";
