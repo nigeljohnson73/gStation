@@ -42,16 +42,24 @@ function getLocalMeasurements($what, $name) {
 	$bits = explode ( ",", $name );
 	$sqls = [ ];
 	foreach ( $bits as $k => $v ) {
+		$obit = trim ( $v );
 		$bit = trim ( $v );
+		$arr = array();
+		preg_match('/(.*)(\((.*)\))/', $obit, $arr);
+		if(count($arr)) {
+			$bit = trim ( $arr[1] );
+		}
+echo "Looking for '".$bit."'\n";
 		if (in_array(strtolower ( $what ), array("trigger", "triggers"))) {
-			$mult = ($bit[1] + 0)*0.015;
-			$sqls [strtolower ( $bit )] = "SELECT event, param as 'name', (value+".$mult." - (value*2*".$mult.")) as value FROM triggers WHERE param = '" . $bit . "'";
+			$mult = ($bit[1] + 0)*(1/(count($bits)+1));//($bit[1] + 0)*0.2;
+			//$sqls [strtolower ( $obit )] = "SELECT event, param as 'name', (value*".$mult.") as value FROM triggers WHERE param = '" . $bit . "' AND value > 0.5";
+			$sqls [strtolower ( $obit )] = "SELECT event, param as 'name', (value*".$mult.") as value FROM triggers WHERE param = '" . $bit . "'";
 		} else if (strtolower ( $bit ) == "demanded") {
-			$sqls [strtolower ( $bit )] = "SELECT event, 'DEMANDED' as 'name', value FROM demands WHERE param = '" . $what . "'";
+			$sqls [strtolower ( $obit )] = "SELECT event, 'DEMANDED' as 'name', value FROM demands WHERE param = '" . $what . "'";
 		} else if (in_array(strtolower ( $what ), array("sensor_age", "sensor_ages"))) {
-			$sqls [strtolower ( $bit )] = "SELECT DISTINCT event, name, age as value FROM sensors WHERE name = '" . $bit . "' and age IS NOT NULL";
+			$sqls [strtolower ( $obit )] = "SELECT DISTINCT event, name, age as value FROM sensors WHERE name = '" . $bit . "' AND age IS NOT NULL";
 		} else {
-			$sqls [strtolower ( $bit )] = "SELECT event, name, value FROM sensors WHERE param = '" . $what . "' and name = '" . $bit . "'";
+			$sqls [strtolower ( $obit )] = "SELECT event, name, value FROM sensors WHERE param = '" . $what . "' AND name = '" . $bit . "'";
 		}
 	}
 	foreach ( $sqls as $sql ) {
@@ -102,7 +110,8 @@ function drawMeasuredGraph($what, $zone) {
 	if ($vals && count ( $vals )) {
 		foreach ( $vals as $k => $v ) {
 			if ($v && count ( array_keys ( $v ) ) > 2) {
-				$legend = "Measured " . $what . " (" . $zone . ")";
+				//$legend = "Measured " . $what . " (" . $zone . ")";
+				$legend = ucwords($what) . " - " . $zone;
 				$vc = count ( $v );
 
 				$ll = LL_DEBUG;
