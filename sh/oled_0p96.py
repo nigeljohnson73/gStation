@@ -79,6 +79,7 @@ btn.when_held = shutdown
 # Use I2C for the OLED display
 i2c = board.I2C()
 oled = adafruit_ssd1306.SSD1306_I2C(WIDTH, HEIGHT, i2c, addr=0x3c)
+#oled = adafruit_ssd1306.SSD1306_I2C(WIDTH, HEIGHT, i2c, addr=0x3d)
 
 # Clear display.
 oled.fill(0)

@@ -90,7 +90,7 @@ Next, log back in to the new hostname with the new password, then, update Raspia
     sudo apt update -y
     sudo apt upgrade -y
     sudo apt install -y apache2 php php-mbstring php-gd mariadb-server php-mysql git python3-dev python3-pip python3-pil i2c-tools python3-gpiozero wiringpi
-    sudo pip3 install --upgrade pip setuptools wheel Adafruit_DHT datetime adafruit-circuitpython-ssd1306
+    sudo pip3 install --upgrade pip setuptools wheel Adafruit_DHT datetime adafruit-circuitpython-ssd1306 luma.oled
     sudo phpenmod mysqli
 
 The current version of WiringPi does not work proerly on the Pi 4B so upgrade it.
@@ -101,12 +101,20 @@ The current version of WiringPi does not work proerly on the Pi 4B so upgrade it
 
 Download the pigpiod daemon to manage fast access to GPIO stuff (DHT22 for example)
 
+    cd /tmp
     wget https://github.com/joan2937/pigpio/archive/master.zip
     unzip master.zip
     cd pigpio-master
     make
     sudo make install
     sudo pigpiod
+
+Download the drivers for the 1.5 inch OLED display
+
+    cd /tmp
+    git clone https://github.com/rm-hull/luma.examples.git
+    cd luma.examples
+    sudo -H pip install -e .
 
 Make the directories we require for our software
 

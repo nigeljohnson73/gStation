@@ -54,6 +54,10 @@ foreach ( $secs as $k => $s ) {
 	$now = microTime ( true );
 	$tsnow = time2Timestamp ( floor ( $now ) );
 
+	echo "tick(): writing env to oled file\n\n";
+	$estr = getConfig("env");
+	file_put_contents ( "/tmp/oled.json", $estr );
+
 	echo "TICK: " . timestampFormat ( $tsnow, "H:i:s " ) . ": ";
 	if (isset ( $secs [$k + 1] )) {
 		$wake = $secs [$k + 1];
