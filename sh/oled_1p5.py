@@ -259,7 +259,7 @@ def main():
 	time.sleep(3)
 	device.clear()
  
-	#os.system("sudo poweroff")
+	os.system("sudo poweroff")
 	sys.exit()
 
 #	while True:
