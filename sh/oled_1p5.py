@@ -2,6 +2,8 @@
 
 import sys, os, time, json, datetime, logging
 from luma.core import cmdline, error
+from luma.core.legacy import text, textsize
+from luma.core.legacy.font import LCD_FONT
 from luma.core.render import canvas
 from PIL import Image, ImageDraw, ImageFont
 from gpiozero import Button
@@ -75,21 +77,19 @@ def get_device(actual_args=None):
     return device
 
 
-def drawText(draw, text, size, ypos):
+def drawText(draw, txt, ypos, size=12):
+	return drawPrettyText(draw, txt, size=size, ypos=ypos)
+	(font_width, font_height) = textsize(txt, font=LCD_FONT)
+	text(draw, (1+(device.width/2 - font_width/2), ypos), txt, fill="white", font=LCD_FONT)
+	return ypos + font_height + 5
+
+
+def drawPrettyText(draw, txt, size, ypos):
 	scale = 1;
 	font = ImageFont.truetype(os.path.dirname(os.path.abspath(__file__))+"/../fonts/andalemo.ttf", scale*size)
-	(font_width, font_height) = font.getsize(text)
+	(font_width, font_height) = font.getsize(txt)
 
-	#i = Image.new("RGB", (scale*font_width,scale*font_height))
-	#d = ImageDraw.Draw(i)
-	#d.text((0, 0), text, fill="white", font=font, dither=False)
-	#i = i.resize((font_width, font_height));
-	##i = i.convert("1");
-
-	#device.display(i);
-	##draw.draw(i);
-
-	draw.text(((device.width/2 - font_width/2), ypos), text, fill="white", font=font)
+	draw.text(((device.width/2 - font_width/2), ypos), txt, fill="white", font=font)
 	return ypos + size + 3
 
 
@@ -114,75 +114,86 @@ def floatValue(key, data, default = " -- "):
 
 
 def drawData(data):
+	if done:
+		return
+
 	logger("refresh")
 
-	ypos = 0;
+	ypos = 1;
 	with canvas(device) as draw:
 		#canvas.fontmode = 1
 		if BORDER:
 			draw.rectangle((0, 0, device.width-1, device.height-1), outline="white", fill="black")
 
-		ypos = drawText(draw, data["INFO.IPADDR"], 12, ypos)
+		ypos = drawText(draw, data["INFO.IPADDR"], ypos)
 
 		if page == 0:
-			ypos = drawText(draw, data["INFO.NEXTSUN"], 12, ypos)
-			ypos = drawText(draw, "  ", 4, ypos)
+			ypos = drawText(draw, data["INFO.NEXTSUN"], ypos)
+			ypos = ypos + 4
 
 			z1x = '{}'.format(" Z1 ") if 'ZONE1.TEMPERATURE' in data else " -- "
 			z2x = '{}'.format(" Z2 ") if 'ZONE2.TEMPERATURE' in data else " -- "
 			z3x = '{}'.format(" Z3 ") if 'ZONE3.TEMPERATURE' in data else " -- "
-			ypos = drawText(draw, "  {} {} {}".format(z1x, z2x, z3x), 12, ypos)
-			#ypos = drawText(draw, "   Z1   Z2   Z3 ", 12, ypos)
+			ypos = drawText(draw, "  {} {} {}".format(z1x, z2x, z3x), ypos)
+			#ypos = drawText(draw, "   Z1   Z2   Z3 ", ypos)
 
-			ypos = drawText(draw, "T {} {} {}".format(floatValue("ZONE1.TEMPERATURE", data), floatValue("ZONE2.TEMPERATURE", data), floatValue("ZONE3.TEMPERATURE", data)), 12, ypos)
-			ypos = drawText(draw, "H {} {} {}".format(floatValue("ZONE1.HUMIDITY", data), floatValue("ZONE2.HUMIDITY", data), floatValue("ZONE3.HUMIDITY", data)), 12, ypos)
+			ypos = drawText(draw, "T {} {} {}".format(floatValue("ZONE1.TEMPERATURE", data), floatValue("ZONE2.TEMPERATURE", data), floatValue("ZONE3.TEMPERATURE", data)), ypos)
+			ypos = drawText(draw, "H {} {} {}".format(floatValue("ZONE1.HUMIDITY", data), floatValue("ZONE2.HUMIDITY", data), floatValue("ZONE3.HUMIDITY", data)), ypos)
 
 			for i in range(1, 7):
 				drawTrigger(i, data, draw);
 
 		elif page == 1:
-			ypos = drawText(draw, data["INFO.NEXTSUN"], 12, ypos)
-			ypos = drawText(draw, "  ", 4, ypos)
-			ypos = drawText(draw, "CPU Load {}%".format(floatValue("PI.CPU_LOAD", data)), 12, ypos)
-			ypos = drawText(draw, "CPU Temp {}C".format(floatValue("PI.TEMPERATURE", data)), 12, ypos)
-			ypos = drawText(draw, "Mem Load {}%".format(floatValue("PI.MEM_LOAD", data)), 12, ypos)
-			ypos = drawText(draw, "SD Load  {}%".format(floatValue("PI.SD_LOAD", data)), 12, ypos)
+			ypos = drawText(draw, data["INFO.NEXTSUN"], ypos)
+			ypos = ypos + 4
+			ypos = drawText(draw, "CPU Load {}%".format(floatValue("PI.CPU_LOAD", data)), ypos)
+			ypos = drawText(draw, "CPU Temp {}C".format(floatValue("PI.TEMPERATURE", data)), ypos)
+			ypos = drawText(draw, "Mem Load {}%".format(floatValue("PI.MEM_LOAD", data)), ypos)
+			ypos = drawText(draw, "SD Load  {}%".format(floatValue("PI.SD_LOAD", data)), ypos)
 
 		else:
-			ypos = drawText(draw, "Coming soon...", 12, ypos)
+			ypos = drawText(draw, "Coming soon...", ypos)
 
 		now = datetime.datetime.now()
 		text = now.strftime("%Y-%m-%d %H:%M")
-		font = ImageFont.truetype(os.path.dirname(os.path.abspath(__file__))+"/../fonts/andalemo.ttf", 12)
-		(font_width, font_height) = font.getsize(text)
-		draw.text(((device.width/2 - font_width/2), device.height-2-font_height), text, fill="white", font=font, dither=False)
+		drawText(draw, text, ypos=device.height-8, size=8)
+def drawTest():
+	logger("testing")
+	ypos = 0;
+	with canvas(device) as draw:
+		draw.fontmode=1;
+		ypos = drawPrettyText(draw, "000-000-000", 16, ypos)
+		ypos = drawPrettyText(draw, "by", 8, ypos)
+		ypos = drawPrettyText(draw, "000.000.000.000", 12, ypos)
+
 
 def drawBoot():
 	logger("booting")
 	ypos = 0;
 	with canvas(device) as draw:
-		ypos = drawText(draw, "gStation", 16, ypos)
-		ypos = drawText(draw, "by", 8, ypos)
-		ypos = drawText(draw, "Tribal Rhino", 16, ypos)
-		ypos = drawText(draw, "  ", 24, ypos)
-		ypos = drawText(draw, "Starting up...", 12, ypos)
+		draw.fontmode=1;
+		ypos = drawPrettyText(draw, "gStation", 16, ypos)
+		ypos = drawPrettyText(draw, "by", 8, ypos)
+		ypos = drawPrettyText(draw, "Tribal Rhino", 16, ypos)
+		ypos = drawPrettyText(draw, "  ", 24, ypos)
+		ypos = drawPrettyText(draw, "Starting up...", 12, ypos)
 
-		now = datetime.datetime.now()
-		text = now.strftime("%Y-%m-%d %H:%M")
-		font = ImageFont.truetype(os.path.dirname(os.path.abspath(__file__))+"/../fonts/andalemo.ttf", 12)
-		(font_width, font_height) = font.getsize(text)
-		draw.text(((device.width/2 - font_width/2), device.height-2-font_height), text, fill="white", font=font, dither=False)
+		#now = datetime.datetime.now()
+		#text = now.strftime("%Y-%m-%d %H:%M")
+		#font = ImageFont.truetype(os.path.dirname(os.path.abspath(__file__))+"/../fonts/andalemo.ttf", 12)
+		#(font_width, font_height) = font.getsize(text)
+		#draw.text(((device.width/2 - font_width/2), device.height-2-font_height), text, fill="white", font=font, dither=False)
 
 
 def drawShutdown():
 	ypos = 0;
 	with canvas(device) as draw:
-		ypos = drawText(draw, "gStation", 16, ypos)
-		ypos = drawText(draw, "by", 8, ypos)
-		ypos = drawText(draw, "Tribal Rhino", 16, ypos)
-		ypos = drawText(draw, "  ", 12, ypos)
-		ypos = drawText(draw, "Shutting", 12, ypos)
-		ypos = drawText(draw, "Down...", 12, ypos)
+		ypos = drawPrettyText(draw, "gStation", 16, ypos)
+		ypos = drawPrettyText(draw, "by", 8, ypos)
+		ypos = drawPrettyText(draw, "Tribal Rhino", 16, ypos)
+		ypos = drawPrettyText(draw, "  ", 12, ypos)
+		ypos = drawPrettyText(draw, "Shutting", 12, ypos)
+		ypos = drawPrettyText(draw, "Down...", 12, ypos)
 
 		#now = datetime.datetime.now()
 		#text = now.strftime("%Y-%m-%d %H:%M")
@@ -216,7 +227,8 @@ def main():
 	btn.when_pressed = nextPage
 
 	drawBoot()
-	#time.sleep(5)
+	#drawTest()
+	time.sleep(3)
 
 	triggerfile = '/tmp/oled.json'
 	while not done:
@@ -244,8 +256,10 @@ def main():
 		time.sleep(0.5)
 
 	drawShutdown()
-	time.sleep(2)
-	os.system("sudo poweroff")
+	time.sleep(3)
+	device.clear()
+ 
+	#os.system("sudo poweroff")
 	sys.exit()
 
 #	while True:
