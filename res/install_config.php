@@ -25,12 +25,12 @@ $triggers [2]->type = "SSR"; // EMPTY, SSR, iSSR or LED           // Air-zone ve
 //$triggers [4]->type = "SSR"; // EMPTY, SSR, iSSR or LED
 //$triggers [5]->type = "SSR"; // EMPTY, SSR, iSSR or LED
 
-$triggers [0]->colour = "#c00";  // Dark red
-$triggers [1]->colour = "#fc0";  // Orange
-$triggers [2]->colour = "#ccc";  // Grey
-$triggers [3]->colour = "#ccc";  // Grey
-$triggers [4]->colour = "#ccc";  // Grey
-$triggers [5]->colour = "#ccc";  // Grey
+//$triggers [0]->colour = "#c00";  // Dark red
+//$triggers [1]->colour = "#fc0";  // Orange
+//$triggers [2]->colour = "#ccc";  // Grey
+//$triggers [3]->colour = "#ccc";  // Grey
+//$triggers [4]->colour = "#ccc";  // Grey
+//$triggers [5]->colour = "#ccc";  // Grey
 
 $conditions = [ ];
 $conditions [] = "T1 IF [[ZONE1.TEMPERATURE]] < [[DEMAND.TEMPERATURE]]";       // Root zone up to demanded temperature
