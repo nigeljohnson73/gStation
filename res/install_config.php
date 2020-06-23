@@ -1,4 +1,8 @@
 <?php
+// Update this to where you are and the name you want to see in the browser
+$local_timezone = "Europe/London";
+$loc = "GS0";
+
 // This is all the stuff that should go into the database configurator... plus probably some more... Later... Much... later.
 
 // Sensor zero is the PI itself.
@@ -8,6 +12,11 @@ $sensors [3]->type = "DHT22"; // EMPTY, DS18B20, DHT11 or DHT22   // Ambient (ZO
 //$sensors [4]->type = "DHT22"; // EMPTY, DS18B20, DHT11 or DHT22
 //$sensors [5]->type = "empty"; // EMPTY or MH-Z19B                // Carbon Dioxide monitor - once implemented (ZONE2)
 
+//$sensors [1]->colour = "#609";  // Purple
+//$sensors [2]->colour = "#00c";  // Dark blue
+//$sensors [3]->colour = "#66f";  // Blue
+//$sensors [4]->colour = "#99f";  // Light blue
+
 // Triggers start at zero
 $triggers [0]->type = "SSR"; // EMPTY, SSR, iSSR or LED           // Heater
 $triggers [1]->type = "SSR"; // EMPTY, SSR, iSSR or LED           // Lighting
@@ -15,6 +24,13 @@ $triggers [2]->type = "SSR"; // EMPTY, SSR, iSSR or LED           // Air-zone ve
 //$triggers [3]->type = "SSR"; // EMPTY, SSR, iSSR or LED
 //$triggers [4]->type = "SSR"; // EMPTY, SSR, iSSR or LED
 //$triggers [5]->type = "SSR"; // EMPTY, SSR, iSSR or LED
+
+$triggers [0]->colour = "#c00";  // Dark red
+$triggers [1]->colour = "#fc0";  // Orange
+$triggers [2]->colour = "#ccc";  // Grey
+$triggers [3]->colour = "#ccc";  // Grey
+$triggers [4]->colour = "#ccc";  // Grey
+$triggers [5]->colour = "#ccc";  // Grey
 
 $conditions = [ ];
 $conditions [] = "T1 IF [[ZONE1.TEMPERATURE]] < [[DEMAND.TEMPERATURE]]";       // Root zone up to demanded temperature
@@ -33,10 +49,19 @@ $graphs [] = "cpu_wait.PI";
 $graphs [] = "sd_load.PI";
 $graphs [] = "mem_load.PI";
 
-// Set this to the month and day you want the ramp to start on, for example 24th of January is 0124
+// If you're using DarkSky, this is where you configure the parameters
+// You can override the use of DarkSky with the parameters below, but you can also continue to collect data
+$darksky_key = "";
+$api_call_cap = 900;
+$lat = "-26.549711";
+$lng = "31.197664";
+$season_adjust_days = 0;
+$timeszone_adjust_hours = 0;
+
+// Set this to the month and day you want the ramp to start on, for example 23rd of January is 0123
 //$demand_solstice = "0000";
 
-// This config ill have an 18hr day for 14 days, then ramp down to 12 hours over the following 21 days. 
+// This config will have an 18hr day for 14 days, then ramp down to 12 hours over the following 21 days. 
 // There will be a small temp drop over the day length cycle as well
 //$demand = [ ];
 //$demand [] = ( object ) [
@@ -68,9 +93,20 @@ $graphs [] = "mem_load.PI";
 //	"night_humidity" => 40.5
 //];
 
-// Update this to where you are
-$local_timezone = "Europe/London";
-$loc = "GS0";
+// If you're using the envronmental simulation, this is where you configure the paramaters
+$summer_solstice = "0621";
+$day_temperature_summer = 27.5;
+$day_temperature_winter = 19.5;
+$night_temperature_summer = 21.5;
+$night_temperature_winter = 15.5;
+$sunset_winter = 21 + (00 / 60);
+$sunset_summer = 21 + (00 / 60);
+$daylight_summer = 16 + (30 / 60);
+$daylight_winter = 11 + (30 / 60);
+$night_humidity_winter = 60;
+$day_humidity_winter = 55;
+$night_humidity_summer = 50;
+$day_humidity_summer = 30;
 
 // If you're using bulksms for alerting, configure it here
 $bulksms_username = "YourUserName";
@@ -81,18 +117,4 @@ $bulksms_notify = "447000000000";
 // $bulksms_alert_sunset = true;
 // $bulksms_alert_tod = true;
 
-// If you're using the envronmental simulation, this is where you configure the paramaters
-$summer_solstice = "0621";
-$day_temperature_summer = 27.5;
-$day_temperature_winter = 22.5;
-$night_temperature_summer = 12.5;
-$night_temperature_winter = 11.5;
-$sunset_winter = 21 + (00 / 60);
-$sunset_summer = 21 + (00 / 60);
-$daylight_summer = 16 + (30 / 60);
-$daylight_winter = 11 + (30 / 60);
-$night_humidity_winter = 60;
-$day_humidity_winter = 55;
-$night_humidity_summer = 50;
-$day_humidity_summer = 30;
 ?>

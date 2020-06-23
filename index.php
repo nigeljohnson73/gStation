@@ -40,12 +40,12 @@ $mon = timestampFormat ( timestampNow (), "m" ); // 10;
   <link rel="icon" href="gfx/rhino.png">
   <link href="https://fonts.googleapis.com/css?family=Architects+Daughter|Lato&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
-  <link rel="stylesheet" href="css/app.<?php stylesheetPayload() ?>.css">
+  <link rel="stylesheet" href="css/app.<?php stylesheetPayload() ?>.css?t=<?php echo time() ?>">
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.8/angular.min.js"></script>
-<script src='js/app.<?php javascriptPayload() ?>.js'></script>
+  <script src='js/app.<?php javascriptPayload() ?>.js?t=<?php echo time() ?>'></script>
 </head>
 <body>
 	<div class="container-fluid">
@@ -75,6 +75,17 @@ Current environment: <?php print_r(json_decode(getConfig("env"))) ?></pre>
 		</div>
 	
 		<div class="col-sm-8 text-center">
+			<div class='colour-container'>
+<?php
+$cols = getAllColours();
+echo "<!--\n".ob_print_r($cols)."-->\n";
+foreach($cols as $k=>$v) {
+echo "				<div class='colour-holder'><div class='label'>$k</div><div class='colour' style='background-color:$v'>&nbsp;</div></div>\n";
+}
+
+?>
+			</div>
+
 			<?php
 			foreach($graphs as $g) {
 				list($what, $zone) = explode(".", $g);

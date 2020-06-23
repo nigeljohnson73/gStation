@@ -80,6 +80,38 @@ echo "Looking for '".$bit."'\n";
 	return $ret;
 }
 
+function getAllColours() {
+	global $sensors, $triggers;
+	$ret = array();
+
+	foreach($sensors as $x) {
+		if(isset($x->colour)) $ret[$x->name] = $x->colour;
+	}
+	foreach($triggers as $x) {
+		if(isset($x->colour)) $ret[$x->name] = $x->colour;
+	}
+	return $ret;
+}
+
+function getColour($name) {
+	global $sensors, $triggers;
+	$ret = null;
+
+	foreach($sensors as $x) {
+		if($ret == null && $x->name == $name) {
+			$ret = $x->colour;
+			//echo "Found '$name' (Sensor): '$ret'\n";
+		}
+	}
+	foreach($triggers as $x) {
+		if($ret == null && $x->name == $name) {
+			$ret = $x->colour;
+			//echo "Found '$name' (Trigger): '$ret'\n";
+		}
+	}
+	return $ret;
+}
+
 function drawMeasuredGraph($what, $zone) {
 	echo timestampFormat ( timestampNow (), "H:i:s" ) . ": drawMeasuredGraph(): started\n";
 
@@ -347,10 +379,18 @@ function drawTimeGraph($data, $legend, $nmajor_x, $nminor_x, $min_y, $max_y, $nm
 		// Process in the data graphPoints
 		$col_index = 0;
 		foreach ( $data as $leg => $trace ) {
+			$hex = getColour($leg);
+			(strlen($hex) === 4) 
+				? list($r,$g,$b) = sscanf('#'.implode('',array_map('str_repeat',str_split(str_replace('#','',$hex)), [2,2,2])), "#%02x%02x%02x") 
+				: list($r, $g, $b) = sscanf($hex, "#%2x%2x%2x");
+
+			$rgb = imagecolorallocate ( $im, $r, $g, $b );
+			// echo "Leg: '$leg', col: '$hex', r: $r, g: $g, b: $b\n";
 			foreach ( $trace as $k => $v ) {
 				$xv = (scaleVal ( $k, $min_x, $max_x ) * ($x - 2 * $border)) + $border;
 				$yv = $y - ((scaleVal ( $v, $min_y, $max_y ) * ($y - 2 * $border)) + $border);
-				graphPoint ( $im, $xv, $yv, $graph_cols [$col_index] );
+				//graphPoint ( $im, $xv, $yv, $graph_cols [$col_index] );
+				graphPoint ( $im, $xv, $yv, $rgb);
 				// graphPoint ( $im, $xv, $yvt, $red );
 			}
 			$col_index += 1;

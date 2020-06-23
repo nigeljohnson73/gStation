@@ -30,3 +30,18 @@ textarea.text-input {
 	font-family: Consolas, Monaco, Lucida Console, Liberation Mono,
 		DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace;
 }
+
+.colour-container {
+}
+.colour-holder {
+display:inline-block;
+margin: 0 auto;
+width:80px;
+padding-left:15px; 
+padding-right:15px; 
+padding-bottom:20px; 
+}
+
+.colour-container .label {
+color:#999;
+}

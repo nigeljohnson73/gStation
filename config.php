@@ -1,27 +1,32 @@
 <?php
 $local_timezone = "Europe/London"; // Where are you locally based for time references
-
+ 
 $sensor_age = 30; // sensor data older than this will be ignored
 $sensors = [ ];
 $sensors [] = ( object ) [
 		"name" => "PI", 
-		"type" => "PI"
+		"type" => "PI",
+		"colour" => "#cc0000"
 ];
 $sensors [] = ( object ) [
 		"name" => "ZONE1", // RZ Root zone
-		"type" => "EMPTY" // EMPTY, DS18B20, DHT11 or DHT22
+		"type" => "EMPTY", // EMPTY, DS18B20, DHT11 or DHT22
+		"colour" => "#609" // Purple
 ];
 $sensors [] = ( object ) [ 
 		"name" => "ZONE2", // AZ Generic air zone
-		"type" => "EMPTY" // EMPTY, DS18B20, DHT11 or DHT22
+		"type" => "EMPTY", // EMPTY, DS18B20, DHT11 or DHT22
+		"colour" => "#00c" // Dark Blue
 ];
 $sensors [] = ( object ) [ 
 		"name" => "ZONE3", // CZ Canopy zone
-		"type" => "EMPTY" // EMPTY, DS18B20, DHT11 or DHT22
+		"type" => "EMPTY", // EMPTY, DS18B20, DHT11 or DHT22
+		"colour" => "#66f" // Light blue
 ];
 $sensors [] = ( object ) [ 
 		"name" => "ZONE4", // LZ Lighting zone
-		"type" => "EMPTY" // EMPTY, DS18B20, DHT11 or DHT22
+		"type" => "EMPTY", // EMPTY, DS18B20, DHT11 or DHT22
+		"colour" => "#99f" // Very light blue
 ];
 $sensors [] = ( object ) [ // This is the 5th sensor for the CO2 monitor in the Air Zone (AZ)
 		"name" => "ZONE2", // Generic air zone
@@ -31,27 +36,33 @@ $sensors [] = ( object ) [ // This is the 5th sensor for the CO2 monitor in the 
 $triggers = [ ];
 $triggers [] = ( object ) [ 
 		"name" => "T1", // Generally used for heat
-		"type" => "EMPTY" // EMPTY, SSR, iSSR or LED
+		"type" => "EMPTY", // EMPTY, SSR, iSSR or LED
+		"colour" => "#c00" // Dark red
 ];
 $triggers [] = ( object ) [ 
 		"name" => "T2", // Generally used for light
-		"type" => "EMPTY" // EMPTY, SSR, iSSR or LED
+		"type" => "EMPTY", // EMPTY, SSR, iSSR or LED
+		"colour" => "#fc0" // Orange
 ];
 $triggers [] = ( object ) [ 
 		"name" => "T3",
-		"type" => "EMPTY" // EMPTY, SSR, iSSR or LED
+		"type" => "EMPTY", // EMPTY, SSR, iSSR or LED
+		"colour" => "#ccc"
 ];
 $triggers [] = ( object ) [ 
 		"name" => "T4",
-		"type" => "EMPTY" // EMPTY, SSR, iSSR or LED
+		"type" => "EMPTY", // EMPTY, SSR, iSSR or LED
+		"colour" => "#ccc"
 ];
 $triggers [] = ( object ) [ 
 		"name" => "T5",
-		"type" => "EMPTY" // EMPTY, SSR, iSSR or LED
+		"type" => "EMPTY", // EMPTY, SSR, iSSR or LED
+		"colour" => "#ccc"
 ];
 $triggers [] = ( object ) [ 
 		"name" => "T6",
-		"type" => "EMPTY" // EMPTY, SSR, iSSR or LED
+		"type" => "EMPTY", // EMPTY, SSR, iSSR or LED
+		"colour" => "#ccc"
 ];
 
 $conditions = [ ];

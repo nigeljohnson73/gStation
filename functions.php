@@ -751,7 +751,8 @@ function localJavascriptPayload() {
 }
 
 function javascriptPayload() {
-	if (isset ( $_GET ["packed"] ) || strtolower ( @ $_SERVER ['SERVER_NAME'] ) != "localhost") {
+	//if (isset ( $_GET ["packed"] ) || strtolower ( @ $_SERVER ['SERVER_NAME'] ) != "localhost") {
+	if (isset ( $_GET ["packed"] )) { // TODO: Fix this!!!
 		echo "packed";
 	} elseif (isset ( $_GET ["nocr"] )) {
 		echo "nocr";
@@ -761,7 +762,8 @@ function javascriptPayload() {
 }
 
 function stylesheetPayload() {
-	if (isset ( $_GET ["packed"] ) || strtolower ( @ $_SERVER ['SERVER_NAME'] ) != "localhost") {
+	//if (isset ( $_GET ["packed"] ) || strtolower ( @ $_SERVER ['SERVER_NAME'] ) != "localhost") {
+	if (isset ( $_GET ["packed"] )) { // TODO: Fix this!!!
 		echo "packed";
 	} elseif (isset ( $_GET ["nocr"] )) {
 		echo "nocr";
@@ -823,7 +825,8 @@ function includeDirectory($d, $ext = "php") {
 
 function compressJavascript($force = false, $debug = true) {
 	// return false;
-	if (@ strtolower ( $_SERVER ['SERVER_NAME'] ) == "localhost") {
+	//if (@ strtolower ( $_SERVER ['SERVER_NAME'] ) == "localhost") {
+	if (1) { // TODO: Fix this!!!
 		// Only perform this action if we are on the development server
 		// Production payload files will be updloaded from the dev sever
 
@@ -898,8 +901,10 @@ function compressJavascript($force = false, $debug = true) {
 }
 
 function compressStylesheet($force = false, $debug = true) {
+//echo "<!-- ".strtolower ( $_SERVER ['SERVER_NAME'])."-->\n";
 	// return false;
-	if (@ strtolower ( $_SERVER ['SERVER_NAME'] ) == "localhost") {
+	//if (@ strtolower ( $_SERVER ['SERVER_NAME'] ) == "localhost") {
+	if (1) { // TODO: Fix this!!!
 		// Only perform this action if we are on the development server
 		// Production payload files will be updloaded from the dev sever
 
@@ -926,6 +931,7 @@ function compressStylesheet($force = false, $debug = true) {
 		$css = "";
 		foreach ( $files as $file ) {
 			// Add the sub file to the main file
+			//echo "<!-- Adding CSS '$file' -->\n";
 			$css .= "\n" . trim ( file_get_contents ( $file ) );
 
 			// Check if the sub-file is newer and make for saving
