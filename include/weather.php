@@ -196,7 +196,7 @@
 // 	 * *************************************************************************************************************************************
 // 	 * Work with the temperature
 // 	 */
-// 	$demand_temperature = ($status == "DAY") ? ($data->temperatureHigh) : ($data->temperatureLow);
+// 	$demand_temperature = ($status == "DAY") ? ($data->temperatureDay) : ($data->temperatureNight);
 // 	setConfig ( "temperature_demand", $demand_temperature );
 
 // 	$lt = lastTemp ();

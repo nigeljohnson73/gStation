@@ -6,8 +6,8 @@ global $loc, $local_timezone;
 $legend = "Temperature Schedule";
 
 $arr = array (
-		"temperatureHigh",
-		"temperatureLow"
+		"temperatureDay",
+		"temperatureNight"
 );
 $data = getModeledDataFields ( $arr );
 

@@ -219,13 +219,15 @@ function darkSkyObj($data, $id = null) {
 
 	$tm = $dso->time;
 	$obj->cloudCover = firstOf ( $dso, "cloudCover" );
-	$obj->humidity = firstOf ( $dso, "humidity" );
+	// DarkSky does not differentiate a high and a low humidity :(
+	$obj->humidityDay = firstOf ( $dso, "humidity" );
+	$obj->humidityNight = firstOf ( $dso, "humidity" );
 	$obj->lunation = firstOf ( $dso, "moonPhase" );
 	$obj->pressure = firstOf ( $dso, "pressure" );
 	$obj->sunriseOffset = $dso->sunriseTime - $dso->time - $utcOffset;
 	$obj->sunsetOffset = $dso->sunsetTime - $dso->time - $utcOffset;
-	$obj->temperatureHigh = firstOf ( $dso, $temperature_high_labels );
-	$obj->temperatureLow = firstOf ( $dso, $temperature_low_labels );
+	$obj->temperatureDay = firstOf ( $dso, $temperature_high_labels );
+	$obj->temperatureNight = firstOf ( $dso, $temperature_low_labels );
 	$obj->daylightHours = ($obj->sunsetOffset - $obj->sunriseOffset) / 3600;
 	$obj->windSpeed = firstOf ( $dso, "windSpeed" );
 
@@ -391,10 +393,10 @@ function rebuildModelFromDemands() {
 	// for($i = 0; $i < 7; $i ++) {
 	for($i = 0; $i < 365; $i ++) {
 		$obj = new StdClass ();
-		$obj->temperatureHigh = $dtemp;
-		$obj->temperatureLow = $ntemp;
-		$obj->humidityHigh = $nhumd;
-		$obj->humidityLow = $dhumd;
+		$obj->temperatureDay = $dtemp;
+		$obj->temperatureNight = $ntemp;
+		$obj->humidityDay = $dhumd;
+		$obj->humidityNight = $nhumd;
 		$obj->sunsetOffset = $suns * (60 * 60);
 		$obj->sunriseOffset = ($suns - $dlen) * (60 * 60);
 		$obj->daylightHours = $dlen;
@@ -507,6 +509,10 @@ function rebuildModelFromDarkSky() {
 		foreach ( $store as $k => $v ) {
 			$v = averageObjectArray ( $v );
 
+			// Turn humidity into a percentage
+			$v->humidityDay *= 100;
+			$v->humidityNight *= 100;
+
 			// Alter the timeszone times
 			$time_offset = array (
 					"sunriseOffset",
@@ -544,7 +550,7 @@ function rebuildModelFromDarkSky() {
 					if (! isset ( $store [$pk] )) {
 						$store [$pk] = array ();
 					}
-					// if($k[0]=="0" && $k[1]=="1" && $pk == "temperatureHigh"){
+					// if($k[0]=="0" && $k[1]=="1" && $pk == "temperatureDay"){
 					// echo "Storing ".$pk."(".$k."): ".$val."\n";
 					// }
 					$store [$pk] [$k] = $val;
@@ -637,12 +643,12 @@ function rebuildModelFromSimulation() {
 
 		// Highest temps happen about 60 days after the solstice
 		global $solstice_temp_delta_days;
-		$obj->temperatureHigh = round ( $high_mid_temperature + $high_delta_temperature * cos ( deg2rad ( ($i - $solstice_temp_delta_days) * $deg_step ) ), 3 );
-		$obj->temperatureLow = round ( $low_mid_temperature + $low_delta_temperature * cos ( deg2rad ( ($i - $solstice_temp_delta_days) * $deg_step ) ), 3 );
+		$obj->temperatureDay = round ( $high_mid_temperature + $high_delta_temperature * cos ( deg2rad ( ($i - $solstice_temp_delta_days) * $deg_step ) ), 3 );
+		$obj->temperatureNight = round ( $low_mid_temperature + $low_delta_temperature * cos ( deg2rad ( ($i - $solstice_temp_delta_days) * $deg_step ) ), 3 );
 
 		// Humidity is also offset from the solstice
-		$obj->humidityHigh = round ( $high_mid_humidity + $high_delta_humidity * cos ( deg2rad ( 180 + ($i - $solstice_temp_delta_days) * $deg_step ) ), 3 );
-		$obj->humidityLow = round ( $low_mid_humidity + $low_delta_humidity * cos ( deg2rad ( 180 + ($i - $solstice_temp_delta_days) * $deg_step ) ), 3 );
+		$obj->humidityDay = round ( $high_mid_humidity + $high_delta_humidity * cos ( deg2rad ( 180 + ($i - $solstice_temp_delta_days) * $deg_step ) ), 3 );
+		$obj->humidityNight = round ( $low_mid_humidity + $low_delta_humidity * cos ( deg2rad ( 180 + ($i - $solstice_temp_delta_days) * $deg_step ) ), 3 );
 
 		// Daylength is the only real thing that is bount to the solstices
 		$obj->sunsetOffset = round ( ($sunset_mid_offset + $sunset_delta_offset * cos ( deg2rad ( $i * $deg_step ) )) * 3600, 3 );
@@ -662,6 +668,11 @@ function rebuildDataModel() {
 	$model = array ();
 
 	if (count ( $demand ) > 0) {
+		if ($darksky_key != "") {
+        		echo "Retrieving historic data from Dark Sky\n";
+        		global $force_api_history;
+        		getDarkSkyApiData ( $force_api_history );
+		}
 		$model = rebuildModelFromDemands ();
 	} else if ($darksky_key != "") {
 		$model = rebuildModelFromDarkSky ();
@@ -1704,11 +1715,12 @@ function tick() {
 	logger ( $ll, "tick(): " . $msg );
 
 	// $status = "DAY";
-	$hl = ($status == "DAY") ? ("High") : ("Low");
+	$hl = ($status == "DAY") ? ("Day") : ("Night");
 	$temp = "temperature" . $hl;
 	$humd = "humidity" . $hl;
 	$data ["DEMAND.LIGHT"] = "'" . (($status == 'DAY') ? ("SUN") : ("MOON")) . "'";
 	$data ["DEMAND.TEMPERATURE"] = round ( $model->$temp, 3 );
+	//echo "Humidity in model: ". $model->$humd."\n";
 	$data ["DEMAND.HUMIDITY"] = round ( $model->$humd, 3 );
 	$data ["DATA.HOUR"] = round ( $nowOffset / (60 * 60), 3 );
 	$data ["DATA.HR"] = floor ( $nowOffset / (60 * 60) );

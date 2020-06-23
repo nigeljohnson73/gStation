@@ -6,8 +6,8 @@ global $loc, $local_timezone;
 $legend = "Humidity Schedule";
 
 $arr = array (
-		"humidityHigh",
-		"humidityLow"
+		"humidityNight",
+		"humidityDay"
 );
 $data = getModeledDataFields ( $arr );
 
