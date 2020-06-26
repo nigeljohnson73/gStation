@@ -46,19 +46,20 @@ textarea.text-input {
 }
 
 .sensor-holder {
-	width:140px;
+	width:120px;
 	border: solid 1px #ccc;
 	border-radius:10px;
 }
 .sensor-holder .sensor .label, .sensor-holder .sensor .value {
 	display:inline-block;
-	width:50%;
 }
 .sensor-holder .sensor .label {
+	width:45%;
 	text-align:right;
 	color:#d0d0d0;
 }
 .sensor-holder .sensor .value {
+	width:55%;
 	text-align:left;
 }
 .colour-container .label, .trigger-container .label, .sensor-container .label {
