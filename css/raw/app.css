@@ -30,18 +30,34 @@ textarea.text-input {
 		DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace;
 }
 
-.colour-container {
+.colour-container, .trigger-container, .sensor-container {
+	text-align:center;
+	vertical-align:top;
 }
-.colour-holder {
-display:inline-block;
-margin: 0 auto;
-width:80px;
-padding-left:15px; 
-padding-right:15px; 
-padding-bottom:20px; 
+.colour-holder, .trigger-holder, .sensor-holder {
+	display:inline-block;
+	margin: 0 auto;
+	width:80px;
+	padding-left:15px; 
+	padding-right:15px; 
+	padding-bottom:20px; 
 }
 
-.colour-container .label {
-color:#999;
+.sensor-holder {
+	width:140px;
+	border: solid 1px #ccc;
+}
+.sensor-holder .sensor .label, .sensor-holder .sensor .value {
+	display:inline-block;
+	width:50%;
+}
+.sensor-holder .sensor .label {
+	text-align:right;
+}
+.sensor-holder .sensor .value {
+	text-align:left;
+}
+.colour-container .label, .trigger-container .label, .sensor-container .label {
+	color:#999;
 }
 

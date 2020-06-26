@@ -57,6 +57,67 @@ $fn = getSnapshotFile();
 if($fn) {
 echo "<a href='".getSnapshotUrl()."' target='liveStream'><img  src='/gfx/snapshot.php' alt='Video capture snapshot' class='img-thumbnail' style='margin-bottom:8px; margin-right:5px;' /></a>\n";
 }
+
+function getSensorData($env) {
+	global $sensors;
+	$labels = array("TEMPERATURE" => "Temp", "HUMIDITY" => "RH", "CPU_LOAD" => "CPU", "MEM_LOAD"=>"MEM", "SD_LOAD"=>"SD");
+	$units = array("TEMPERATURE" => "C", "HUMIDITY" => "%", "CPU_LOAD" => "%", "MEM_LOAD"=>"%", "SD_LOAD"=>"%");
+// TODO: Think of a better way of makking thises madatory - use the seosnr type fields??
+// 	$labels = array("TEMPERATURE" => "Temp", "HUMIDITY" => "RH");
+// 	$units = array("TEMPERATURE" => "°", "HUMIDITY" => "%");
+	
+	$ret = array();
+	$env=(array)$env;
+	foreach($sensors as $s) {
+		$n = $s->name;
+		foreach($labels as $k => $v) {
+			$ek = $n.".".$k;
+			if(isset($env[$ek])) {
+				$value = $env[$ek];
+				if(is_numeric($value)) {
+					$value = number_format($value, 2);
+				}
+				//echo "$n.$k is '".$value."\n";
+				$ret[$n][$v]= $value.$units[$k];
+				
+			} else {
+				//echo "'$ek' is not set\n";
+				$ret[$n][$v]= "--";
+			}
+		}
+	}
+
+	//print_r($ret);
+	return $ret;
+}
+
+$env = json_decode(getConfig("env"));
+// echo "<pre>";
+$sd = getSensorData($env);
+// echo "</pre>";
+
+echo "<div class='trigger-container'>\n";
+foreach($sd as $k => $v) {
+	echo "				<div class='sensor-holder'><div class='label'>".$k."</div>";
+	foreach($v as $l => $s) {
+		echo "<div class='sensor'><div class='label'>$l:</div><div class='value'>$s</div></div>";
+	}
+	echo "</div>\n";
+}
+echo "</div>\n";
+
+echo "<div class='trigger-container'>\n";
+foreach($triggers as $t) {
+	if(isset(((array)$env)["TRIGGER.".$t->name])) {
+		$val = ((array)$env)["TRIGGER.".$t->name];
+		$col = $val ? "#0f0" : "#030";
+	} else {
+		$col = "#ccc";
+	}
+	echo "				<div class='trigger-holder'><div class='label'>".$t->name."</div><div class='trigger' style='background-color:$col'>&nbsp;</div></div>\n";
+}
+
+echo "</div>\n";
 ?>
 				<pre><?php
 					echo "Processing environment at " . timestampFormat ( timestampNow (), "Y-m-d\TH:i:s T" ) . "\n";
@@ -77,11 +138,11 @@ Current environment: <?php print_r(json_decode(getConfig("env"))) ?></pre>
 		<div class="col-sm-8 text-center">
 			<div class='colour-container'>
 <?php
-$cols = getAllGraphColours();
-echo "<!--\n".ob_print_r($cols)."-->\n";
-foreach($cols as $k=>$v) {
-echo "				<div class='colour-holder'><div class='label'>$k</div><div class='colour' style='background-color:$v'>&nbsp;</div></div>\n";
-}
+				$cols = getAllGraphColours();
+				echo "<!--\n".ob_print_r($cols)."-->\n";
+				foreach($cols as $k=>$v) {
+					echo "				<div class='colour-holder'><div class='label'>$k</div><div class='colour' style='background-color:$v'>&nbsp;</div></div>\n";
+				}
 
 ?>
 			</div>
