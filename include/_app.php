@@ -1891,7 +1891,7 @@ function getAllGraphColours() {
 }
 
 function getGraphColour($name) {
-	echo ("getGraphColour('$name')\n");
+	//echo ("getGraphColour('$name')\n");
 	global $sensors, $triggers;
 
 	if ($name == "temperatureDay") {

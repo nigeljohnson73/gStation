@@ -36,7 +36,7 @@ function getLocalMeasurements_orig($what, $name) {
 }
 
 function getLocalMeasurements($what, $name) {
-	echo "getLocalMeasurements('$what', '$name'): Started\n";
+	//echo "getLocalMeasurements('$what', '$name'): Started\n";
 	$ret = null;
 	global $mysql;
 	$where = "name = '$name'";
@@ -50,7 +50,7 @@ function getLocalMeasurements($what, $name) {
 		if(count($arr)) {
 			$bit = trim ( $arr[1] );
 		}
-		echo "Looking for '".$bit."'\n";
+		//echo "Looking for '".$bit."'\n";
 		if (in_array(strtolower ( $what ), array("trigger", "triggers"))) {
 			$mult = ($bit[1] + 0)*(1/(count($bits)+1));//($bit[1] + 0)*0.2;
 			//$sqls [strtolower ( $obit )] = "SELECT event, param as 'name', (value*".$mult.") as value FROM triggers WHERE param = '" . $bit . "' AND value > 0.5";
