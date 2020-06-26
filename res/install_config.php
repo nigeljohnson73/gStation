@@ -12,6 +12,13 @@ $sensors [3]->type = "DHT22"; // EMPTY, DS18B20, DHT11 or DHT22   // Ambient (ZO
 //$sensors [4]->type = "DHT22"; // EMPTY, DS18B20, DHT11 or DHT22
 //$sensors [5]->type = "empty"; // EMPTY or MH-Z19B                // Carbon Dioxide monitor - once implemented (ZONE2)
 
+// Set Graph and data labels
+// $sensors [1]->label = "ZONE1";
+// $sensors [2]->label = "ZONE2";
+// $sensors [3]->label = "ZONE3";
+// $sensors [4]->label = "ZONE4";
+
+// Set Graph golours
 //$sensors [1]->colour = "#609";  // Purple
 //$sensors [2]->colour = "#00c";  // Dark blue
 //$sensors [3]->colour = "#66f";  // Blue
@@ -25,6 +32,15 @@ $triggers [2]->type = "SSR"; // EMPTY, SSR, iSSR or LED           // Air-zone ve
 //$triggers [4]->type = "SSR"; // EMPTY, SSR, iSSR or LED
 //$triggers [5]->type = "SSR"; // EMPTY, SSR, iSSR or LED
 
+// Set Graph and data labels
+// $triggers [0]->label = "T1";
+// $triggers [1]->label = "T2";
+// $triggers [2]->label = "T3";
+// $triggers [3]->label = "T4";
+// $triggers [4]->label = "T5";
+// $triggers [5]->label = "T6";
+
+// Set Graph golours
 //$triggers [0]->colour = "#c00";  // Dark red
 //$triggers [1]->colour = "#fc0";  // Orange
 //$triggers [2]->colour = "#ccc";  // Grey

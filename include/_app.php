@@ -1872,10 +1872,10 @@ function getAllGraphColours() {
 	$ret = array();
 
 	foreach($sensors as $x) {
-		if(isset($x->colour)) $ret[$x->name] = $x->colour;
+		if(isset($x->colour)) $ret[$x->label] = $x->colour;
 	}
 	foreach($triggers as $x) {
-		if(isset($x->colour)) $ret[$x->name] = $x->colour;
+		if(isset($x->colour)) $ret[$x->label] = $x->colour;
 	}
 	return $ret;
 }

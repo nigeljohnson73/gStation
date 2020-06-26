@@ -69,20 +69,24 @@ function getSensorData($env) {
 	$ret = array();
 	$env=(array)$env;
 	foreach($sensors as $s) {
+// 		print_r($s);
 		$n = $s->name;
-		foreach($labels as $k => $v) {
-			$ek = $n.".".$k;
-			if(isset($env[$ek])) {
-				$value = $env[$ek];
-				if(is_numeric($value)) {
-					$value = number_format($value, 2);
+		$l = isset($s->label)?$s->label:$s->name;
+		if(isset($s->label)) { // This is a git because sensor5 uses zone 2 again :(
+			foreach($labels as $k => $v) {
+				$ek = $n.".".$k;
+				if(isset($env[$ek])) {
+					$value = $env[$ek];
+					if(is_numeric($value)) {
+						$value = number_format($value, 2);
+					}
+					//echo "$n.$k is '".$value."\n";
+					$ret[$l][$v]= $value.$units[$k];
+					
+				} else {
+					//echo "'$ek' is not set\n";
+					$ret[$l][$v]= "--";
 				}
-				//echo "$n.$k is '".$value."\n";
-				$ret[$n][$v]= $value.$units[$k];
-				
-			} else {
-				//echo "'$ek' is not set\n";
-				$ret[$n][$v]= "--";
 			}
 		}
 	}
@@ -114,7 +118,7 @@ foreach($triggers as $t) {
 	} else {
 		$col = "#ccc";
 	}
-	echo "				<div class='trigger-holder'><div class='label'>".$t->name."</div><div class='trigger' style='background-color:$col'>&nbsp;</div></div>\n";
+	echo "				<div class='trigger-holder'><div class='label'>".$t->label."</div><div class='trigger' style='background-color:$col'>&nbsp;</div></div>\n";
 }
 
 echo "</div>\n";
