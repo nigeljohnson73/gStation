@@ -1867,4 +1867,60 @@ function tick() {
 	setConfig ( "env", json_encode ( $data ) );
 }
 
+function getAllGraphColours() {
+	global $sensors, $triggers;
+	$ret = array();
+
+	foreach($sensors as $x) {
+		if(isset($x->colour)) $ret[$x->name] = $x->colour;
+	}
+	foreach($triggers as $x) {
+		if(isset($x->colour)) $ret[$x->name] = $x->colour;
+	}
+	return $ret;
+}
+
+function getGraphColour($name) {
+	echo("getGraphColour('$name')\n");
+	global $sensors, $triggers;
+
+	if($name== "temperatureDay") {
+		return "#090";
+	}
+	if($name== "temperatureNight") {
+		return "#609";
+	}
+	if($name== "humidityDay") {
+		return "#090";
+	}
+	if($name== "humidityNight") {
+		return "#609";
+	}
+	if($name== "sunriseOffset") {
+		return "#f60";
+	}
+	if($name== "sunsetOffset") {
+		return "#609";
+	}
+	if($name== "daylightHours") {
+		return "#fa6";
+	}
+
+	$ret = null;
+	foreach($sensors as $x) {
+		if($ret == null && $x->name == $name) {
+			$ret = $x->colour;
+			//echo "Found '$name' (Sensor): '$ret'\n";
+		}
+	}
+	foreach($triggers as $x) {
+		if($ret == null && $x->name == $name) {
+			$ret = $x->colour;
+			//echo "Found '$name' (Trigger): '$ret'\n";
+		}
+	}
+	return $ret;
+}
+
+
 ?>

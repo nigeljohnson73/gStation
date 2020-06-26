@@ -49,7 +49,7 @@ function getLocalMeasurements($what, $name) {
 		if(count($arr)) {
 			$bit = trim ( $arr[1] );
 		}
-echo "Looking for '".$bit."'\n";
+		//echo "Looking for '".$bit."'\n";
 		if (in_array(strtolower ( $what ), array("trigger", "triggers"))) {
 			$mult = ($bit[1] + 0)*(1/(count($bits)+1));//($bit[1] + 0)*0.2;
 			//$sqls [strtolower ( $obit )] = "SELECT event, param as 'name', (value*".$mult.") as value FROM triggers WHERE param = '" . $bit . "' AND value > 0.5";
@@ -80,36 +80,10 @@ echo "Looking for '".$bit."'\n";
 	return $ret;
 }
 
-function getAllColours() {
-	global $sensors, $triggers;
-	$ret = array();
-
-	foreach($sensors as $x) {
-		if(isset($x->colour)) $ret[$x->name] = $x->colour;
+if(!function_exists("getGraphColour")) {
+	function getGraphColour($name) {
+		return null;
 	}
-	foreach($triggers as $x) {
-		if(isset($x->colour)) $ret[$x->name] = $x->colour;
-	}
-	return $ret;
-}
-
-function getColour($name) {
-	global $sensors, $triggers;
-	$ret = null;
-
-	foreach($sensors as $x) {
-		if($ret == null && $x->name == $name) {
-			$ret = $x->colour;
-			//echo "Found '$name' (Sensor): '$ret'\n";
-		}
-	}
-	foreach($triggers as $x) {
-		if($ret == null && $x->name == $name) {
-			$ret = $x->colour;
-			//echo "Found '$name' (Trigger): '$ret'\n";
-		}
-	}
-	return $ret;
 }
 
 function drawMeasuredGraph($what, $zone) {
@@ -272,9 +246,18 @@ function drawTimeGraph($data, $legend, $nmajor_x, $nminor_x, $min_y, $max_y, $nm
 	$bp_purple = imagecolorallocate ( $im, 0x66, 0x00, 0x99 );
 	$yellow = imagecolorallocate ( $im, 0xff, 0xff, 0x00 );
 	$orange = imagecolorallocate ( $im, 0xff, 0x99, 0xaa );
-	$lorange = imagecolorallocate ( $im, 0xff, 0xaa, 0xcc );
+	$lorange = imagecolorallocate ( $im, 0xff, 0xaa, 0x66 );
 	$red = imagecolorallocate ( $im, 0xff, 0x00, 0x00 );
 	$light_blue = imagecolorallocate ( $im, 0x66, 0x66, 0xff );
+
+	//$bp_dark_green = "#090";
+	//$bp_lime_green = "#9c0";
+	//$bp_purple = "#609";
+	//$yellow = "#ff0";
+	//$orange = #f9a";
+	//$lorange = "f9a";
+	//$red = "#f00";
+	//$light_blue = "#66f";
 
 	$graph_cols = array (
 			$bp_dark_green,
@@ -379,12 +362,19 @@ function drawTimeGraph($data, $legend, $nmajor_x, $nminor_x, $min_y, $max_y, $nm
 		// Process in the data graphPoints
 		$col_index = 0;
 		foreach ( $data as $leg => $trace ) {
-			$hex = getColour($leg);
-			(strlen($hex) === 4) 
-				? list($r,$g,$b) = sscanf('#'.implode('',array_map('str_repeat',str_split(str_replace('#','',$hex)), [2,2,2])), "#%02x%02x%02x") 
-				: list($r, $g, $b) = sscanf($hex, "#%2x%2x%2x");
+			$hex = getGraphColour($leg);
+			if($hex == null) {
+				$rgb = $graph_cols[$col_index];
 
-			$rgb = imagecolorallocate ( $im, $r, $g, $b );
+			} else {
+				(strlen($hex) === 4) 
+					? list($r,$g,$b) = sscanf('#'.implode('',array_map('str_repeat',str_split(str_replace('#','',$hex)), [2,2,2])), "#%02x%02x%02x") 
+					: list($r, $g, $b) = sscanf($hex, "#%2x%2x%2x");
+
+				$rgb = imagecolorallocate ( $im, $r, $g, $b );
+			}
+
+
 			// echo "Leg: '$leg', col: '$hex', r: $r, g: $g, b: $b\n";
 			foreach ( $trace as $k => $v ) {
 				$xv = (scaleVal ( $k, $min_x, $max_x ) * ($x - 2 * $border)) + $border;

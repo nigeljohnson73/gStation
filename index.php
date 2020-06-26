@@ -77,7 +77,7 @@ Current environment: <?php print_r(json_decode(getConfig("env"))) ?></pre>
 		<div class="col-sm-8 text-center">
 			<div class='colour-container'>
 <?php
-$cols = getAllColours();
+$cols = getAllGraphColours();
 echo "<!--\n".ob_print_r($cols)."-->\n";
 foreach($cols as $k=>$v) {
 echo "				<div class='colour-holder'><div class='label'>$k</div><div class='colour' style='background-color:$v'>&nbsp;</div></div>\n";

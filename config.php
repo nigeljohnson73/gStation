@@ -140,7 +140,7 @@ $loc = "gStationDev"; // Just to give it a name in the browser could be the name
 
 $season_adjust_days = 0; // If you want to move forward in the season, add this many days to the actual forcast. if set to 31, Real January 1 will be like February 1 at your location.
 $timeszone_adjust_hours = 0; // If you want to move forward in the day (because your location is suitably ahead of you) add this many hours. If set to 2, Real 07:30 will be like 09:30 at your location.
-$yr_history = 25; // How many years to go back for historic data. The further back the smoother 'today' will be but more processing and database is required for the data model.
+$yr_history = 50; // How many years to go back for historic data. The further back the smoother 'today' will be but more processing and database is required for the data model.
 $force_api_history = 5; // Forecast data is replaced with historic data over the few days after it happened, this flag will force API calls based on this number of days
 $smoothing_days = 15; // Used to smooth the measurement data even more than history alone. Used as a sliding +/- window from 'today' 2n+1 points are used to calculate 'today'
 $smoothing_loops = 3; // Using more loops is much more computationally intensive, but yeilds a much smoother outcome

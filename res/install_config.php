@@ -95,6 +95,7 @@ $timeszone_adjust_hours = 0;
 
 // If you're using the envronmental simulation, this is where you configure the paramaters
 $summer_solstice = "0621";
+$solstice_temp_delta_days = 60;
 $day_temperature_summer = 27.5;
 $day_temperature_winter = 19.5;
 $night_temperature_summer = 21.5;
