@@ -60,8 +60,9 @@ echo "<a href='".getSnapshotUrl()."' target='liveStream'><img  src='/gfx/snapsho
 
 function getSensorData($env) {
 	global $sensors;
-	$labels = array("TEMPERATURE" => "Temp", "HUMIDITY" => "RH", "CPU_LOAD" => "CPU", "MEM_LOAD"=>"MEM", "SD_LOAD"=>"SD");
-	$units = array("TEMPERATURE" => "C", "HUMIDITY" => "%", "CPU_LOAD" => "%", "MEM_LOAD"=>"%", "SD_LOAD"=>"%");
+
+	$labels = array("TEMPERATURE" => "Temp", "HUMIDITY" => "RH", "LIGHT"=>"LIGHT", "CPU_LOAD" => "CPU", "MEM_LOAD"=>"MEM", "SD_LOAD"=>"SD");
+	$units = array("TEMPERATURE" => "C", "HUMIDITY" => "%", "LIGHT"=>"", "CPU_LOAD" => "%", "MEM_LOAD"=>"%", "SD_LOAD"=>"%");
 // TODO: Think of a better way of makking thises madatory - use the seosnr type fields??
 // 	$labels = array("TEMPERATURE" => "Temp", "HUMIDITY" => "RH");
 // 	$units = array("TEMPERATURE" => "°", "HUMIDITY" => "%");

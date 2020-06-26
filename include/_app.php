@@ -1,22 +1,22 @@
 <?php
+
 function getSnapshotUrl() {
-        $host = $_SERVER['HTTP_HOST'];
-        return "http://".$host.":8081/?action=stream";
+	$host = $_SERVER ['HTTP_HOST'];
+	return "http://" . $host . ":8081/?action=stream";
 }
 
 function getSnapshotFile() {
-        $fn = "/logs/gcam_snapshot.jpg";
-        if(file_exists($fn)){
-                $ftime = filemtime($fn);
-                $now = time();
-                $live = 5*60;
-                if(($now - $ftime) <= $live) {
-                        return $fn;
-                }
-        }
-        return false;
+	$fn = "/logs/gcam_snapshot.jpg";
+	if (file_exists ( $fn )) {
+		$ftime = filemtime ( $fn );
+		$now = time ();
+		$live = 5 * 60;
+		if (($now - $ftime) <= $live) {
+			return $fn;
+		}
+	}
+	return false;
 }
-
 
 $tables_setup = false;
 
@@ -669,9 +669,9 @@ function rebuildDataModel() {
 
 	if (count ( $demand ) > 0) {
 		if ($darksky_key != "") {
-        		echo "Retrieving historic data from Dark Sky\n";
-        		global $force_api_history;
-        		getDarkSkyApiData ( $force_api_history );
+			echo "Retrieving historic data from Dark Sky\n";
+			global $force_api_history;
+			getDarkSkyApiData ( $force_api_history );
 		}
 		$model = rebuildModelFromDemands ();
 	} else if ($darksky_key != "") {
@@ -857,10 +857,10 @@ function overlay($type) {
 		case "LED" :
 			$ret = "pi3-act-led";
 			break;
-//		case "DHT11" :
-//		case "DHT22" :
-//			$ret = "dht11";
-//			break;
+		// case "DHT11" :
+		// case "DHT22" :
+		// $ret = "dht11";
+		// break;
 	}
 
 	return $ret;
@@ -892,15 +892,23 @@ function triggerDefaultState($type) {
 }
 
 function isGpio($type) {
-	$ret = true;
+	// $ret = true;
+	$ret = false;
 
 	switch ($type) {
-		case "PI" :
-		case "EMPTY" :
-		case "DHT11" :
-		case "DHT22" :
-		case "MH-Z19B" :
-			$ret = false;
+		// case "PI" :
+		// case "EMPTY" :
+		// case "DEMAND" :
+		// case "DHT11" :
+		// case "DHT22" :
+		// case "MH-Z19B" :
+		// $ret = false;
+		// break;
+		case "DS18B20" : // The only sensor that has an overlay (it's the 1-wire)
+		case "SSR" : // All trigger types
+		case "iSSR" :
+		case "LED" :
+			$ret = true;
 			break;
 	}
 
@@ -1015,67 +1023,67 @@ function readSensorRaw_DHT11($sensor) {
 	$ret = new StdClass ();
 	global $outlier_temperature_min, $outlier_temperature_max, $outlier_humidity_min, $outlier_humidity_max;
 
-		$output = null;
-		$retvar = 0;
-		$cmd = "/webroot/gStation/sh/DHTXXD -g".$sensor->pin." 2>&1";
-		$val = null;
+	$output = null;
+	$retvar = 0;
+	$cmd = "/webroot/gStation/sh/DHTXXD -g" . $sensor->pin . " 2>&1";
+	$val = null;
 
-		$retry_count = 0;
-		$retry_limit = 5;
-		$retry = false;
-		do {
-			if ($retry) {
-				//$sleep_ms = mt_rand(2250,5000);
-				$sleep_ms = 500;
-				echo ("Read $retry_count failed, pausing for ".$sleep_ms."ms and retrying\n");
-				usleep($sleep_ms * 1000);
-			}
-			$retry_count = $retry_count + 1;
-			$retry = true;
-
-			exec ( $cmd, $output, $retvar );
-			@list($err, $temp, $humidity) = explode(" ", $output[0]);
-			if($err == 0) {
-				echo "Got zero error status. T: ".$temp.", H: ".$humidity."\n";
-				$ret->temperature = $temp;
-				$ret->humidity = $humidity;
-				$val = true;
-			} else {
-				echo "Got a non-zero error code: ".$err."\n";
-			}
-/*
-			if (strlen ( $output [0] ) == 5) {
-				echo ("Got correct character count '" . $output [0] . "'\n");
-				if (is_numeric ( $output [0] )) {
-					echo ("Integer conversion works\n");
-					$val = (( double ) $output [0]) / 1000.00;
-					$olmax = "outlier_" . ($e->name) . "_max";
-					$olmin = "outlier_" . ($e->name) . "_min";
-					if ($$olmin != "" && $val < $olmin) {
-						$msg = ($e - name . " reading of " . $val . " is out of tolerance (< " . ($$olmin) . ")\n");
-						echo $msg;
-						logger ( LL_WARNING, $msg );
-						$val = null;
-					} elseif ($$olmax != "" && $val < $olmax) {
-						$msg = ($e - name . " reading of " . $val . " is out of tolerance (> " . ($$olmax) . ")\n");
-						echo $msg;
-						logger ( LL_WARNING, $msg );
-						$val = null;
-					}
-				} else {
-					echo ("Integer conversion failed '" . $output [0] . "'\n");
-				}
-			} else {
-				echo ("Got incorrect character count:\n" . ob_print_r ( $output ) . "\n");
-			}
-*/
-			$output = null;
-		} while ( $val == null && $retry_count < $retry_limit );
-
-		if ($val == null) {
-			echo "Read sensor failed.\n";
-			return null;
+	$retry_count = 0;
+	$retry_limit = 5;
+	$retry = false;
+	do {
+		if ($retry) {
+			// $sleep_ms = mt_rand(2250,5000);
+			$sleep_ms = 500;
+			echo ("Read $retry_count failed, pausing for " . $sleep_ms . "ms and retrying\n");
+			usleep ( $sleep_ms * 1000 );
 		}
+		$retry_count = $retry_count + 1;
+		$retry = true;
+
+		exec ( $cmd, $output, $retvar );
+		@list ( $err, $temp, $humidity ) = explode ( " ", $output [0] );
+		if ($err == 0) {
+			echo "Got zero error status. T: " . $temp . ", H: " . $humidity . "\n";
+			$ret->temperature = $temp;
+			$ret->humidity = $humidity;
+			$val = true;
+		} else {
+			echo "Got a non-zero error code: " . $err . "\n";
+		}
+		/*
+		 * if (strlen ( $output [0] ) == 5) {
+		 * echo ("Got correct character count '" . $output [0] . "'\n");
+		 * if (is_numeric ( $output [0] )) {
+		 * echo ("Integer conversion works\n");
+		 * $val = (( double ) $output [0]) / 1000.00;
+		 * $olmax = "outlier_" . ($e->name) . "_max";
+		 * $olmin = "outlier_" . ($e->name) . "_min";
+		 * if ($$olmin != "" && $val < $olmin) {
+		 * $msg = ($e - name . " reading of " . $val . " is out of tolerance (< " . ($$olmin) . ")\n");
+		 * echo $msg;
+		 * logger ( LL_WARNING, $msg );
+		 * $val = null;
+		 * } elseif ($$olmax != "" && $val < $olmax) {
+		 * $msg = ($e - name . " reading of " . $val . " is out of tolerance (> " . ($$olmax) . ")\n");
+		 * echo $msg;
+		 * logger ( LL_WARNING, $msg );
+		 * $val = null;
+		 * }
+		 * } else {
+		 * echo ("Integer conversion failed '" . $output [0] . "'\n");
+		 * }
+		 * } else {
+		 * echo ("Got incorrect character count:\n" . ob_print_r ( $output ) . "\n");
+		 * }
+		 */
+		$output = null;
+	} while ( $val == null && $retry_count < $retry_limit );
+
+	if ($val == null) {
+		echo "Read sensor failed.\n";
+		return null;
+	}
 
 	return $ret;
 }
@@ -1095,11 +1103,11 @@ function readSensorRaw_DHT11_orig($sensor) {
 		$retry = false;
 		do {
 			if ($retry) {
-				$sleep_ms = mt_rand(2250,5000);
-				echo ("Read $retry_count failed, pausing for ".$sleep_ms."ms and retrying\n");
-				usleep($sleep_ms * 1000);
-				//usleep(2250000); // 2.25 seconds
-				//sleep(5);
+				$sleep_ms = mt_rand ( 2250, 5000 );
+				echo ("Read $retry_count failed, pausing for " . $sleep_ms . "ms and retrying\n");
+				usleep ( $sleep_ms * 1000 );
+				// usleep(2250000); // 2.25 seconds
+				// sleep(5);
 			}
 			$retry_count = $retry_count + 1;
 			$retry = true;
@@ -1377,7 +1385,7 @@ function readSensor($i) {
 	$pin = @$sensor->pin;
 	$func = "readSensorRaw_" . str_replace ( "-", "_", $sensor->type );
 
-	if ($type == "EMPTY" || $pin == 99) {
+	if ($type == "EMPTY" || $type == "DEMAND" || $pin == 99) {
 		echo ("Sensor slot #" . $i . " is not configured - endless looping required\n");
 		while ( true ) {
 			// Endless loop
@@ -1720,7 +1728,7 @@ function tick() {
 	$humd = "humidity" . $hl;
 	$data ["DEMAND.LIGHT"] = "'" . (($status == 'DAY') ? ("SUN") : ("MOON")) . "'";
 	$data ["DEMAND.TEMPERATURE"] = round ( $model->$temp, 3 );
-	//echo "Humidity in model: ". $model->$humd."\n";
+	// echo "Humidity in model: ". $model->$humd."\n";
 	$data ["DEMAND.HUMIDITY"] = round ( $model->$humd, 3 );
 	$data ["DATA.HOUR"] = round ( $nowOffset / (60 * 60), 3 );
 	$data ["DATA.HR"] = floor ( $nowOffset / (60 * 60) );
@@ -1733,7 +1741,7 @@ function tick() {
 
 	echo "\nGathering sensor data\n";
 	$sensors = gatherSensors ();
-	$ages = array();
+	$ages = array ();
 	foreach ( $sensors as $s ) {
 		$name = $s->name;
 		$param = $s->param;
@@ -1743,8 +1751,8 @@ function tick() {
 		$ages [strtoupper ( $name )] = $age;
 	}
 
-	//echo "\nEnvironmental data:\n";
-	//print_r ( $data );
+	// echo "\nEnvironmental data:\n";
+	// print_r ( $data );
 
 	// Now we get the triggers and see what we need to set
 
@@ -1770,8 +1778,8 @@ function tick() {
 			if (isset ( $fires [$k] )) {
 				$eval = '$fire = (' . $expr . ')?(highValue($fires[$k]->type)):(lowValue($fires[$k]->type));';
 				eval ( $eval );
-				$fires[$k]->demand = ($fire)?($fire):($fires[$k]->demand);
-				echo (($fire)?("FIRED"):("-----")).": ". $k . " = (" . $expr . ")?(1):(0); // ".$oc."\n";
+				$fires [$k]->demand = ($fire) ? ($fire) : ($fires [$k]->demand);
+				echo (($fire) ? ("FIRED") : ("-----")) . ": " . $k . " = (" . $expr . ")?(1):(0); // " . $oc . "\n";
 			} else {
 				echo "Skipping damaged condition - Trigger '" . $k . "' not found (" . $oc . ")\n";
 			}
@@ -1819,8 +1827,8 @@ function tick() {
 		} elseif ($what == "INFO") {
 			// We know about it, but we can ignore it
 		} else {
-			$age = isset($ages[$what])?($ages[$what]):(null);
-			//echo "writing ".$what." to database k: ".$k.", v: ".$v.", age: ".tfn($age)."\n";
+			$age = isset ( $ages [$what] ) ? ($ages [$what]) : (null);
+			// echo "writing ".$what." to database k: ".$k.", v: ".$v.", age: ".tfn($age)."\n";
 			// Must be a zone name
 			$mysql->query ( "REPLACE INTO sensors (event, name, param, value, age) VALUES (?, ?, ?, ?, ?)", "isssi", array (
 					$tsnow,
@@ -1838,7 +1846,7 @@ function tick() {
 	$cmd = "hostname 2>/dev/null";
 	exec ( $cmd, $output, $retvar );
 	// echo "Ran: '".$cmd."' : ".ob_print_r($output)."\n";
-	$hostname = $output[0];
+	$hostname = $output [0];
 
 	$retvar = 0;
 	$output = "";
@@ -1861,7 +1869,7 @@ function tick() {
 	$ostr .= $next_sun;
 	file_put_contents ( "/tmp/oled.txt", $ostr );
 
-	ksort($data);
+	ksort ( $data );
 	echo "\nEnvironmental data:\n";
 	print_r ( $data );
 	setConfig ( "env", json_encode ( $data ) );
@@ -1869,58 +1877,62 @@ function tick() {
 
 function getAllGraphColours() {
 	global $sensors, $triggers;
-	$ret = array();
+	$ret = array ();
 
-	foreach($sensors as $x) {
-		if(isset($x->colour)) $ret[$x->label] = $x->colour;
+	foreach ( $sensors as $x ) {
+		if (isset ( $x->colour ))
+			$ret [$x->label] = $x->colour;
 	}
-	foreach($triggers as $x) {
-		if(isset($x->colour)) $ret[$x->label] = $x->colour;
+	foreach ( $triggers as $x ) {
+		if (isset ( $x->colour ))
+			$ret [$x->label] = $x->colour;
 	}
 	return $ret;
 }
 
 function getGraphColour($name) {
-	echo("getGraphColour('$name')\n");
+	echo ("getGraphColour('$name')\n");
 	global $sensors, $triggers;
 
-	if($name== "temperatureDay") {
+	if ($name == "temperatureDay") {
 		return "#090";
 	}
-	if($name== "temperatureNight") {
+	if ($name == "temperatureNight") {
 		return "#609";
 	}
-	if($name== "humidityDay") {
+	if ($name == "humidityDay") {
 		return "#090";
 	}
-	if($name== "humidityNight") {
+	if ($name == "humidityNight") {
 		return "#609";
 	}
-	if($name== "sunriseOffset") {
+	if ($name == "sunriseOffset") {
 		return "#f60";
 	}
-	if($name== "sunsetOffset") {
+	if ($name == "sunsetOffset") {
 		return "#609";
 	}
-	if($name== "daylightHours") {
+	if ($name == "daylightHours") {
 		return "#fa6";
 	}
 
 	$ret = null;
-	foreach($sensors as $x) {
-		if($ret == null && $x->name == $name) {
+	foreach ( $sensors as $x ) {
+		if($name == "DEMANDED") {
+			$name = "DEMAND";
+		}
+		if ($ret == null && $x->name == $name) {
 			$ret = $x->colour;
-			//echo "Found '$name' (Sensor): '$ret'\n";
+			// echo "Found '$name' (Sensor): '$ret'\n";
 		}
 	}
-	foreach($triggers as $x) {
-		if($ret == null && $x->name == $name) {
+	foreach ( $triggers as $x ) {
+		if ($ret == null && $x->name == $name) {
 			$ret = $x->colour;
-			//echo "Found '$name' (Trigger): '$ret'\n";
+			// echo "Found '$name' (Trigger): '$ret'\n";
 		}
 	}
 	return $ret;
 }
-
 
 ?>

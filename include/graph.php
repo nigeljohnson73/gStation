@@ -36,6 +36,7 @@ function getLocalMeasurements_orig($what, $name) {
 }
 
 function getLocalMeasurements($what, $name) {
+	echo "getLocalMeasurements('$what', '$name'): Started\n";
 	$ret = null;
 	global $mysql;
 	$where = "name = '$name'";
@@ -49,12 +50,12 @@ function getLocalMeasurements($what, $name) {
 		if(count($arr)) {
 			$bit = trim ( $arr[1] );
 		}
-		//echo "Looking for '".$bit."'\n";
+		echo "Looking for '".$bit."'\n";
 		if (in_array(strtolower ( $what ), array("trigger", "triggers"))) {
 			$mult = ($bit[1] + 0)*(1/(count($bits)+1));//($bit[1] + 0)*0.2;
 			//$sqls [strtolower ( $obit )] = "SELECT event, param as 'name', (value*".$mult.") as value FROM triggers WHERE param = '" . $bit . "' AND value > 0.5";
 			$sqls [strtolower ( $obit )] = "SELECT event, param as 'name', (value*".$mult.") as value FROM triggers WHERE param = '" . $bit . "'";
-		} else if (strtolower ( $bit ) == "demanded") {
+		} else if (strtolower ( $bit ) == "demand" || strtolower ( $bit ) == "demanded") {
 			$sqls [strtolower ( $obit )] = "SELECT event, 'DEMANDED' as 'name', value FROM demands WHERE param = '" . $what . "'";
 		} else if (in_array(strtolower ( $what ), array("sensor_age", "sensor_ages"))) {
 			$sqls [strtolower ( $obit )] = "SELECT DISTINCT event, name, age as value FROM sensors WHERE name = '" . $bit . "' AND age IS NOT NULL";

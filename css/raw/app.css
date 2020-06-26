@@ -38,14 +38,16 @@ textarea.text-input {
 	display:inline-block;
 	margin: 0 auto;
 	width:80px;
-	padding-left:15px; 
-	padding-right:15px; 
-	padding-bottom:20px; 
+	padding-left:10px; 
+	padding-right:10px; 
+	padding-bottom:15px;
+	margin-bottom:5px; 
 }
 
 .sensor-holder {
 	width:140px;
 	border: solid 1px #ccc;
+	border-radius:10px;
 }
 .sensor-holder .sensor .label, .sensor-holder .sensor .value {
 	display:inline-block;
@@ -53,11 +55,13 @@ textarea.text-input {
 }
 .sensor-holder .sensor .label {
 	text-align:right;
+	color:#d0d0d0;
 }
 .sensor-holder .sensor .value {
 	text-align:left;
 }
 .colour-container .label, .trigger-container .label, .sensor-container .label {
 	color:#999;
+	padding:0px;
 }
 

@@ -55,8 +55,8 @@ $conditions [] = "T3 IF [[ZONE2.TEMPERATURE]] > ([[ZONE3.TEMPERATURE]] + 5)";  /
 $conditions [] = "T3 IF [[DATA.HOUR]] >= 0.1 && [[DATA.HOUR]] < 0.2";          // vent the air overnight regarldess of temperature
 
 $graphs = [ ];
-$graphs [] = "temperature.Zone3 (Ambient), Zone2 (Air zone), Zone1 (Root zone)";
-$graphs [] = "humidity.Zone3 (Ambient), Zone2 (Air zone)";
+$graphs [] = "temperature.Zone3 (Ambient), Zone2 (Air zone), Zone1 (Root zone), Demand";
+$graphs [] = "humidity.Zone3 (Ambient), Zone2 (Air zone), Demand";
 $graphs [] = "trigger.T3 (Vent), T2 (Light), T1 (Heat)";
 $graphs [] = "cpu_load.PI";
 $graphs [] = "temperature.PI";

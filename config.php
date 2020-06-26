@@ -37,6 +37,13 @@ $sensors [] = ( object ) [ // This is the 5th sensor for the CO2 monitor in the 
 		"name" => "ZONE2", // Generic air zone
 		"type" => "EMPTY" // EMPTY or MH-Z19B
 ];
+$sensors [] = ( object ) [ // This sensor is for display purposes
+		"name" => "DEMAND",
+		"label" => "DEMAND",
+		"type" => "DEMAND",
+		"colour" => "#fac" // Pink
+];
+
 
 $triggers = [ ];
 $triggers [] = ( object ) [ 
