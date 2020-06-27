@@ -29,16 +29,16 @@ colorLuminance = function(hex, lum) {
 	return rgb;
 };
 
-log_to_console = 2;
+log_to_console=2;
 logger = function(l, err) {
 	if (!err)
-		err = "log";
+		err = "inf";
 
 	// TODO: make this more resolute
 	if (err == "dbg" && log_to_console >= 3) {
 		console.debug(l);
 	}
-	if (err == "log" && log_to_console >= 2) {
+	if (err == "inf" && log_to_console >= 2) {
 		console.log(l);
 	}
 	if (err == "wrn" && log_to_console >= 1) {
@@ -48,6 +48,55 @@ logger = function(l, err) {
 		console.error(l);
 	}
 };
+
+function number_format(number, decimals, dec_point, thousands_sep) {
+	// Strip all characters but numerical ones.
+	number = (number + '').replace(/[^0-9+\-Ee.]/g, '');
+	var n = !isFinite(+number) ? 0 : +number, prec = !isFinite(+decimals) ? 0 : Math.abs(decimals), sep = (typeof thousands_sep === 'undefined') ? ',' : thousands_sep, dec = (typeof dec_point === 'undefined') ? '.' : dec_point, s = '', toFixedFix = function(n, prec) {
+		var k = Math.pow(10, prec);
+		return '' + Math.round(n * k) / k;
+	};
+	// Fix for IE parseFloat(0.55).toFixed(0) = 0;
+	s = (prec ? toFixedFix(n, prec) : '' + Math.round(n)).split('.');
+	if (s[0].length > 3) {
+		s[0] = s[0].replace(/\B(?=(?:\d{3})+(?!\d))/g, sep);
+	}
+	if ((s[1] || '').length < prec) {
+		s[1] = s[1] || '';
+		s[1] += new Array(prec - s[1].length + 1).join('0');
+	}
+	return s.join(dec);
+}
+
+Array.prototype.random = function() {
+	return this[Math.round((Math.random() * (this.length - 1)))];
+};
+
+/***************
+ * genKey()
+ *
+ * Generates an arbitary key that consists of the alpha-numeric and special character sets, but with confusing characters like';1', 'i', and 'l' removed
+ *
+ * Key is a charater string that defines the charaters and can consist of:
+ * 	u - Upper case
+ * 	l - lower case
+ * 	n - number
+ *  s - special character
+ *  x - any of the above
+ *
+ *  for example genKey('unlllaaa') would produce 'E5ncyCgt'
+ */
+function genKey(key) {
+	var uc = [ 'A', 'B', 'C', 'E', 'F', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'R', 'T', 'W', 'Y', 'Z' ];
+	var lc = [ 'a', 'b', 'd', 'e', 'g', 'h', 'k', 'n', 'p', 'q', 'r', 's', 't', 'x', 'y', 'z' ];
+	var nc = [ '2', '3', '4', '5', '6', '7', '8', '9' ];
+	var sc = [ '=', '-', '.', '_', '@' ];
+	var an = [].concat(uc).concat(lc).concat(nc);
+	var ny = [].concat(sc).concat(an);
+	return key.replace(/[xlunas]/g, function(c) {
+		return (c === 'u' ? uc.random() : (c === 'l' ? lc.random() : (c === 'n' ? nc.random() : (c === 's' ? sc.random() : (c === 'a' ? an.random() : ny.random())))));
+	});
+}
 
 var Base64 = {
 	_keyStr : "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
@@ -161,4 +210,67 @@ var Base64 = {
 	}
 };
 
+var toastTimeout = null;
+function toast(text) {
+	xxlogger("updating toast text");
+	$("#snackbar").html(text);
+
+	if (!$("#snackbar").hasClass("show")) {
+		xxlogger("showing toast");
+		$("#snackbar").addClass("show");
+	}
+
+	// After 3 seconds, remove the show class from DIV
+	if (toastTimeout === null) {
+		toastTimeout = setTimeout(function() {
+			if (toastTimeout) {
+				xxlogger("Clearing toast");
+				$("#snackbar").removeClass("show");
+				toastTimeout = null;
+			}
+		}, 3000);
+	}
+};
+
+$(document).ready(function() {
+	// Switch main page into view
+	$("#page-loading").hide();
+	$("#page-loaded").show(1000);
+	logger("Application Loaded");
+});
+
+var app = angular.module("myApp", [ 'ngRoute' ]);
+
+app.config([ "$locationProvider", "$routeProvider", function($locationProvider, $routeProvider) {
+	$locationProvider.html5Mode(true);
+
+	$routeProvider.when('/', {
+		templateUrl : '/pages/home.php',
+	}).when('/about', {
+		templateUrl : '/pages/about.php',
+		controller : 'AboutCtrl'
+	}).when('/config', {
+		templateUrl : '/pages/config.php',
+		controller : 'ConfigCtrl'
+	}).otherwise({
+		templateUrl : '/pages/404.php'
+	});
+} ]);
+
 logger("Hello There!");
+app.controller('AboutCtrl', [ "$scope", function($scope) {
+	$scope.app_id = app_id;
+	$scope.build_date = build_date;
+	$scope.api_build_date = api_build_date;
+	$scope.app_version = app_version;
+} ]);
+app.controller('ComingSoonCtrl', [ "$scope", function($scope) {
+	$scope.title="Coming soon";
+} ]);
+app.controller('ConfigCtrl', [ "$scope", function($scope) {
+	$scope.title="Cofiguration";
+} ]);
+app.controller('FooterCtrl', [ "$scope", function($scope) {
+	// This is only used to update the copyright year to "this year". Massive overkill.
+	$scope.nowDate = Date.now();
+} ]);
