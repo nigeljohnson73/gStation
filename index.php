@@ -61,8 +61,8 @@ echo "<a href='".getSnapshotUrl()."' target='liveStream'><img  src='/gfx/snapsho
 function getSensorData($env) {
 	global $sensors;
 
-	$labels = array("TEMPERATURE" => "Temp", "HUMIDITY" => "RH", "LIGHT"=>"LIGHT", "CPU_LOAD" => "CPU", "MEM_LOAD"=>"MEM", "SD_LOAD"=>"SD");
-	$units = array("TEMPERATURE" => "C", "HUMIDITY" => "%", "LIGHT"=>"", "CPU_LOAD" => "%", "MEM_LOAD"=>"%", "SD_LOAD"=>"%");
+	$labels = array("TEMPERATURE" => "", "HUMIDITY" => "", "LIGHT"=>"", "CPU_LOAD" => "", "MEM_LOAD"=>"", "SD_LOAD"=>"");
+	$units = array("TEMPERATURE" => "C", "HUMIDITY" => "%RH", "LIGHT"=>"", "CPU_LOAD" => "%CPU", "MEM_LOAD"=>"%MEM", "SD_LOAD"=>"%SD");
 // TODO: Think of a better way of makking thises madatory - use the seosnr type fields??
 // 	$labels = array("TEMPERATURE" => "Temp", "HUMIDITY" => "RH");
 // 	$units = array("TEMPERATURE" => "°", "HUMIDITY" => "%");
@@ -74,7 +74,7 @@ function getSensorData($env) {
 		$n = $s->name;
 		$l = isset($s->label)?$s->label:$s->name;
 		if(isset($s->label)) { // This is a git because sensor5 uses zone 2 again :(
-			foreach($labels as $k => $v) {
+			foreach($units as $k => $v) {
 				$ek = $n.".".$k;
 				if(isset($env[$ek])) {
 					$value = $env[$ek];
@@ -82,11 +82,11 @@ function getSensorData($env) {
 						$value = number_format($value, 2);
 					}
 					//echo "$n.$k is '".$value."\n";
-					$ret[$l][$v]= $value.$units[$k];
+					$ret[$l][$v]= $value.$v;
 					
 				} else {
 					//echo "'$ek' is not set\n";
-					$ret[$l][$v]= "--";
+					$ret[$l][$v]= "&nbsp";
 				}
 			}
 		}
@@ -105,7 +105,7 @@ echo "<div class='trigger-container'>\n";
 foreach($sd as $k => $v) {
 	echo "				<div class='sensor-holder'><div class='label'>".$k."</div>";
 	foreach($v as $l => $s) {
-		echo "<div class='sensor'><div class='label'>$l:</div><div class='value'>$s</div></div>";
+		echo "<div class='sensor'><div class='value'>$s</div></div>";
 	}
 	echo "</div>\n";
 }

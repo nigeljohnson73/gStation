@@ -698,6 +698,20 @@ function rebuildDataModel() {
 			$rebased_sod = timestamp2Time(timestampFormat(time2Timestamp($new_sod), "Ymd"));
 			$v->sunriseOffset = $sunrise - $rebased_sod;
 			$v->sunsetOffset = $sunset - $rebased_sod;
+			$h24 = 24*60*60;
+			// TODO: Why do I need to do this, I should have taken off the right bit above :(
+			while ($v->sunriseOffset < 0) {
+				$v->sunriseOffset += $h24;
+			}
+			while ($v->sunriseOffset >= $h24) {
+				$v->sunriseOffset -= $h24;
+			}
+			while ($v->sunsetOffset < 0) {
+				$v->sunsetOffset += $h24;
+			}
+			while ($v->sunsetOffset >= $h24) {
+				$v->sunsetOffset -= $h24;
+			}
 			// Don't ajust the rest, they will only ever by wrong by the previous or next day
 			$model[$nk] = $v;
 			

@@ -53,13 +53,13 @@ textarea.text-input {
 	display:inline-block;
 }
 .sensor-holder .sensor .label {
-	width:45%;
-	text-align:right;
+/* 	width:45%;
+ */	text-align:right;
 	color:#d0d0d0;
 }
 .sensor-holder .sensor .value {
-	width:55%;
-	text-align:left;
+/* 	width:55%;
+ */	text-align:left;
 }
 .colour-container .label, .trigger-container .label, .sensor-container .label {
 	color:#999;
