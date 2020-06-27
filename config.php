@@ -145,6 +145,14 @@ $solstice_temp_delta_days = 60; // The number of days after the solstice that th
  * END SIMULATION ENVIRONMENT
  */
 
+ /**
+ * START Google Maps API
+ */
+$gmaps_api_key = "";
+/**
+ * END Google Maps API
+ */
+
 /**
  * START DARK SKY SETUP
  */

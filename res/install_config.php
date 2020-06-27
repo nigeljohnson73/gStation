@@ -109,6 +109,14 @@ $timeszone_adjust_hours = 0;
 //	"night_humidity" => 40.5
 //];
 
+/**
+ * START Google Maps API
+ */
+$gmaps_api_key = "";
+/**
+ * END Google Maps API
+ */
+
 // If you're using the envronmental simulation, this is where you configure the paramaters
 $summer_solstice = "0621";
 $solstice_temp_delta_days = 60;

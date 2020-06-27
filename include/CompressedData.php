@@ -14,7 +14,7 @@ class RawData {
 class UncompressedData extends RawData {
 
 	function __construct($data) {
-		RawData::RawData ( $data );
+		parent::__construct ( $data );
 	}
 
 	function gzip() {
