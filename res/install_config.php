@@ -1,16 +1,14 @@
 <?php
 // Update this to where you are and the name you want to see in the browser
 $local_timezone = "Europe/London";
-$loc = "GS0";
-
-// This is all the stuff that should go into the database configurator... plus probably some more... Later... Much... later.
+//$loc = "gsDev";
 
 // Sensor zero is the PI itself.
 $sensors [1]->type = "DS18B20"; // EMPTY, DS18B20, DHT11 or DHT22 // Root Zone (ZONE1)
 $sensors [2]->type = "DHT22"; // EMPTY, DS18B20, DHT11 or DHT22   // Air Zone (ZONE2)
 $sensors [3]->type = "DHT22"; // EMPTY, DS18B20, DHT11 or DHT22   // Ambient (ZONE3)
-//$sensors [4]->type = "DHT22"; // EMPTY, DS18B20, DHT11 or DHT22
-//$sensors [5]->type = "empty"; // EMPTY or MH-Z19B                // Carbon Dioxide monitor - once implemented (ZONE2)
+//$sensors [4]->type = "EMPTY"; // EMPTY, DS18B20, DHT11 or DHT22
+//$sensors [5]->type = "EMPTY"; // EMPTY or MH-Z19B                // Carbon Dioxide monitor - once implemented (ZONE2)
 
 // Set Graph and data labels
 // $sensors [1]->label = "ZONE1";
@@ -28,9 +26,9 @@ $sensors [3]->type = "DHT22"; // EMPTY, DS18B20, DHT11 or DHT22   // Ambient (ZO
 $triggers [0]->type = "SSR"; // EMPTY, SSR, iSSR or LED           // Heater
 $triggers [1]->type = "SSR"; // EMPTY, SSR, iSSR or LED           // Lighting
 $triggers [2]->type = "SSR"; // EMPTY, SSR, iSSR or LED           // Air-zone vent
-//$triggers [3]->type = "SSR"; // EMPTY, SSR, iSSR or LED
-//$triggers [4]->type = "SSR"; // EMPTY, SSR, iSSR or LED
-//$triggers [5]->type = "SSR"; // EMPTY, SSR, iSSR or LED
+//$triggers [3]->type = "EMPTY"; // EMPTY, SSR, iSSR or LED
+//$triggers [4]->type = "EMPTY"; // EMPTY, SSR, iSSR or LED
+//$triggers [5]->type = "EMPTY"; // EMPTY, SSR, iSSR or LED
 
 // Set Graph and data labels
 // $triggers [0]->label = "T1";
@@ -67,58 +65,53 @@ $graphs [] = "mem_load.PI";
 
 // If you're using DarkSky, this is where you configure the parameters
 // You can override the use of DarkSky with the parameters below, but you can also continue to collect data
-$darksky_key = "";
-$api_call_cap = 900;
-$lat = "-26.549711";
-$lng = "31.197664";
-$season_adjust_days = 0;
-$timeszone_adjust_hours = 0;
+// $darksky_key = "cc1f19147be757c853cffdeb62a8c403";
+// $api_call_cap = 900;
+// $lat = "-26.549711";
+// $lng = "31.197664";
+//$rebuild_from = "Demands";
+$rebuild_from = "Simulation"; // 'Simulation', 'Demands' or a filename in the locations folder for example 'SZ.Malkerns.json'
+$season_adjust_days = 0; // Adjust the file based data model
+$timeszone_adjust_hours = 0; // Adjust the file based data model
 
 // Set this to the month and day you want the ramp to start on, for example 23rd of January is 0123
 //$demand_solstice = "0000";
 
-// This config will have an 18hr day for 14 days, then ramp down to 12 hours over the following 21 days. 
+// This config will have an 18hr day for 14 days, then ramp down to 12 hours over the following 21 days.
 // There will be a small temp drop over the day length cycle as well
-//$demand = [ ];
-//$demand [] = ( object ) [
-//	"period_length" => 14,
-//	"sunset" => 21 + (59/60) + (59/(60 * 60)),
-//	"daylight_hours" => 18.1,
-//	"day_temperature" => 24.1,
-//	"night_temperature" => 21.5,
-//	"day_humidity" => 40.5,
-//	"night_humidity" => 45.5
-//	];
-//
-//$demand [] = ( object ) [
-//	"period_length" => 21,
-//	"sunset" => 21 + (59/60) + (59/(60 * 60)),
-//	"daylight_hours" => 18.1,
-//	"day_temperature" => 24.1,
-//	"night_temperature" => 21.5,
-//	"day_humidity" => 40.5,
-//	"night_humidity" => 45.5
-//];
-//
-//$demand [] = ( object ) [
-//	"sunset" => 21 + (59/60) + (59/(60 * 60)),
-//	"daylight_hours" => 12.1,
-//	"day_temperature" => 23.5,
-//	"night_temperature" => 19.5,
-//	"day_humidity" => 30.5,
-//	"night_humidity" => 40.5
-//];
+$demand_solstice = "0621"; // When should the demand simulation start (Format: MMDD)
+$demand = [ ];
+$demand [] = ( object ) [
+		"period_length" => 14,
+		"sunset" => 21 + (59/60) + (59/(60 * 60)),
+		"daylight_hours" => 18.1,
+		"day_temperature" => 24.1,
+		"night_temperature" => 21.5,
+		"day_humidity" => 40.5,
+		"night_humidity" => 45.5
+];
 
-/**
- * START Google Maps API
- */
-$gmaps_api_key = "";
-/**
- * END Google Maps API
- */
+$demand [] = ( object ) [
+		"period_length" => 21,
+		"sunset" => 21 + (59/60) + (59/(60 * 60)),
+		"daylight_hours" => 18.1,
+		"day_temperature" => 24.1,
+		"night_temperature" => 21.5,
+		"day_humidity" => 40.5,
+		"night_humidity" => 45.5
+];
+
+$demand [] = ( object ) [
+		"sunset" => 21 + (59/60) + (59/(60 * 60)),
+		"daylight_hours" => 12.1,
+		"day_temperature" => 23.5,
+		"night_temperature" => 19.5,
+		"day_humidity" => 30.5,
+		"night_humidity" => 40.5
+];
 
 // If you're using the envronmental simulation, this is where you configure the paramaters
-$summer_solstice = "0621";
+$summer_solstice = "0621"; // (Format: MMDD)
 $solstice_temp_delta_days = 60;
 $day_temperature_summer = 27.5;
 $day_temperature_winter = 19.5;

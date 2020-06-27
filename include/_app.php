@@ -664,19 +664,59 @@ function rebuildModelFromSimulation() {
 }
 
 function rebuildDataModel() {
-	global $mysql, $darksky_key, $demand;
+	global $rebuild_from, $demand, $mysql;
+	global $season_adjust_days, $timeszone_adjust_hours;
+	
 	$model = array ();
+	$location = new StdClass();
 
-	if (count ( $demand ) > 0) {
-		if ($darksky_key != "") {
-			echo "Retrieving historic data from Dark Sky\n";
-			global $force_api_history;
-			getDarkSkyApiData ( $force_api_history );
+	$infile = dirname(__FILE__)."/../locations/".$rebuild_from;
+	if(file_exists($infile)) {
+		logger ( LL_INFO, "rebuildDataModel(): Rebuilding from file '$rebuild_from'");
+		$json = file_get_contents($infile);
+		$obj = json_decode($json);
+		foreach($obj->model as $k=>$v) {
+			$date = "2022".$k; // Start in 2022 so we don't (realsitically) hit a leap year;
+			$sod = timestamp2Time($date); // Start of the day in unix
+			$delta = -($season_adjust_days+$timeszone_adjust_hours/24.0)*24*60*60;
+			$new_sod = $sod + $delta;
+
+			// Ajust the sun configs by the alotted amount
+			$sunrise = $new_sod + $v->sunriseOffset;
+			$sunset = $new_sod + $v->sunsetOffset;
+			
+			// Reajust the dates based on the new sunrise
+			$nk = timestampFormat(time2Timestamp($sunrise), "md");
+			if($nk == "0229") {
+				// We really shouldn't!!!
+				echo "ALERT!!!!!! GOT A LEAP YEAR!!!!!!!\n";
+				logger ( LL_ERROR, "rebuildDataModel(): Rebuild failed du an unexpected leap year");
+				return false;
+			}
+			
+			// calculate the new start of the new day for sun acctivity
+			$rebased_sod = timestamp2Time(timestampFormat(time2Timestamp($new_sod), "Ymd"));
+			$v->sunriseOffset = $sunrise - $rebased_sod;
+			$v->sunsetOffset = $sunset - $rebased_sod;
+			// Don't ajust the rest, they will only ever by wrong by the previous or next day
+			$model[$nk] = $v;
+			
+			//$model[timestampFormat(time2Timestamp($sunrise), "md")] = $v;
 		}
-		$model = rebuildModelFromDemands ();
-	} else if ($darksky_key != "") {
-		$model = rebuildModelFromDarkSky ();
-	} else {
+		$location = $obj->location;
+	} else if(strtoupper($rebuild_from) == "DEMANDS") {
+		if(count($demand)) {
+			logger ( LL_INFO, "rebuildDataModel(): Rebuilding from Demand Ramping");
+			$location->name = "Demand Ramping";
+			$model = rebuildModelFromDemands ();
+		} else {
+			logger ( LL_WARN, "rebuildDataModel(): Demand Ramping is corrupted");
+		}
+	}
+	
+	if(count($model) == 0) {
+		logger ( LL_INFO, "rebuildDataModel(): Rebuilding from Simulation");
+		$location->name = "Simulation";
 		$model = rebuildModelFromSimulation ();
 	}
 
@@ -690,6 +730,7 @@ function rebuildDataModel() {
 
 			$mysql->query ( "REPLACE INTO model (id, data) VALUES(?, ?)", "ss", array_values ( $values ) );
 		}
+		setConfig("location", json_encode ( $location ));
 		logger ( LL_INFO, "rebuildDataModel(): Stored model to database" );
 	} else {
 		logger ( LL_INFO, "rebuildDataModel(): No model generated" );
@@ -734,7 +775,7 @@ function getModel($ts = null) {
 
 	if (! $rows || count ( $rows ) != $expected) {
 		// if we got no data, just make sure we have performed the initialisation
-		logger ( LL_INFO, "getModel(): no model stored" );
+		logger ( LL_WARN, "getModel(): model appears to be corrupt" );
 		setupTables ();
 		rebuildDataModel ();
 		$rows = $mysql->query ( $sql );

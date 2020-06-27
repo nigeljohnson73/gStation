@@ -125,15 +125,16 @@ foreach($triggers as $t) {
 echo "</div>\n";
 ?>
 				<pre><?php
-					echo "Processing environment at " . timestampFormat ( timestampNow (), "Y-m-d\TH:i:s T" ) . "\n";
- 					if($darksky_key) {
- 						echo "Location: " . $loc . " (" . latToDms ( $lat ) . ", " . lngToDms ( $lng ) . ")\n";
- 					} else {
- 						echo "Location: SIMULATED ENVIRONMENT\n";
- 					}
- 					echo "Current status: '" . getConfig ( "STATUS", "---" ) . "'\n";
+					echo "Environment status at " . timestampFormat ( timestampNow (), "Y-m-d\TH:i:s T" ) . "\n";
+//  					if($darksky_key) {
+//  						echo "Location: " . $loc . " (" . latToDms ( $lat ) . ", " . lngToDms ( $lng ) . ")\n";
+//  					} else {
+//  						echo "Location: SIMULATED ENVIRONMENT\n";
+//  					}
+//  					echo "Current status: '" . getConfig ( "STATUS", "---" ) . "'\n";
 ?>
-Model status: <?php print_r(modelStatus()) ?>
+
+Location: <?php print_r(json_decode(getConfig("location"))) ?>
 
 Current model: <?php print_r(getModel(timestampNow())) ?>
 
@@ -184,12 +185,7 @@ Current environment: <?php print_r(json_decode(getConfig("env"))) ?></pre>
 
 	<div class="row">
 		<div class="container-fluid text-center">
-<?php if ($darksky_key !== ""): ?>
-		<a target="DarkSky" href="https://darksky.net/poweredby/"><img src="https://darksky.net/dev/img/attribution/poweredby.png" alt="Powered by Dark Sky" style="width:150px;" /></a>
-<?php else: ?>
 		<a target="TribalRhino" href="https://tribalrhino.com/"><img src="gfx/poweredby.png" alt="Powered by Tribal Rhino" style="width:150px;" /></a>
-		<!-- <img src="gfx/angrysnail.php" alt="andy snail" style="width:50px; margin-bottom:8px; margin-right:5px;" /> -->
-<?php endif ?>
 		</div>
 	</div>
 </body>

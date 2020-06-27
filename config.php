@@ -1,7 +1,8 @@
 <?php
 $local_timezone = "Europe/London"; // Where are you locally based for time references
- 
-$sensor_age = 30; // sensor data older than this will be ignored
+$loc = "gsDev";
+
+$sensor_age = 30; // sensor data older than this in seconds will be ignored
 $sensors = [ ];
 $sensors [] = ( object ) [
 		"name" => "PI",
@@ -117,13 +118,31 @@ $outlier_humidity_min = 15;
 $outlier_humidity_max = 95;
 
 /**
+ * START REBUILD
+ */
+$rebuild_from = "Simulation"; // 'Simulation', 'Demands' or filename in the locations directory, eg 'SZ.Malkerns.json'
+/**
+ * END REBUILD
+ */
+
+/**
+ * START FILE ENVIRONMENT
+ */
+$season_adjust_days = 0; // If you want to move forward in the season, add this many days to the actual forcast. if set to 31, Real January 1 will be like February 1 at your location.
+$timeszone_adjust_hours = 0; // If you want to move forward in the day (because your location is suitably ahead of you) add this many hours. If set to 2, Real 07:30 will be like 09:30 at your location.
+/**
+ * END FILE ENVIRONMENT
+ */
+
+/**
  * START DEMAND ENVIRONMENT
  */
-$demand_solstice = "0621";
+$demand_solstice = "0621"; // When should the demand ramping start.
 $demand = [];
 /**
  * END DEMAND ENVIRONMENT
  */
+
 /**
  * START SIMULATION ENVIRONMENT
  */
@@ -145,35 +164,6 @@ $solstice_temp_delta_days = 60; // The number of days after the solstice that th
  * END SIMULATION ENVIRONMENT
  */
 
- /**
- * START Google Maps API
- */
-$gmaps_api_key = "";
-/**
- * END Google Maps API
- */
-
-/**
- * START DARK SKY SETUP
- */
-$darksky_key = ""; // You can sign up for a free dark sky account to get location based weather information: https://darksky.net/dev/docs
-$api_call_cap = 370; // If you have a free account, leave this under 900 and don't run the update more than once in a day until you're up to date
-
-// The place you want your station to be remotely located at
-$lat = "-26.549711"; // the latitude of the place you want to mimic (Malkerns/SZ)
-$lng = "31.197664"; // the longitude of the place you want to mimic (Malkerns/SZ)
-$loc = "gStationDev"; // Just to give it a name in the browser could be the name of the actual place
-
-$season_adjust_days = 0; // If you want to move forward in the season, add this many days to the actual forcast. if set to 31, Real January 1 will be like February 1 at your location.
-$timeszone_adjust_hours = 0; // If you want to move forward in the day (because your location is suitably ahead of you) add this many hours. If set to 2, Real 07:30 will be like 09:30 at your location.
-$yr_history = 50; // How many years to go back for historic data. The further back the smoother 'today' will be but more processing and database is required for the data model.
-$force_api_history = 5; // Forecast data is replaced with historic data over the few days after it happened, this flag will force API calls based on this number of days
-$smoothing_days = 15; // Used to smooth the measurement data even more than history alone. Used as a sliding +/- window from 'today' 2n+1 points are used to calculate 'today'
-$smoothing_loops = 3; // Using more loops is much more computationally intensive, but yeilds a much smoother outcome
-/**
- * END DARK SKY
- */
-
 /**
  * START BULKSMS SETUP
  */
@@ -191,10 +181,6 @@ $bulksms_alert_tod = false;
 /**
  * You REALLY shouldn't need to be fiddling below here
  */
-$hl_heat_pin = 17; // The GPIO pin used for the heat trigger
-$hl_light_pin = 18; // The GPIO pin used for the light trigger
-$hl_high_value = 0; // Some Solid state relays need a high value, some a low one. This is what makes it go on
-$hl_low_value = 1;
 $app_title = "gStation"; // makes the browser name properly
 $log_level = 3; // LL_INFO
 $db_server = "localhost"; // Database things. Don't be editing

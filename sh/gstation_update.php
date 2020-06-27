@@ -2,12 +2,12 @@
 include_once (dirname ( __FILE__ ) . "/../functions.php");
 $tsnow = timestampNow ();
 
-echo "\nChecking status at " . timestampFormat ( $tsnow, "Y-m-d\TH:i:s T" ) . "\n";
-if ($darksky_key != "") {
-	echo "Location: " . $loc . " (" . latToDms ( $lat ) . ", " . lngToDms ( $lng ) . ")\n\n";
-} else {
-	echo "Location: SIMULATED ENVIRONMENT\n\n";
-}
+echo "\nUpdating station at " . timestampFormat ( $tsnow, "Y-m-d\TH:i:s T" ) . "\n";
+// if ($darksky_key != "") {
+// 	echo "Location: " . $loc . " (" . latToDms ( $lat ) . ", " . lngToDms ( $lng ) . ")\n\n";
+// } else {
+// 	echo "Location: SIMULATED ENVIRONMENT\n\n";
+// }
 
 if (1) {
 	setupTables ();
