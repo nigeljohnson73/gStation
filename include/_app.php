@@ -77,6 +77,7 @@ function checkAlarms() {
 	}
 	$res = $mysql->query ( implode ( $sqls, " UNION " ) );
 	
+	$fired = false;
 	if ($res && count ( $res )) {
 		$alarms = [ ];
 		$tsnow = timestampNow ();
@@ -99,16 +100,22 @@ function checkAlarms() {
 					$message = "'" . $z ["name"] . "' now functional";
 				}
 				sendAlert ( "Sensor alarm: " . $message );
+				$fired = true;
 			}
 		}
 		
 		// $alarms["ZONE3"] ->status =false;
 		ksort ( $env );
 		ksort ( $alarms );
-		//print_r ( ( object ) $alarms );
+		// print_r ( ( object ) $alarms );
 		// print_r((object)$env);
+		if(!$fired) {
+			echo "checkAlarms(): All clear\n";
+		}
 		setConfig ( "env", json_encode ( ( object ) $env ) );
 		setConfig ( "alarms", json_encode ( ( object ) $alarms ) );
+
+//print_r(json_decode(getConfig("env")));
 	}
 }
 
@@ -2042,8 +2049,8 @@ function tick() {
 	file_put_contents ( "/tmp/oled.txt", $ostr );
 
 	ksort ( $data );
-	echo "\nEnvironmental data:\n";
-	print_r ( $data );
+	//echo "\nEnvironmental data:\n";
+	//print_r ( $data );
 	setConfig ( "env", json_encode ( $data ) );
 }
 

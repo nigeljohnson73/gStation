@@ -68,7 +68,7 @@ class MySqlDb {
 
 			return $results;
 		} else {
-			logger ( LL_ERROR, "mySqlDb::query(): \$stmt->result_metadata() failed: " . ob_print_r ( tfn ( $this->conn->error ) ) );
+			// logger ( LL_ERROR, "mySqlDb::query(): \$stmt->result_metadata() failed: " . ob_print_r ( tfn ( $this->conn->error ) ) );
 			// echo "mySqlDb::query(): \$stmt->result_metadata() failed: " . ob_print_r ( tfn ( $this->conn->error ) );
 		}
 

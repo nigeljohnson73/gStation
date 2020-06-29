@@ -47,16 +47,18 @@ echo "\ntick(): Startup at " . timestampFormat ( $tsnow, "Y-m-d\TH:i:s T" ) . "\
 $quiet = false;
 foreach ( $secs as $k => $s ) {
 	$tsnow = timestampNow ();
-	echo "TICK: " . timestampFormat ( $tsnow, "H:i:s " ) . ": Start loop\n";
+	echo "tick(): " . timestampFormat ( $tsnow, "H:i:s " ) . ": Start loop\n";
 	tick ( $quiet );
 	$quiet = true;
 
-	echo "tick(): Checking Alarm Status\n";
+	echo "\nChecking Alarm Status\n";
 	checkAlarms ();
 	
-	echo "tick(): writing env to oled file\n\n";
+	echo "\nwriting env to oled file\n";
 	$estr = getConfig("env");
 	file_put_contents ( "/tmp/oled.json", $estr );
+	print_r(json_decode($estr));
+	echo "\n";
 
 	$now = microTime ( true );
 	$tsnow = time2Timestamp ( floor ( $now ) );
