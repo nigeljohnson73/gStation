@@ -1,11 +1,7 @@
 <?php
 
-function sendAlert($message) {
+function sendPushover_RAW($message) {
 	global $loc, $app_title, $pushover_user_key, $pushover_api_token, $pushover_server_url, $pushover_server_title;
-
-	echo "Alert(): " . $message . "\n";
-	logger ( LL_INFO, "Alert(): " . $message );
-
 	if (strlen ( $pushover_user_key ) && strlen ( $pushover_api_token )) {
 		/*
 		 * curl_setopt($c, CURLOPT_POSTFIELDS, array(
@@ -25,21 +21,21 @@ function sendAlert($message) {
 		 * //'url_title' => $this->getUrlTitle()
 		 * ));
 		 */
-
-		$post_fields = [ 
+		
+		$post_fields = [
 				"token" => $pushover_api_token,
 				"user" => $pushover_user_key,
 				"title" => $loc . " - " . $app_title,
 				"message" => $message
 		];
-
+		
 		if (strlen ( $pushover_server_url )) {
 			$post_fields ["url"] = $pushover_server_url;
 			if (strlen ( $pushover_server_title )) {
 				$post_fields ["url_title"] = $pushover_server_title;
 			}
 		}
-
+		
 		$fn = getSnapshotFileName ();
 		if (strlen ( $fn ) && file_exists ( $fn )) {
 			// echo "Adding file attachment for '$fn' (" . number_format ( filesize ( $fn ) / 1000 ) . "kb)\n";
@@ -57,6 +53,19 @@ function sendAlert($message) {
 		// var_dump ( curl_getinfo ( $ch ) );
 		curl_close ( $ch );
 	}
+}
+
+function sendPushover($message) {
+	// Spawn off a xchild process to do it so that we can return t othe tick quickly.
+	exec ("php ".realpath(dirname(__FILE__)."/../sh/send_pushover.php")." \"".$message."\" > /tmp/pushover.log 2>&1 &");
+}
+
+function sendAlert($message) {
+	global $loc, $app_title;
+
+	echo "Alert(): " . $message . "\n";
+	logger ( LL_INFO, "Alert(): " . $message );
+	sendPushover($message);
 	
 	// TODO: do the bulksms stuff
 }
