@@ -2,7 +2,7 @@
 
 function sendPushover_RAW($message) {
 	global $loc, $app_title, $pushover_user_key, $pushover_api_token, $pushover_server_url, $pushover_server_title;
-	echo timestampFormat(timestampNow(), "Y-m-d\TH:i:s\Z"). ": Pushover send starting.\n";
+	echo timestampFormat ( timestampNow (), "Y-m-d\TH:i:s\Z" ) . ": Pushover send starting.\n";
 	if (strlen ( $pushover_user_key ) && strlen ( $pushover_api_token )) {
 		/*
 		 * curl_setopt($c, CURLOPT_POSTFIELDS, array(
@@ -22,21 +22,21 @@ function sendPushover_RAW($message) {
 		 * //'url_title' => $this->getUrlTitle()
 		 * ));
 		 */
-		
-		$post_fields = [
+
+		$post_fields = [ 
 				"token" => $pushover_api_token,
 				"user" => $pushover_user_key,
 				"title" => $loc . " - " . $app_title,
 				"message" => $message
 		];
-		
+
 		if (strlen ( $pushover_server_url )) {
 			$post_fields ["url"] = $pushover_server_url;
 			if (strlen ( $pushover_server_title )) {
 				$post_fields ["url_title"] = $pushover_server_title;
 			}
 		}
-		
+
 		$fn = getSnapshotFileName ();
 		if (strlen ( $fn ) && file_exists ( $fn )) {
 			// echo "Adding file attachment for '$fn' (" . number_format ( filesize ( $fn ) / 1000 ) . "kb)\n";
@@ -49,19 +49,19 @@ function sendPushover_RAW($message) {
 				CURLOPT_SAFE_UPLOAD => true,
 				CURLOPT_RETURNTRANSFER => true
 		) );
-		//curl_exec ( $ch );
+		// curl_exec ( $ch );
 		echo "Curl Exec: " . tfn ( curl_exec ( $ch ) ) . "\n";
 		print_r ( curl_getinfo ( $ch ) );
 		curl_close ( $ch );
 	}
-	echo timestampFormat(timestampNow(), "Y-m-d\TH:i:s\Z"). ": Pushover send complete.\n";
+	echo timestampFormat ( timestampNow (), "Y-m-d\TH:i:s\Z" ) . ": Pushover send complete.\n";
 }
 
 function sendPushover($message) {
 	// Spawn off a child process to do it so that we can return t othe tick quickly.
-	$exec = "php ".realpath(dirname(__FILE__)."/../sh/send_pushover.php")." \"".$message."\" > /tmp/pushover.log 2>&1 &";
-	exec($exec);
-echo "Executed: ".$exec."\n";
+	$exec = "php " . realpath ( dirname ( __FILE__ ) . "/../sh/send_pushover.php" ) . " \"" . $message . "\" > /tmp/pushover.log 2>&1 &";
+	exec ( $exec );
+	echo "Executed: " . $exec . "\n";
 }
 
 function sendAlert($message) {
@@ -69,35 +69,35 @@ function sendAlert($message) {
 
 	echo "Alert(): " . $message . "\n";
 	logger ( LL_INFO, "Alert(): " . $message );
-	sendPushover($message);
-	
+	sendPushover ( $message );
+
 	// TODO: do the bulksms stuff
 }
 
 function checkAlarms() {
 	global $sensors, $mysql, $sensor_age_alarm;
-	
+
 	$sqls = [ ];
-	
+
 	$env = ( array ) json_decode ( getConfig ( "env", json_encode ( ( object ) [ ] ) ) );
 	$lalarms = ( array ) json_decode ( getConfig ( "alarms", json_encode ( ( object ) [ ] ) ) );
-	
+
 	// print_r ( $lalarms );
-	
+
 	foreach ( $sensors as $s ) {
 		$sqls [] = "(select name, event from sensors where name = '" . $s->name . "' order by event desc limit 1)";
 		$env [($s->name) . ".ALARM"] = "NA";
 	}
 	$res = $mysql->query ( implode ( $sqls, " UNION " ) );
-	
+
 	$fired = false;
 	if ($res && count ( $res )) {
 		$alarms = [ ];
 		$tsnow = timestampNow ();
 		foreach ( $res as $z ) {
 			$alarm = timestampDifference ( $z ["event"], $tsnow ) > $sensor_age_alarm;
-			//$alarm = false;
-			$alarms [$z ["name"]] = ( object ) [
+			// $alarm = false;
+			$alarms [$z ["name"]] = ( object ) [ 
 					"name" => $z ["name"],
 					"last_read" => $z ["event"],
 					"age" => timestampDifference ( $z ["event"], $tsnow ),
@@ -116,22 +116,21 @@ function checkAlarms() {
 				$fired = true;
 			}
 		}
-		
+
 		// $alarms["ZONE3"] ->status =false;
 		ksort ( $env );
 		ksort ( $alarms );
 		// print_r ( ( object ) $alarms );
 		// print_r((object)$env);
-		if(!$fired) {
+		if (! $fired) {
 			echo "checkAlarms(): All clear\n";
 		}
 		setConfig ( "env", json_encode ( ( object ) $env ) );
 		setConfig ( "alarms", json_encode ( ( object ) $alarms ) );
 
-//print_r(json_decode(getConfig("env")));
+		// print_r(json_decode(getConfig("env")));
 	}
 }
-
 
 function getSnapshotUrl() {
 	$host = $_SERVER ['HTTP_HOST'];
@@ -870,6 +869,8 @@ function rebuildDataModel() {
 		$location->name = "Simulation";
 		$model = rebuildModelFromSimulation ();
 	}
+
+	$location->build = timestampFormat ( timestampNow (), "Y-m-d\TH:i:s\Z" );
 
 	// Update the model table
 	if ($model && count ( $model )) {
@@ -2062,8 +2063,8 @@ function tick() {
 	file_put_contents ( "/tmp/oled.txt", $ostr );
 
 	ksort ( $data );
-	//echo "\nEnvironmental data:\n";
-	//print_r ( $data );
+	// echo "\nEnvironmental data:\n";
+	// print_r ( $data );
 	setConfig ( "env", json_encode ( $data ) );
 }
 
