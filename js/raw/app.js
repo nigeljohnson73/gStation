@@ -28,7 +28,11 @@ colorLuminance = function(hex, lum) {
 	return rgb;
 };
 
-log_to_console=2;
+log_to_console = 2;
+xxlogger = function(l, err) {
+	logger(l, err);
+};
+
 logger = function(l, err) {
 	if (!err)
 		err = "inf";
@@ -51,7 +55,10 @@ logger = function(l, err) {
 function number_format(number, decimals, dec_point, thousands_sep) {
 	// Strip all characters but numerical ones.
 	number = (number + '').replace(/[^0-9+\-Ee.]/g, '');
-	var n = !isFinite(+number) ? 0 : +number, prec = !isFinite(+decimals) ? 0 : Math.abs(decimals), sep = (typeof thousands_sep === 'undefined') ? ',' : thousands_sep, dec = (typeof dec_point === 'undefined') ? '.' : dec_point, s = '', toFixedFix = function(n, prec) {
+	var n = !isFinite(+number) ? 0 : +number, prec = !isFinite(+decimals) ? 0
+			: Math.abs(decimals), sep = (typeof thousands_sep === 'undefined') ? ','
+			: thousands_sep, dec = (typeof dec_point === 'undefined') ? '.'
+			: dec_point, s = '', toFixedFix = function(n, prec) {
 		var k = Math.pow(10, prec);
 		return '' + Math.round(n * k) / k;
 	};
@@ -71,29 +78,31 @@ Array.prototype.random = function() {
 	return this[Math.round((Math.random() * (this.length - 1)))];
 };
 
-/***************
+/*******************************************************************************
  * genKey()
- *
- * Generates an arbitary key that consists of the alpha-numeric and special character sets, but with confusing characters like';1', 'i', and 'l' removed
- *
- * Key is a charater string that defines the charaters and can consist of:
- * 	u - Upper case
- * 	l - lower case
- * 	n - number
- *  s - special character
- *  x - any of the above
- *
- *  for example genKey('unlllaaa') would produce 'E5ncyCgt'
+ * 
+ * Generates an arbitary key that consists of the alpha-numeric and special
+ * character sets, but with confusing characters like';1', 'i', and 'l' removed
+ * 
+ * Key is a charater string that defines the charaters and can consist of: u -
+ * Upper case l - lower case n - number s - special character x - any of the
+ * above
+ * 
+ * for example genKey('unlllaaa') would produce 'E5ncyCgt'
  */
 function genKey(key) {
-	var uc = [ 'A', 'B', 'C', 'E', 'F', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'R', 'T', 'W', 'Y', 'Z' ];
-	var lc = [ 'a', 'b', 'd', 'e', 'g', 'h', 'k', 'n', 'p', 'q', 'r', 's', 't', 'x', 'y', 'z' ];
+	var uc = [ 'A', 'B', 'C', 'E', 'F', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'R',
+			'T', 'W', 'Y', 'Z' ];
+	var lc = [ 'a', 'b', 'd', 'e', 'g', 'h', 'k', 'n', 'p', 'q', 'r', 's', 't',
+			'x', 'y', 'z' ];
 	var nc = [ '2', '3', '4', '5', '6', '7', '8', '9' ];
 	var sc = [ '=', '-', '.', '_', '@' ];
 	var an = [].concat(uc).concat(lc).concat(nc);
 	var ny = [].concat(sc).concat(an);
 	return key.replace(/[xlunas]/g, function(c) {
-		return (c === 'u' ? uc.random() : (c === 'l' ? lc.random() : (c === 'n' ? nc.random() : (c === 's' ? sc.random() : (c === 'a' ? an.random() : ny.random())))));
+		return (c === 'u' ? uc.random() : (c === 'l' ? lc.random()
+				: (c === 'n' ? nc.random() : (c === 's' ? sc.random()
+						: (c === 'a' ? an.random() : ny.random())))));
 	});
 }
 
@@ -227,7 +236,7 @@ function toast(text) {
 				$("#snackbar").removeClass("show");
 				toastTimeout = null;
 			}
-		}, 3000);
+		}, 2990);
 	}
 };
 
@@ -240,20 +249,22 @@ $(document).ready(function() {
 
 var app = angular.module("myApp", [ 'ngRoute' ]);
 
-app.config([ "$locationProvider", "$routeProvider", function($locationProvider, $routeProvider) {
-	$locationProvider.html5Mode(true);
+app.config([ "$locationProvider", "$routeProvider",
+		function($locationProvider, $routeProvider) {
+			$locationProvider.html5Mode(true);
 
-	$routeProvider.when('/', {
-		templateUrl : '/pages/home.php',
-	}).when('/about', {
-		templateUrl : '/pages/about.php',
-		controller : 'AboutCtrl'
-	}).when('/config', {
-		templateUrl : '/pages/config.php',
-		controller : 'ConfigCtrl'
-	}).otherwise({
-		templateUrl : '/pages/404.php'
-	});
-} ]);
+			$routeProvider.when('/', {
+				templateUrl : '/pages/home.php',
+				controller : 'HomeCtrl'
+			}).when('/about', {
+				templateUrl : '/pages/about.php',
+				controller : 'AboutCtrl'
+			}).when('/config', {
+				templateUrl : '/pages/config.php',
+				controller : 'ConfigCtrl'
+			}).otherwise({
+				templateUrl : '/pages/404.php'
+			});
+		} ]);
 
 logger("Hello There!");

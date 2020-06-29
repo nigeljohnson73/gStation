@@ -29,7 +29,11 @@ colorLuminance = function(hex, lum) {
 	return rgb;
 };
 
-log_to_console=2;
+log_to_console = 2;
+xxlogger = function(l, err) {
+	logger(l, err);
+};
+
 logger = function(l, err) {
 	if (!err)
 		err = "inf";
@@ -52,7 +56,10 @@ logger = function(l, err) {
 function number_format(number, decimals, dec_point, thousands_sep) {
 	// Strip all characters but numerical ones.
 	number = (number + '').replace(/[^0-9+\-Ee.]/g, '');
-	var n = !isFinite(+number) ? 0 : +number, prec = !isFinite(+decimals) ? 0 : Math.abs(decimals), sep = (typeof thousands_sep === 'undefined') ? ',' : thousands_sep, dec = (typeof dec_point === 'undefined') ? '.' : dec_point, s = '', toFixedFix = function(n, prec) {
+	var n = !isFinite(+number) ? 0 : +number, prec = !isFinite(+decimals) ? 0
+			: Math.abs(decimals), sep = (typeof thousands_sep === 'undefined') ? ','
+			: thousands_sep, dec = (typeof dec_point === 'undefined') ? '.'
+			: dec_point, s = '', toFixedFix = function(n, prec) {
 		var k = Math.pow(10, prec);
 		return '' + Math.round(n * k) / k;
 	};
@@ -72,29 +79,31 @@ Array.prototype.random = function() {
 	return this[Math.round((Math.random() * (this.length - 1)))];
 };
 
-/***************
+/*******************************************************************************
  * genKey()
- *
- * Generates an arbitary key that consists of the alpha-numeric and special character sets, but with confusing characters like';1', 'i', and 'l' removed
- *
- * Key is a charater string that defines the charaters and can consist of:
- * 	u - Upper case
- * 	l - lower case
- * 	n - number
- *  s - special character
- *  x - any of the above
- *
- *  for example genKey('unlllaaa') would produce 'E5ncyCgt'
+ * 
+ * Generates an arbitary key that consists of the alpha-numeric and special
+ * character sets, but with confusing characters like';1', 'i', and 'l' removed
+ * 
+ * Key is a charater string that defines the charaters and can consist of: u -
+ * Upper case l - lower case n - number s - special character x - any of the
+ * above
+ * 
+ * for example genKey('unlllaaa') would produce 'E5ncyCgt'
  */
 function genKey(key) {
-	var uc = [ 'A', 'B', 'C', 'E', 'F', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'R', 'T', 'W', 'Y', 'Z' ];
-	var lc = [ 'a', 'b', 'd', 'e', 'g', 'h', 'k', 'n', 'p', 'q', 'r', 's', 't', 'x', 'y', 'z' ];
+	var uc = [ 'A', 'B', 'C', 'E', 'F', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'R',
+			'T', 'W', 'Y', 'Z' ];
+	var lc = [ 'a', 'b', 'd', 'e', 'g', 'h', 'k', 'n', 'p', 'q', 'r', 's', 't',
+			'x', 'y', 'z' ];
 	var nc = [ '2', '3', '4', '5', '6', '7', '8', '9' ];
 	var sc = [ '=', '-', '.', '_', '@' ];
 	var an = [].concat(uc).concat(lc).concat(nc);
 	var ny = [].concat(sc).concat(an);
 	return key.replace(/[xlunas]/g, function(c) {
-		return (c === 'u' ? uc.random() : (c === 'l' ? lc.random() : (c === 'n' ? nc.random() : (c === 's' ? sc.random() : (c === 'a' ? an.random() : ny.random())))));
+		return (c === 'u' ? uc.random() : (c === 'l' ? lc.random()
+				: (c === 'n' ? nc.random() : (c === 's' ? sc.random()
+						: (c === 'a' ? an.random() : ny.random())))));
 	});
 }
 
@@ -228,7 +237,7 @@ function toast(text) {
 				$("#snackbar").removeClass("show");
 				toastTimeout = null;
 			}
-		}, 3000);
+		}, 2990);
 	}
 };
 
@@ -241,23 +250,155 @@ $(document).ready(function() {
 
 var app = angular.module("myApp", [ 'ngRoute' ]);
 
-app.config([ "$locationProvider", "$routeProvider", function($locationProvider, $routeProvider) {
-	$locationProvider.html5Mode(true);
+app.config([ "$locationProvider", "$routeProvider",
+		function($locationProvider, $routeProvider) {
+			$locationProvider.html5Mode(true);
 
-	$routeProvider.when('/', {
-		templateUrl : '/pages/home.php',
-	}).when('/about', {
-		templateUrl : '/pages/about.php',
-		controller : 'AboutCtrl'
-	}).when('/config', {
-		templateUrl : '/pages/config.php',
-		controller : 'ConfigCtrl'
-	}).otherwise({
-		templateUrl : '/pages/404.php'
-	});
-} ]);
+			$routeProvider.when('/', {
+				templateUrl : '/pages/home.php',
+				controller : 'HomeCtrl'
+			}).when('/about', {
+				templateUrl : '/pages/about.php',
+				controller : 'AboutCtrl'
+			}).when('/config', {
+				templateUrl : '/pages/config.php',
+				controller : 'ConfigCtrl'
+			}).otherwise({
+				templateUrl : '/pages/404.php'
+			});
+		} ]);
 
 logger("Hello There!");
+/*
+                            _ _            _ _               _   _
+   ___ ___  _ __ ___  _ __ (_) | ___    __| (_)_ __ ___  ___| |_(_)_   _____
+  / __/ _ \| '_ ` _ \| '_ \| | |/ _ \  / _` | | '__/ _ \/ __| __| \ \ / / _ \
+ | (_| (_) | | | | | | |_) | | |  __/ | (_| | | | |  __/ (__| |_| |\ V /  __/
+  \___\___/|_| |_| |_| .__/|_|_|\___|  \__,_|_|_|  \___|\___|\__|_| \_/ \___|
+                     |_|
+*/
+app.directive('compile', [ '$compile', function($compile) {
+	return function(scope, element, attrs) {
+		scope.$watch(function(scope) {
+			// watch the 'compile' expression for changes
+			return scope.$eval(attrs.compile);
+		}, function(value) {
+			// when the 'compile' expression changes assign it into the current DOM
+			element.html(value);
+
+			// compile the new DOM and link it to the current scope.
+			// NOTE: we only compile .childNodes so that we don't get into infinite loop compiling ourselves
+			$compile(element.contents())(scope);
+		});
+	};
+} ]);
+app.directive('imageonload', [ function() {
+	return {
+	restrict : 'A',
+	link : function(scope, element, attrs) {
+		element.bind('load', function() {
+			//call the function that was passed
+			scope.$apply(attrs.imageonload);
+		});
+	}
+	};
+} ]);
+/*
+             _ ____
+  __ _ _ __ (_) ___|_   _____
+ / _` | '_ \| \___ \ \ / / __|
+| (_| | |_) | |___) \ V / (__
+ \__,_| .__/|_|____/ \_/ \___|
+      |_|
+*/
+app.service('apiSvc', [ "$http", function($http, netSvc) {
+//	app.service('apiSvc', [ "$http", "netSvc", function($http, netSvc) {
+	apiSvc = this; // cuz "this" changes later
+
+	apiSvc.online = false;
+
+//	/***
+//	*
+//	*/
+//	netSvc.addStateListener(function(tf) {
+//		apiSvc.online = tf;
+//	});
+//
+//	apiSvc.isOnline = function() {
+//		return apiSvc.online;
+//	};
+
+	/***
+	* CAll an API
+	* pass a data object, the callback to notify and whether to use POST method or not
+	* Use post=true for sending data so that it is not cached.
+	* If using GET, the nocache set to true will force a new version *if* the API has been updated recently
+	*/
+	apiSvc.call = function(api, data, notify, post, nocache) {
+
+		txdata = {};
+		logtxdata = {};
+
+		// now move the user data in
+		for ( var attrname in data) {
+			txdata[attrname] = data[attrname];
+			logtxdata[attrname] = data[attrname];
+		}
+
+		var method = "GET"; // BAD BAD BAD, but I can't cache for offline otherwise
+		var qs = "";
+		if (post) {
+			method = "POST";
+		} else {
+			if (!nocache) {
+				txdata["cached"] = api_build_date_raw;
+			}
+			qs = "?" + $.param(txdata);
+		}
+
+		xxlogger("apiSvc.call('" + api + "', '" + method + "')");
+		//console.log(logtxdata);
+
+		// Send it all over to the server
+		$http({
+		method : method,
+		url : '/api/' + api + ".php" + qs,
+		data : $.param(txdata),
+		headers : {
+			// set the headers so angular passing info as form data (not request payload)
+			'Content-Type' : 'application/x-www-form-urlencoded'
+		}
+		}).then(function(data) {
+			xxlogger("apiSvc.call(): success");
+			//console.log(data);
+			data = data.data; // http response object returned, strip out the server response
+
+			if (typeof notify == "function") {
+				xxlogger("apiSvc.call(): calling notifier");
+				notify(data);
+			}
+		}, function(data) {
+			xxlogger("apiSvc.call(): failed");
+			//console.log(data);
+			ldata = {};
+			if (data.status != 200) {
+				xxlogger("apiSvc.call(): creating error data object");
+				// We probably got rubbish back, so create a pretified version
+				ldata.success = false;
+				ldata.status = "error";
+				ldata.message = "The server failed to process the request (Err#" + data.status + ")";
+				ldata.console = data.data; // allows you to see the error text in the console where you would expect some explanation
+			} else {
+				ldata = data.data;
+			}
+
+			if (typeof notify == "function") {
+				notify(ldata);
+			}
+		});
+	};
+
+} ]);
 app.controller('AboutCtrl', [ "$scope", function($scope) {
 	$scope.app_id = app_id;
 	$scope.build_date = build_date;
@@ -273,4 +414,17 @@ app.controller('ConfigCtrl', [ "$scope", function($scope) {
 app.controller('FooterCtrl', [ "$scope", function($scope) {
 	// This is only used to update the copyright year to "this year". Massive overkill.
 	$scope.nowDate = Date.now();
+} ]);
+app.controller('HomeCtrl', [ "$scope", "apiSvc", function($scope, apiSvc) {
+	$scope.loading = true;
+	$scope.title="Welcome Home";
+	logger("Started HomeCtrl");
+	apiSvc.call("getEnv", {}, function(data) {
+		logger("HomeCtrl::handleGetEnv()");
+		console.log(data);
+		if(data.message.length) {
+			toast(data.message);
+		}
+		$scope.loading = false;
+	}, true); // do post so response is not cached
 } ]);
