@@ -31,17 +31,17 @@ for($s = floor ( $start ); $s <= $end; $s += $call_delay) {
 $tsnow = timestampNow ();
 
 // Do the setup and clear up
-echo "Normalising Database\n";
+echo "tick(): Normalising Database\n";
 setupTables ();
-echo "Setting up GPIO\n";
+echo "tick(): Setting up GPIO\n";
 setupGpio ();
 
-echo "\nChecking status at " . timestampFormat ( $tsnow, "Y-m-d\TH:i:s T" ) . "\n";
-if ($darksky_key != "") {
-	echo "Location: " . $loc . " (" . latToDms ( $lat ) . ", " . lngToDms ( $lng ) . ")\n\n";
-} else {
-	echo "Location: SIMULATED ENVIRONMENT\n\n";
-}
+echo "\ntick(): Startup at " . timestampFormat ( $tsnow, "Y-m-d\TH:i:s T" ) . "\n";
+// if ($darksky_key != "") {
+// 	echo "Location: " . $loc . " (" . latToDms ( $lat ) . ", " . lngToDms ( $lng ) . ")\n\n";
+// } else {
+// 	echo "Location: SIMULATED ENVIRONMENT\n\n";
+// }
 //clearSensorLogger ();
 
 $quiet = false;
@@ -51,13 +51,16 @@ foreach ( $secs as $k => $s ) {
 	tick ( $quiet );
 	$quiet = true;
 
-	$now = microTime ( true );
-	$tsnow = time2Timestamp ( floor ( $now ) );
-
+	echo "tick(): Checking Alarm Status\n";
+	checkAlarms ();
+	
 	echo "tick(): writing env to oled file\n\n";
 	$estr = getConfig("env");
 	file_put_contents ( "/tmp/oled.json", $estr );
 
+	$now = microTime ( true );
+	$tsnow = time2Timestamp ( floor ( $now ) );
+	
 	echo "TICK: " . timestampFormat ( $tsnow, "H:i:s " ) . ": ";
 	if (isset ( $secs [$k + 1] )) {
 		$wake = $secs [$k + 1];

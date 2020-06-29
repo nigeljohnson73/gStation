@@ -11,7 +11,7 @@ $apidate = newestFile ( dirname ( __FILE__ ) . "/api" );
 <head>
 <base href="/">
 
-<title><?php echo $app_title ?></title>
+<title><?php echo $loc - $app_title ?></title>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 

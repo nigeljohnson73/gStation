@@ -1,12 +1,129 @@
 <?php
 
+function sendAlert($message) {
+	global $loc, $app_title, $pushover_user_key, $pushover_api_token, $pushover_server_url, $pushover_server_title;
+
+	echo "Alert(): " . $message . "\n";
+	logger ( LL_INFO, "Alert(): " . $message );
+
+	if (strlen ( $pushover_user_key ) && strlen ( $pushover_api_token )) {
+		/*
+		 * curl_setopt($c, CURLOPT_POSTFIELDS, array(
+		 * //'token' => $this->getToken(),
+		 * //'user' => $this->getUser(),
+		 * //'title' => $this->getTitle(),
+		 * //'message' => $this->getMessage(),
+		 * 'html' => $this->getHtml(),
+		 * 'device' => $this->getDevice(),
+		 * 'priority' => $this->getPriority(),
+		 * 'timestamp' => $this->getTimestamp(),
+		 * 'expire' => $this->getExpire(),
+		 * 'retry' => $this->getRetry(),
+		 * 'callback' => $this->getCallback(),
+		 * //'url' => $this->getUrl(),
+		 * 'sound' => $this->getSound(),
+		 * //'url_title' => $this->getUrlTitle()
+		 * ));
+		 */
+
+		$post_fields = [ 
+				"token" => $pushover_api_token,
+				"user" => $pushover_user_key,
+				"title" => $loc . " - " . $app_title,
+				"message" => $message
+		];
+
+		if (strlen ( $pushover_server_url )) {
+			$post_fields ["url"] = $pushover_server_url;
+			if (strlen ( $pushover_server_title )) {
+				$post_fields ["url_title"] = $pushover_server_title;
+			}
+		}
+
+		$fn = getSnapshotFileName ();
+		if (strlen ( $fn ) && file_exists ( $fn )) {
+			// echo "Adding file attachment for '$fn' (" . number_format ( filesize ( $fn ) / 1000 ) . "kb)\n";
+			$post_fields ["attachment"] = new CurlFile ( realpath ( $fn ), "image/jpeg", basename ( $fn ) );
+		}
+		// echo "Post_fields:" . ob_print_r ( $post_fields );
+		curl_setopt_array ( $ch = curl_init (), array (
+				CURLOPT_URL => "https://api.pushover.net/1/messages.json",
+				CURLOPT_POSTFIELDS => $post_fields,
+				CURLOPT_SAFE_UPLOAD => true,
+				CURLOPT_RETURNTRANSFER => true
+		) );
+		curl_exec ( $ch );
+		// echo "Curl Exec: " . tfn ( curl_exec ( $ch ) ) . "\n";
+		// var_dump ( curl_getinfo ( $ch ) );
+		curl_close ( $ch );
+	}
+	
+	// TODO: do the bulksms stuff
+}
+
+function checkAlarms() {
+	global $sensors, $mysql, $sensor_age_alarm;
+	
+	$sqls = [ ];
+	
+	$env = ( array ) json_decode ( getConfig ( "env", json_encode ( ( object ) [ ] ) ) );
+	$lalarms = ( array ) json_decode ( getConfig ( "alarms", json_encode ( ( object ) [ ] ) ) );
+	
+	// print_r ( $lalarms );
+	
+	foreach ( $sensors as $s ) {
+		$sqls [] = "(select name, event from sensors where name = '" . $s->name . "' order by event desc limit 1)";
+		$env [($s->name) . ".ALARM"] = "NA";
+	}
+	$res = $mysql->query ( implode ( $sqls, " UNION " ) );
+	
+	if ($res && count ( $res )) {
+		$alarms = [ ];
+		$tsnow = timestampNow ();
+		foreach ( $res as $z ) {
+			$alarm = timestampDifference ( $z ["event"], $tsnow ) > $sensor_age_alarm;
+			//$alarm = false;
+			$alarms [$z ["name"]] = ( object ) [
+					"name" => $z ["name"],
+					"last_read" => $z ["event"],
+					"age" => timestampDifference ( $z ["event"], $tsnow ),
+					"status" => $alarm
+			];
+			$env [($z ["name"]) . ".ALARM"] = $alarm ? "YES" : "NO";
+			if (@$lalarms [$z ["name"]]->status != $alarm) {
+				logger ( LL_INFO, "ALARM changed status from '" . tfn ( @$lalarms [$z ["name"]]->status ) . "' to '" . tfn ( $alarm ) );
+				$message = "";
+				if ($alarm) {
+					$message = "no data for '" . $z ["name"] . "' since " . timestampFormat ( $z ["event"], "Y-m-d\TH:i:s\Z" );
+				} else {
+					$message = "'" . $z ["name"] . "' now functional";
+				}
+				sendAlert ( "Sensor alarm: " . $message );
+			}
+		}
+		
+		// $alarms["ZONE3"] ->status =false;
+		ksort ( $env );
+		ksort ( $alarms );
+		//print_r ( ( object ) $alarms );
+		// print_r((object)$env);
+		setConfig ( "env", json_encode ( ( object ) $env ) );
+		setConfig ( "alarms", json_encode ( ( object ) $alarms ) );
+	}
+}
+
+
 function getSnapshotUrl() {
 	$host = $_SERVER ['HTTP_HOST'];
 	return "http://" . $host . ":8081/?action=stream";
 }
 
+function getSnapshotFileName() {
+	return "/logs/gcam_snapshot.jpg";
+}
+
 function getSnapshotFile() {
-	$fn = "/logs/gcam_snapshot.jpg";
+	$fn = getSnapshotFileName ();
 	if (file_exists ( $fn )) {
 		$ftime = filemtime ( $fn );
 		$now = time ();
@@ -666,70 +783,70 @@ function rebuildModelFromSimulation() {
 function rebuildDataModel() {
 	global $rebuild_from, $demand, $mysql;
 	global $season_adjust_days, $timeszone_adjust_hours;
-	
-	$model = array ();
-	$location = new StdClass();
 
-	$infile = dirname(__FILE__)."/../locations/".$rebuild_from;
-	if(file_exists($infile)) {
-		logger ( LL_INFO, "rebuildDataModel(): Rebuilding from file '$rebuild_from'");
-		$json = file_get_contents($infile);
-		$obj = json_decode($json);
-		foreach($obj->model as $k=>$v) {
-			$date = "2022".$k; // Start in 2022 so we don't (realsitically) hit a leap year;
-			$sod = timestamp2Time($date); // Start of the day in unix
-			$delta = -($season_adjust_days+$timeszone_adjust_hours/24.0)*24*60*60;
+	$model = array ();
+	$location = new StdClass ();
+
+	$infile = dirname ( __FILE__ ) . "/../locations/" . $rebuild_from;
+	if (file_exists ( $infile )) {
+		logger ( LL_INFO, "rebuildDataModel(): Rebuilding from file '$rebuild_from'" );
+		$json = file_get_contents ( $infile );
+		$obj = json_decode ( $json );
+		foreach ( $obj->model as $k => $v ) {
+			$date = "2022" . $k; // Start in 2022 so we don't (realsitically) hit a leap year;
+			$sod = timestamp2Time ( $date ); // Start of the day in unix
+			$delta = - ($season_adjust_days + $timeszone_adjust_hours / 24.0) * 24 * 60 * 60;
 			$new_sod = $sod + $delta;
 
 			// Ajust the sun configs by the alotted amount
 			$sunrise = $new_sod + $v->sunriseOffset;
 			$sunset = $new_sod + $v->sunsetOffset;
-			
+
 			// Reajust the dates based on the new sunrise
-			$nk = timestampFormat(time2Timestamp($sunrise), "md");
-			if($nk == "0229") {
+			$nk = timestampFormat ( time2Timestamp ( $sunrise ), "md" );
+			if ($nk == "0229") {
 				// We really shouldn't!!!
 				echo "ALERT!!!!!! GOT A LEAP YEAR!!!!!!!\n";
-				logger ( LL_ERROR, "rebuildDataModel(): Rebuild failed du an unexpected leap year");
+				logger ( LL_ERROR, "rebuildDataModel(): Rebuild failed du an unexpected leap year" );
 				return false;
 			}
-			
+
 			// calculate the new start of the new day for sun acctivity
-			$rebased_sod = timestamp2Time(timestampFormat(time2Timestamp($new_sod), "Ymd"));
+			$rebased_sod = timestamp2Time ( timestampFormat ( time2Timestamp ( $new_sod ), "Ymd" ) );
 			$v->sunriseOffset = $sunrise - $rebased_sod;
 			$v->sunsetOffset = $sunset - $rebased_sod;
-			$h24 = 24*60*60;
+			$h24 = 24 * 60 * 60;
 			// TODO: Why do I need to do this, I should have taken off the right bit above :(
-			while ($v->sunriseOffset < 0) {
+			while ( $v->sunriseOffset < 0 ) {
 				$v->sunriseOffset += $h24;
 			}
-			while ($v->sunriseOffset >= $h24) {
+			while ( $v->sunriseOffset >= $h24 ) {
 				$v->sunriseOffset -= $h24;
 			}
-			while ($v->sunsetOffset < 0) {
+			while ( $v->sunsetOffset < 0 ) {
 				$v->sunsetOffset += $h24;
 			}
-			while ($v->sunsetOffset >= $h24) {
+			while ( $v->sunsetOffset >= $h24 ) {
 				$v->sunsetOffset -= $h24;
 			}
 			// Don't ajust the rest, they will only ever by wrong by the previous or next day
-			$model[$nk] = $v;
-			
-			//$model[timestampFormat(time2Timestamp($sunrise), "md")] = $v;
+			$model [$nk] = $v;
+
+			// $model[timestampFormat(time2Timestamp($sunrise), "md")] = $v;
 		}
 		$location = $obj->location;
-	} else if(strtoupper($rebuild_from) == "DEMANDS") {
-		if(count($demand)) {
-			logger ( LL_INFO, "rebuildDataModel(): Rebuilding from Demand Ramping");
+	} else if (strtoupper ( $rebuild_from ) == "DEMANDS") {
+		if (count ( $demand )) {
+			logger ( LL_INFO, "rebuildDataModel(): Rebuilding from Demand Ramping" );
 			$location->name = "Demand Ramping";
 			$model = rebuildModelFromDemands ();
 		} else {
-			logger ( LL_WARN, "rebuildDataModel(): Demand Ramping is corrupted");
+			logger ( LL_WARN, "rebuildDataModel(): Demand Ramping is corrupted" );
 		}
 	}
-	
-	if(count($model) == 0) {
-		logger ( LL_INFO, "rebuildDataModel(): Rebuilding from Simulation");
+
+	if (count ( $model ) == 0) {
+		logger ( LL_INFO, "rebuildDataModel(): Rebuilding from Simulation" );
 		$location->name = "Simulation";
 		$model = rebuildModelFromSimulation ();
 	}
@@ -744,7 +861,7 @@ function rebuildDataModel() {
 
 			$mysql->query ( "REPLACE INTO model (id, data) VALUES(?, ?)", "ss", array_values ( $values ) );
 		}
-		setConfig("location", json_encode ( $location ));
+		setConfig ( "location", json_encode ( $location ) );
 		logger ( LL_INFO, "rebuildDataModel(): Stored model to database" );
 	} else {
 		logger ( LL_INFO, "rebuildDataModel(): No model generated" );
@@ -1946,7 +2063,7 @@ function getAllGraphColours() {
 }
 
 function getGraphColour($name) {
-	//echo ("getGraphColour('$name')\n");
+	// echo ("getGraphColour('$name')\n");
 	global $sensors, $triggers;
 
 	if ($name == "temperatureDay") {
@@ -1973,7 +2090,7 @@ function getGraphColour($name) {
 
 	$ret = null;
 	foreach ( $sensors as $x ) {
-		if($name == "DEMANDED") {
+		if ($name == "DEMANDED") {
 			$name = "DEMAND";
 		}
 		if ($ret == null && $x->name == $name) {

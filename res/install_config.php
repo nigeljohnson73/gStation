@@ -1,7 +1,7 @@
 <?php
 // Update this to where you are and the name you want to see in the browser
 $local_timezone = "Europe/London";
-//$loc = "gsDev";
+//$loc = "gsDev"; // Used for the browser and alerts
 
 // Sensor zero is the PI itself.
 $sensors [1]->type = "DS18B20"; // EMPTY, DS18B20, DHT11 or DHT22 // Root Zone (ZONE1)
@@ -134,5 +134,10 @@ $bulksms_notify = "447000000000";
 // $bulksms_alert_sunrise = true;
 // $bulksms_alert_sunset = true;
 // $bulksms_alert_tod = true;
+
+$pushover_user_key = ""; // you
+$pushover_api_token = ""; // the application
+$pushover_server_url = ""; // The URL to go to the server in the message, must be accessible from your device
+//$pushover_server_title = "Go to $loc"; // The text that will be shown for the link
 
 ?>

@@ -1,8 +1,9 @@
 <?php
 $local_timezone = "Europe/London"; // Where are you locally based for time references
-$loc = "gsDev";
+$loc = "gsDev"; // Specific instance of the gStation - used in alerts and the browser
 
 $sensor_age = 30; // sensor data older than this in seconds will be ignored
+$sensor_age_alarm = 5*60;
 $sensors = [ ];
 $sensors [] = ( object ) [
 		"name" => "PI",
@@ -176,6 +177,17 @@ $bulksms_alert_sunset = false;
 $bulksms_alert_tod = false;
 /**
  * END BULKSMS
+ */
+
+/**
+ * START PUSHOVER SETUP
+ */
+$pushover_user_key = ""; // you
+$pushover_api_token = ""; // the application
+$pushover_server_url = ""; // The URL to go to the server in the message, must be accessible from your device
+$pushover_server_title = "Go to $loc"; // The text that will be shown for the link
+/**
+ * END PUSHOVER
  */
 
 /**

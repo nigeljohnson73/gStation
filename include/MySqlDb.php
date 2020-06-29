@@ -23,11 +23,17 @@ class MySqlDb {
 		}
 	}
 
+	public function errorMessage() {
+		return $this->conn->error;
+	}
+
 	public function query($query, $type = null, $params = null) {
 		$this->query = $query;
 		$stmt = $this->conn->prepare ( $this->query );
 		if ($stmt == false) {
 			logger ( LL_ERROR, "mySqlDb::query(): prepare statement failed: " . $query );
+			logger ( LL_ERROR, "mySqlDb::query(): prepare statement error: " . $this->conn->error );
+			// echo "mySqlDb::query(): prepare statement failed: ".$this->conn->error."\n";
 			return null;
 		}
 
@@ -60,8 +66,10 @@ class MySqlDb {
 
 			$stmt->free_result ();
 
-			// echo ob_print_r($results);
 			return $results;
+		} else {
+			logger ( LL_ERROR, "mySqlDb::query(): \$stmt->result_metadata() failed: " . ob_print_r ( tfn ( $this->conn->error ) ) );
+			// echo "mySqlDb::query(): \$stmt->result_metadata() failed: " . ob_print_r ( tfn ( $this->conn->error ) );
 		}
 
 		logger ( LL_DEBUG, "mySqlDb::query(): no meta data returned" );
