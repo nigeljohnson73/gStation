@@ -2,6 +2,7 @@
 
 function sendPushover_RAW($message) {
 	global $loc, $app_title, $pushover_user_key, $pushover_api_token, $pushover_server_url, $pushover_server_title;
+	echo timestampFormat(timestampNow(), "Y-m-d\TH:i:s\Z"). ": Pushover send starting.\n";
 	if (strlen ( $pushover_user_key ) && strlen ( $pushover_api_token )) {
 		/*
 		 * curl_setopt($c, CURLOPT_POSTFIELDS, array(
@@ -48,16 +49,19 @@ function sendPushover_RAW($message) {
 				CURLOPT_SAFE_UPLOAD => true,
 				CURLOPT_RETURNTRANSFER => true
 		) );
-		curl_exec ( $ch );
-		// echo "Curl Exec: " . tfn ( curl_exec ( $ch ) ) . "\n";
-		// var_dump ( curl_getinfo ( $ch ) );
+		//curl_exec ( $ch );
+		echo "Curl Exec: " . tfn ( curl_exec ( $ch ) ) . "\n";
+		print_r ( curl_getinfo ( $ch ) );
 		curl_close ( $ch );
 	}
+	echo timestampFormat(timestampNow(), "Y-m-d\TH:i:s\Z"). ": Pushover send complete.\n";
 }
 
 function sendPushover($message) {
-	// Spawn off a xchild process to do it so that we can return t othe tick quickly.
-	exec ("php ".realpath(dirname(__FILE__)."/../sh/send_pushover.php")." \"".$message."\" > /tmp/pushover.log 2>&1 &");
+	// Spawn off a child process to do it so that we can return t othe tick quickly.
+	$exec = "php ".realpath(dirname(__FILE__)."/../sh/send_pushover.php")." \"".$message."\" > /tmp/pushover.log 2>&1 &";
+	exec($exec);
+echo "Executed: ".$exec."\n";
 }
 
 function sendAlert($message) {

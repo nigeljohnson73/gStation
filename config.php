@@ -9,7 +9,7 @@ $sensors [] = ( object ) [
 		"name" => "PI",
 		"label" => "PI",
 		"type" => "PI",
-		"colour" => "#cc0000"
+		"colour" => "#660000"
 ];
 $sensors [] = ( object ) [
 		"name" => "ZONE1",
