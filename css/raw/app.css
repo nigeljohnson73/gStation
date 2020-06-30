@@ -315,6 +315,43 @@ cover {
 /************
  */
 
+.sensor-holder .name {
+	color:#333;
+/* 	margin-top:10px; */
+}
+.sensor-holder.light-moon .name {
+	color:#fff;
+}
+.sensor-holder.light-sun .name {
+	color:#333;
+}
+.sensor-holder.state-alarm .name {
+	color:#fff;
+}
+.sensor-holder.state-normal .name {
+	color:#333;
+}
+
+.sensor-holder.light-moon {
+	background-color:#003;
+	color:#aaa;
+}
+.sensor-holder.light-sun {
+	background-color:#fc9;
+	color:#666;
+}
+.sensor-holder.state-alarm {
+	background-color:#c00;
+	color:#ccc;
+}
+.sensor-holder.state-normal {
+	background-color:#cfc;
+	color:#999;
+}
+.sensor-holder.state-disabled, .sensor-holder.state-disabled .name {
+	background-color:#ccc;
+	color:#999;
+}
 .colour-container, .trigger-container, .sensor-container {
 	text-align:center;
 	vertical-align:top;
@@ -326,6 +363,7 @@ cover {
 	padding-left:10px; 
 	padding-right:10px; 
 	padding-bottom:15px;
+	padding-top:15px;
 	margin-bottom:5px; 
 }
 
@@ -334,19 +372,24 @@ cover {
 	border: solid 1px #ccc;
 	border-radius:10px;
 }
-.sensor-holder .sensor .label, .sensor-holder .sensor .value {
+
+.demand-holder {
+	margin-right:5px;
+}
+/* .sensor-holder .sensor .label, .sensor-holder .sensor .value {
 	display:inline-block;
 }
 .sensor-holder .sensor .label {
-/* 	width:45%;
- */	text-align:right;
+	width:45%;
+	text-align:right;
 	color:#d0d0d0;
 }
 .sensor-holder .sensor .value {
-/* 	width:55%;
- */	text-align:left;
+	width:55%;
+	text-align:left;
 }
-.colour-container .label, .trigger-container .label, .sensor-container .label {
+ */
+ .colour-container .label, .trigger-container .label, .sensor-container .label {
 	color:#999;
 	padding:0px;
 }

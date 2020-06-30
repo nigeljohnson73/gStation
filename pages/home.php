@@ -43,14 +43,33 @@ function getSensorData($env) {
 	<div class="row">
 		<div class="col-sm-5">
 		<div class="snapshot-container" data-ng-show="camshot.available"><a href='{{camshot.livestream_url}}' target='live_stream'><img  src='{{camshot.src}}' alt='Video capture snapshot' class='img-thumbnail' /></a></div>
+		
+		<div class='sensor-container'>
+			<div class='sensor-holder demand-holder light-{{env.demand.light}}'>
+				<div class='name'>DEMAND</div>
+				<div class='value'>{{env.demand.temperature}}°C</div>
+				<div class='value'>{{env.demand.humidity}}%RH</div>
+			</div>
+			<div  data-ng-repeat="sensor in env.sensors" class='sensor-holder state-{{sensor.state}}'>
+				<div class='name'>{{sensor.label}}</div>
+				<div class='value' data-ng-show='sensor.temperature'>{{sensor.temperature}}°C</div>
+				<div class='value' data-ng-hide='sensor.temperature'>&nbsp;</div>
+				<div class='value' data-ng-show='sensor.humidity'>{{sensor.humidity}}%RH</div>
+				<div class='value' data-ng-hide='sensor.humidity'>&nbsp;</div>
+			</div>
+		</div>
+		
 		<div class="info-container">
 			<div class="nextsun-container">{{env.info.nextsun}}</div>
 			<div class="location-container" data-ng-show="env.location.maplink">Location: <a href="{{env.location.maplink}}" target="location_map">{{env.location.name}}</a></div>
-			<div class="location-container" data-ng-hide="env.location.maplink">Location: {{env.location.name}}</div>
+			<div class="location-container" data-ng-hide="env.location.maplink">Model: {{env.location.name}}</div>
 			<div class="build-container">Model built on {{env.location.build | date : 'yyyy-MM-dd'}} at {{env.location.build | date : 'HH:mm:ss'}}</div>
 			<div class="updated-container">Environment updated on {{env.timestamp | date : 'yyyy-MM-dd'}} at {{env.timestamp | date : 'HH:mm:ss'}}</div>
 			
 		</div>
+	</div>
+	
+		<!-- 
 		<hr />
 <?php
 			$fn = getSnapshotFile();
@@ -61,7 +80,7 @@ function getSensorData($env) {
 			$sd = getSensorData($env);
 			// echo "</pre>";
 			
-			echo "<div class='trigger-container'>\n";
+			echo "<div class='sensor-container'>\n";
 			foreach($sd as $k => $v) {
 				echo "				<div class='sensor-holder'><div class='label'>".$k."</div>";
 				foreach($v as $l => $s) {
@@ -83,16 +102,14 @@ function getSensorData($env) {
 			}
 			
 			echo "</div>\n";
-			?>
+			?><!-- 
 			<pre><?php echo "Environment status at " . timestampFormat ( timestampNow (), "Y-m-d\TH:i:s T" ) . "\n"; ?>
 
 Location: <?php print_r(json_decode(getConfig("location"))) ?>
 
 Current model: <?php print_r(getModel(timestampNow())) ?>
 
-Current environment: <?php print_r(json_decode(getConfig("env"))) ?></pre>
-		</div>
-	
+Current environment: <?php print_r(json_decode(getConfig("env"))) ?></pre> -->
 
 
 

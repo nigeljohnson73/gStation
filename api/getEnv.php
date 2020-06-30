@@ -60,12 +60,15 @@ $env->data->tod = str_replace("'", "", $env->data->tod);
 // Extract and process the system demands
 $env->demand = envExtract ( "DEMAND", $dbenv );
 $env->demand->light = str_replace("'", "", $env->demand->light);
+$env->demand->light="sun";
 unset($env->demand->alarm);
+
+$env->pi = envExtract ( "PI", $dbenv );
 
 // Extract and process sensor information
 $env->sensors = [ ];
 foreach ( $sensors as $s ) {
-	if ($s->name != "DEMAND" && ! objExists ( $s->name, $env->sensors )) {
+	if ($s->name != "DEMAND" && $s->name != "PI" && ! objExists ( $s->name, $env->sensors )) {
 		// echo "Processing sensor '".$s->name."'\n";
 		// print_r ( $s );
 		$sensor = envExtract ( $s->name, $dbenv );
