@@ -42,86 +42,42 @@ function getSensorData($env) {
 <div class="container-fluid text-center">
 	<div class="row">
 		<div class="col-sm-5">
-		<div data-ng-hide='env'><img src='/gfx/ajax-loader-bar.gif' alt='Waiting for environment to load'/></div>
-		<div class="snapshot-container" data-ng-show="camshot.available"><a href='{{camshot.livestream_url}}' target='live_stream'><img  src='{{camshot.src}}' alt='Video capture snapshot' class='img-thumbnail' /></a></div>
-		
-		<div class='sensor-container' data-ng-show='env.sensors'>
-			<div class='sensor-holder demand-holder light-{{env.demand.light}}' data-ng-show='env.demand'>
-				<div class='name'>DEMAND</div>
-				<div class='value'>{{env.demand.temperature}}°C</div>
-				<div class='value'>{{env.demand.humidity}}%RH</div>
-			</div>
-			<div  data-ng-repeat="sensor in env.sensors" class='sensor-holder state-{{sensor.state}}'>
-				<div class='name'>{{sensor.label}}</div>
-				<div class='value' data-ng-show='sensor.temperature'>{{sensor.temperature}}°C</div>
-				<div class='value' data-ng-hide='sensor.temperature'>&nbsp;</div>
-				<div class='value' data-ng-show='sensor.humidity'>{{sensor.humidity}}%RH</div>
-				<div class='value' data-ng-hide='sensor.humidity'>&nbsp;</div>
-			</div>
-		</div>
-
-		<div class='trigger-container' data-ng-show='env.triggers'>
-			<div  data-ng-repeat="trigger in env.triggers" class='trigger-holder state-{{trigger.state}}'>
-				<div class='name'>{{trigger.label}}</div>
-			</div>
-		</div>
-		
-		<div class="info-container" data-ng-show="env.info">
-			<div class="nextsun-container" data-ng-show="env.info.nextsun">{{env.info.nextsun}}</div>
-			<div class="location-container" data-ng-show="env.location">
-				<div class="location-detail" data-ng-show="env.location.maplink">Location: <a href="{{env.location.maplink}}" target="location_map">{{env.location.name}}</a></div>
-				<div class="location-detail" data-ng-hide="env.location.maplink">Model: {{env.location.name}}</div>
-				<div class="build-container">Model built on {{env.location.build | date : 'yyyy-MM-dd'}} at {{env.location.build | date : 'HH:mm:ss'}}</div>
-				<div class="updated-container">Environment updated on {{env.timestamp | date : 'yyyy-MM-dd'}} at {{env.timestamp | date : 'HH:mm:ss'}}</div>
-			</div>
+			<div data-ng-hide='env'><img src='/gfx/ajax-loader-bar.gif' alt='Waiting for environment to load'/></div>
+			<div class="snapshot-container" data-ng-show="camshot.available"><a href='{{camshot.livestream_url}}' target='live_stream'><img  src='{{camshot.src}}' alt='Video capture snapshot' class='img-thumbnail' /></a></div>
 			
-		</div>
-	</div>
+			<div class='sensor-container' data-ng-show='env.sensors'>
+				<div class='sensor-holder demand-holder light-{{env.demand.light}}' data-ng-show='env.demand'>
+					<div class='name'>DEMAND</div>
+					<div class='value'>{{env.demand.temperature}}°C</div>
+					<div class='value'>{{env.demand.humidity}}%RH</div>
+				</div>
+				<div  data-ng-repeat="sensor in env.sensors" class='sensor-holder state-{{sensor.state}}'>
+					<div class='name'>{{sensor.label}}</div>
+					<div class='value' data-ng-show='sensor.temperature'>{{sensor.temperature}}°C</div>
+					<div class='value' data-ng-hide='sensor.temperature'>&nbsp;</div>
+					<div class='value' data-ng-show='sensor.humidity'>{{sensor.humidity}}%RH</div>
+					<div class='value' data-ng-hide='sensor.humidity'>&nbsp;</div>
+				</div>
+			</div>
 	
-		<!-- 
-		<hr />
-<?php
-			$fn = getSnapshotFile();
-			if($fn) echo "			<a href='".getSnapshotUrl()."' target='live_stream'><img  src='/gfx/snapshot.php' alt='Video capture snapshot' class='img-thumbnail' style='margin-bottom:8px; margin-right:5px;' /></a>\n";
-
-			$env = json_decode(getConfig("env"));
-			// echo "<pre>";
-			$sd = getSensorData($env);
-			// echo "</pre>";
+			<div class='trigger-container' data-ng-show='env.triggers'>
+				<div  data-ng-repeat="trigger in env.triggers" class='trigger-holder state-{{trigger.state}}'>
+					<div class='name'>{{trigger.label}}</div>
+				</div>
+			</div>
 			
-			echo "<div class='sensor-container'>\n";
-			foreach($sd as $k => $v) {
-				echo "				<div class='sensor-holder'><div class='label'>".$k."</div>";
-				foreach($v as $l => $s) {
-					echo "<div class='sensor'><div class='value'>$s</div></div>";
-				}
-				echo "</div>\n";
-			}
-			echo "</div>\n";
-			
-			echo "<div class='trigger-container'>\n";
-			foreach($triggers as $t) {
-				if(isset(((array)$env)["TRIGGER.".$t->name])) {
-					$val = ((array)$env)["TRIGGER.".$t->name];
-					$col = $val ? "#0f0" : "#030";
-				} else {
-					$col = "#ccc";
-				}
-				echo "				<div class='trigger-holder'><div class='label'>".$t->label."</div><div class='trigger' style='background-color:$col'>&nbsp;</div></div>\n";
-			}
-			
-			echo "</div>\n";
-			?><!-- 
-			<pre><?php echo "Environment status at " . timestampFormat ( timestampNow (), "Y-m-d\TH:i:s T" ) . "\n"; ?>
-
-Location: <?php print_r(json_decode(getConfig("location"))) ?>
-
-Current model: <?php print_r(getModel(timestampNow())) ?>
-
-Current environment: <?php print_r(json_decode(getConfig("env"))) ?></pre> -->
-
-
-
+			<div class="info-container" data-ng-show="env.info">
+				<div class="nextsun-container" data-ng-show="env.info.nextsun">{{env.info.nextsun}}</div>
+				<div class="location-container" data-ng-show="env.location">
+					<div class="location-detail" data-ng-show="env.location.maplink">Location: <a href="{{env.location.maplink}}" target="location_map">{{env.location.name}}</a></div>
+					<div class="location-detail" data-ng-hide="env.location.maplink">Model: <strong>{{env.location.name}}</strong></div>
+					<div class="build-container">Model built on {{env.location.build | date : 'yyyy-MM-dd'}} at {{env.location.build | date : 'HH:mm:ss'}}</div>
+					<div class="updated-container">Environment updated on {{env.timestamp | date : 'yyyy-MM-dd'}} at {{env.timestamp | date : 'HH:mm:ss'}}</div>
+				</div>
+				
+			</div>
+		</div>
+	
 		<div class="col-sm-7 text-center">
 			<div class='colour-container'>
 <?php
@@ -148,19 +104,5 @@ Current environment: <?php print_r(json_decode(getConfig("env"))) ?></pre> -->
 		</div>
 	</div> <!-- ROW --> 
 
-	<div class="row">
-		<div class="container-fluid debug">
-			<pre><?php
-			$str = $logger->getString ();
-			if (strlen ( trim ( $str ) ) == 0) {
-				$str = "*** NO LOG OUTPUT ***";
-			} else {
-				$str = trim ( $str ) . "\n*** END OF LOG ***";
-			}
-			echo "Log output:\n";
-			echo $str . "\n";
-			?></pre>
-		</div>
-	</div>
 </div>
 <?php include_once '_footer.php';?>
