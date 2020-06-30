@@ -222,7 +222,7 @@ nav.navbar {
 	border-top: solid 1px #ccc;
 	border-radius: 0;
 	margin: 0;
-	margin-bottom: 20px;
+	/* margin-bottom: 20px; */
 }
 
 .nav-justified>li>a, .nav-justified>li.active>a {
@@ -248,12 +248,12 @@ nav .nav,footer nav .nav li {
 	margin-bottom: 20px;
 }
 
-footer.app-footer {
+footer {
 	border-top: solid 1px #ccc;
 	background-color: #fff !important;
 	color: #3b0084 !important;
 	padding-top: 10px;
-	padding-bottom: 10px;
+	padding-bottom: 50px;
 }
 
 footer.app-footer p {
@@ -316,9 +316,34 @@ cover {
 /************
  */
 
+.colour-container, .trigger-container, .sensor-container {
+	text-align:center;
+	vertical-align:top;
+}
+.colour-holder, .trigger-holder, .sensor-holder {
+	display:inline-block;
+	margin: 0 auto;
+	width:80px;
+	padding-left:10px; 
+	padding-right:10px; 
+	padding-bottom:10px;
+	padding-top:5px;
+	margin-bottom:5px; 
+	margin-right:5px;
+}
+
+.sensor-holder {
+	width:120px;
+	border: solid 1px #ccc;
+	border-radius:10px;
+}
+
+.demand-holder {
+	margin-left:5px;
+	margin-right:3px;
+}
 .sensor-holder .name {
 	color:#333;
-/* 	margin-top:10px; */
 }
 .sensor-holder.light-moon .name {
 	color:#fff;
@@ -342,6 +367,7 @@ cover {
 	color:#666;
 }
 .sensor-holder.state-alarm {
+	border-color:#000;
 	background-color:#c00;
 	color:#ccc;
 }
@@ -350,32 +376,8 @@ cover {
 	color:#999;
 }
 .sensor-holder.state-disabled, .sensor-holder.state-disabled .name {
-	background-color:#ccc;
-	color:#999;
-}
-.colour-container, .trigger-container, .sensor-container {
-	text-align:center;
-	vertical-align:top;
-}
-.colour-holder, .trigger-holder, .sensor-holder {
-	display:inline-block;
-	margin: 0 auto;
-	width:80px;
-	padding-left:10px; 
-	padding-right:10px; 
-	padding-bottom:15px;
-	padding-top:15px;
-	margin-bottom:5px; 
-}
-
-.sensor-holder {
-	width:120px;
-	border: solid 1px #ccc;
-	border-radius:10px;
-}
-
-.demand-holder {
-	margin-right:5px;
+	background-color:#dadada;
+	color:#aaa;
 }
 /* .sensor-holder .sensor .label, .sensor-holder .sensor .value {
 	display:inline-block;
