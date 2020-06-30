@@ -89,7 +89,7 @@ function installFile($src, $filename) {
 }
 
 function getAppId() {
-	$app_id = "xW23vFeww";
+	$app_id = "TBD";
 	return $app_id;
 }
 

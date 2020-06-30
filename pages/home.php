@@ -42,9 +42,19 @@ function getSensorData($env) {
 <div class="container-fluid text-center">
 	<div class="row">
 		<div class="col-sm-5">
+		<div class="snapshot-container" data-ng-show="camshot.available"><a href='{{camshot.livestream_url}}' target='live_stream'><img  src='{{camshot.src}}' alt='Video capture snapshot' class='img-thumbnail' /></a></div>
+		<div class="info-container">
+			<div class="nextsun-container">{{env.info.nextsun}}</div>
+			<div class="location-container" data-ng-show="env.location.maplink">Location: <a href="{{env.location.maplink}}" target="location_map">{{env.location.name}}</a></div>
+			<div class="location-container" data-ng-hide="env.location.maplink">Location: {{env.location.name}}</div>
+			<div class="build-container">Model built on {{env.location.build | date : 'yyyy-MM-dd'}} at {{env.location.build | date : 'HH:mm:ss'}}</div>
+			<div class="updated-container">Environment updated on {{env.timestamp | date : 'yyyy-MM-dd'}} at {{env.timestamp | date : 'HH:mm:ss'}}</div>
+			
+		</div>
+		<hr />
 <?php
 			$fn = getSnapshotFile();
-			if($fn) echo "			<a href='".getSnapshotUrl()."' target='liveStream'><img  src='/gfx/snapshot.php' alt='Video capture snapshot' class='img-thumbnail' style='margin-bottom:8px; margin-right:5px;' /></a>\n";
+			if($fn) echo "			<a href='".getSnapshotUrl()."' target='live_stream'><img  src='/gfx/snapshot.php' alt='Video capture snapshot' class='img-thumbnail' style='margin-bottom:8px; margin-right:5px;' /></a>\n";
 
 			$env = json_decode(getConfig("env"));
 			// echo "<pre>";
