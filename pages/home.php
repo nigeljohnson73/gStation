@@ -42,10 +42,11 @@ function getSensorData($env) {
 <div class="container-fluid text-center">
 	<div class="row">
 		<div class="col-sm-5">
+		<div data-ng-hide='env'><img src='/gfx/ajax-loader-bar.gif' alt='Waiting for environment to load'/></div>
 		<div class="snapshot-container" data-ng-show="camshot.available"><a href='{{camshot.livestream_url}}' target='live_stream'><img  src='{{camshot.src}}' alt='Video capture snapshot' class='img-thumbnail' /></a></div>
 		
-		<div class='sensor-container'>
-			<div class='sensor-holder demand-holder light-{{env.demand.light}}'>
+		<div class='sensor-container' data-ng-show='env.sensors'>
+			<div class='sensor-holder demand-holder light-{{env.demand.light}}' data-ng-show='env.demand'>
 				<div class='name'>DEMAND</div>
 				<div class='value'>{{env.demand.temperature}}°C</div>
 				<div class='value'>{{env.demand.humidity}}%RH</div>
@@ -59,12 +60,14 @@ function getSensorData($env) {
 			</div>
 		</div>
 		
-		<div class="info-container">
-			<div class="nextsun-container">{{env.info.nextsun}}</div>
-			<div class="location-container" data-ng-show="env.location.maplink">Location: <a href="{{env.location.maplink}}" target="location_map">{{env.location.name}}</a></div>
-			<div class="location-container" data-ng-hide="env.location.maplink">Model: {{env.location.name}}</div>
-			<div class="build-container">Model built on {{env.location.build | date : 'yyyy-MM-dd'}} at {{env.location.build | date : 'HH:mm:ss'}}</div>
-			<div class="updated-container">Environment updated on {{env.timestamp | date : 'yyyy-MM-dd'}} at {{env.timestamp | date : 'HH:mm:ss'}}</div>
+		<div class="info-container" data-ng-show="env.info">
+			<div class="nextsun-container" data-ng-show="env.info.nextsun">{{env.info.nextsun}}</div>
+			<div class="location-container" data-ng-show="env.location">
+				<div class="location-detail" data-ng-show="env.location.maplink">Location: <a href="{{env.location.maplink}}" target="location_map">{{env.location.name}}</a></div>
+				<div class="location-detail" data-ng-hide="env.location.maplink">Model: {{env.location.name}}</div>
+				<div class="build-container">Model built on {{env.location.build | date : 'yyyy-MM-dd'}} at {{env.location.build | date : 'HH:mm:ss'}}</div>
+				<div class="updated-container">Environment updated on {{env.timestamp | date : 'yyyy-MM-dd'}} at {{env.timestamp | date : 'HH:mm:ss'}}</div>
+			</div>
 			
 		</div>
 	</div>

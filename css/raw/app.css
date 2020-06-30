@@ -30,13 +30,6 @@ textarea.text-input {
 		DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace;
 }
 
-
-
-
-
-
-
-
 body {
 	font: 400 15px Lato, sans-serif;
 	line-height: 1.6em;
@@ -47,7 +40,7 @@ strong {
 	color: #000;
 }
 
-h1,h2,h3,h4 {
+h1, h2, h3, h4 {
 	margin-top: 30px;
 	margin-bottom: 20px;
 	text-transform: none;
@@ -58,11 +51,11 @@ h1:first-of-type {
 	margin-top: 0px;
 }
 
-h1,h2 {
+h1, h2 {
 	font-weight: 600;
 }
 
-h3,h4 {
+h3, h4 {
 	font-weight: 400;
 }
 
@@ -83,7 +76,7 @@ h4 {
 	font-size: 18px;
 }
 
-p,li {
+p, li {
 	margin-bottom: 10px;
 }
 
@@ -95,7 +88,7 @@ a {
 	color: #3b0084;
 }
 
-a:link,a:visited,a:link:active,a:visited:active {
+a:link, a:visited, a:link:active, a:visited:active {
 	color: #3b0084;
 	cursor: auto;
 	font-weight: 600;
@@ -106,7 +99,7 @@ a:hover {
 }
 
 pre {
-	text-align:left;
+	text-align: left;
 }
 
 .container-fluid {
@@ -133,18 +126,18 @@ footer.app-footer {
 */
 }
 
-textarea.ng-invalid.ng-pristine,input.ng-invalid.ng-pristine {
+textarea.ng-invalid.ng-pristine, input.ng-invalid.ng-pristine {
 	box-shadow: 0px 0px 20px rgba(255, 164, 0, .3);
 	border-color: #ccc;
 }
 
-textarea.ng-invalid.ng-dirty,input.ng-invalid.ng-dirty {
+textarea.ng-invalid.ng-dirty, input.ng-invalid.ng-dirty {
 	box-shadow: 0px 0px 20px rgba(128, 0, 0, .9);
 	border-color: #f00;
 	color: #f00;
 }
 
-textarea.ng-valid.ng-dirty,input.ng-valid.ng-dirty {
+textarea.ng-valid.ng-dirty, input.ng-valid.ng-dirty {
 	box-shadow: 0px 0px 20px rgba(0, 203, 0, .3);
 	border-color: #090;
 }
@@ -233,7 +226,7 @@ nav.navbar {
 	background-color: #eee;
 }
 
-nav .nav,footer nav .nav li {
+nav .nav, footer nav .nav li {
 	margin: 0;
 }
 
@@ -274,23 +267,25 @@ footer.app-footer p {
 	}
 }
 
-.table-striped tbody>tr:nth-child(even)>td,.table-striped tbody>tr:nth-child(even)>th {
+.table-striped tbody>tr:nth-child(even)>td, .table-striped tbody>tr:nth-child(even)>th
+	{
 	background-color: #f1f1f1;
 }
 
 .form-control.disabled {
-	color:#ddd;
+	color: #ddd;
 }
 
 .btn-group button.btn {
-	border-radius:0px;
+	border-radius: 0px;
 }
+
 .btn-group button.btn:first-child {
-	border-radius:6px 0 0 6px;
+	border-radius: 6px 0 0 6px;
 }
 
 .btn-group button.btn:last-child {
-	border-radius:0 6px 6px 0;
+	border-radius: 0 6px 6px 0;
 }
 
 /*************
@@ -314,69 +309,106 @@ cover {
 
 /************
  */
+.snapshot-container {
+	margin-bottom: 20px;
+}
+
+.location-container, .nextsun-container {
+	margin: auto;
+	width: 60%;
+	min-width: 400px;
+	padding-left: 10px;
+	padding-right: 10px;
+	padding-bottom: 10px;
+	padding-top: 5px;
+	border: solid 1px #ccc;
+	background-color: #eee;
+	border-radius: 10px;
+	margin-bottom: 20px;
+}
+
+.nextsun-container {
+	padding-top:20px;
+	padding-bottom:20px;
+	font-weight: 500;
+	font-size: 18pt;
+	text-transform: capitalize;
+}
 
 .colour-container, .trigger-container, .sensor-container {
-	text-align:center;
-	vertical-align:top;
+	text-align: center;
+	vertical-align: top;
+	margin-bottom: 10px;
 }
+
 .colour-holder, .trigger-holder, .sensor-holder {
-	display:inline-block;
+	display: inline-block;
 	margin: 0 auto;
-	width:80px;
-	padding-left:10px; 
-	padding-right:10px; 
-	padding-bottom:10px;
-	padding-top:5px;
-	margin-bottom:5px; 
-	margin-right:5px;
+	width: 80px;
+	padding-left: 10px;
+	padding-right: 10px;
+	padding-bottom: 10px;
+	padding-top: 5px;
+	margin-right: 5px;
 }
 
 .sensor-holder {
-	width:120px;
+	width: 120px;
 	border: solid 1px #ccc;
-	border-radius:10px;
+	border-radius: 10px;
+	margin-bottom: 10px;
 }
 
 .demand-holder {
-	margin-left:5px;
-	margin-right:3px;
+	margin-left: 5px;
+	margin-right: 3px;
 }
+
 .sensor-holder .name {
-	color:#333;
+	color: #333;
 }
+
 .sensor-holder.light-moon .name {
-	color:#fff;
+	color: #fff;
 }
+
 .sensor-holder.light-sun .name {
-	color:#333;
+	color: #333;
 }
+
 .sensor-holder.state-alarm .name {
-	color:#fff;
+	color: #fff;
 }
+
 .sensor-holder.state-normal .name {
-	color:#333;
+	color: #333;
 }
 
 .sensor-holder.light-moon {
-	background-color:#003;
-	color:#aaa;
+	background-color: #003;
+	color: #aaa;
 }
+
 .sensor-holder.light-sun {
-	background-color:#fc9;
-	color:#666;
+	background-color: #fc9;
+	color: #666;
 }
+
 .sensor-holder.state-alarm {
-	border-color:#000;
-	background-color:#c00;
-	color:#ccc;
+	border-color: #000;
+	background-color: #c00;
+	color: #ccc;
+	background-color: #c00;
 }
+
 .sensor-holder.state-normal {
-	background-color:#cfc;
-	color:#999;
+	background-color: #cfc;
+	color: #999;
 }
+
 .sensor-holder.state-disabled, .sensor-holder.state-disabled .name {
-	background-color:#dadada;
-	color:#aaa;
+	background-color: #dadada;
+	color: #aaa;
 }
 /* .sensor-holder .sensor .label, .sensor-holder .sensor .value {
 	display:inline-block;
@@ -391,8 +423,8 @@ cover {
 	text-align:left;
 }
  */
- .colour-container .label, .trigger-container .label, .sensor-container .label {
-	color:#999;
-	padding:0px;
+.colour-container .label, .trigger-container .label, .sensor-container .label
+	{
+	color: #999;
+	padding: 0px;
 }
-
