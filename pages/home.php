@@ -59,6 +59,12 @@ function getSensorData($env) {
 				<div class='value' data-ng-hide='sensor.humidity'>&nbsp;</div>
 			</div>
 		</div>
+
+		<div class='trigger-container' data-ng-show='env.triggers'>
+			<div  data-ng-repeat="trigger in env.triggers" class='trigger-holder state-{{trigger.state}}'>
+				<div class='name'>{{trigger.label}}</div>
+			</div>
+		</div>
 		
 		<div class="info-container" data-ng-show="env.info">
 			<div class="nextsun-container" data-ng-show="env.info.nextsun">{{env.info.nextsun}}</div>

@@ -407,10 +407,28 @@ cover {
 	color: #999;
 }
 
-.sensor-holder.state-disabled, .sensor-holder.state-disabled .name {
+.sensor-holder.state-disabled, .sensor-holder.state-disabled .name, .trigger-holder.state-disabled {
 	background-color: #dadada;
 	color: #aaa;
 }
+
+.trigger-holder {
+	width: 80px;
+	border: solid 1px #ccc;
+	border-radius: 10px;
+	margin-bottom: 10px;
+}
+
+.trigger-holder.state-on {
+	background-color:#0c0;
+	color:#fff;
+}
+.trigger-holder.state-off {
+	background-color:#030;
+	color:#999;
+	
+}
+
 /* .sensor-holder .sensor .label, .sensor-holder .sensor .value {
 	display:inline-block;
 }
