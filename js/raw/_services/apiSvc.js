@@ -66,7 +66,20 @@ app.service('apiSvc', [ "$http", function($http, netSvc) {
 		}).then(function(data) {
 			logger("apiSvc.call(): success", "dbg");
 			//console.log(data);
-			data = data.data; // http response object returned, strip out the server response
+			if(isJson(data.data)) {
+				// http response object returned, strip out the server response
+				data = data.data;
+			} else {
+				logger("apiSvc.call(): malformed response, creating error data object", "wrn");
+				ldata = {};
+				// text in the console where you would expect some explanation
+				ldata.console = data.data.split(/\r\n|\r|\n/); 
+				ldata.success = false;
+				ldata.status = "error";
+				ldata.message = "";
+				data = ldata;
+				logger(data, "wrn");
+			}
 
 			if (typeof notify == "function") {
 				logger("apiSvc.call(): calling notifier", "dbg");
@@ -77,7 +90,7 @@ app.service('apiSvc', [ "$http", function($http, netSvc) {
 			//console.log(data);
 			ldata = {};
 			if (data.status != 200) {
-				xxlogger("apiSvc.call(): creating error data object");
+				logger("apiSvc.call(): creating error data object", "wrn");
 				// We probably got rubbish back, so create a pretified version
 				ldata.success = false;
 				ldata.status = "error";
@@ -92,5 +105,4 @@ app.service('apiSvc', [ "$http", function($http, netSvc) {
 			}
 		});
 	};
-
 } ]);

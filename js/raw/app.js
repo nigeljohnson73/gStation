@@ -6,6 +6,23 @@
  |_| |_|\___|_| .__/ \___|_|	|_|  \__,_|_| |_|\___|\__|_|\___/|_| |_|___/
               |_|														   
  */
+
+isJson = function(item) {
+	item = typeof item !== "string" ? JSON.stringify(item) : item;
+
+	try {
+		item = JSON.parse(item);
+	} catch (e) {
+		return false;
+	}
+
+	if (typeof item === "object" && item !== null) {
+		return true;
+	}
+
+	return false;
+};
+
 colorLuminance = function(hex, lum) {
 
 	// validate hex string
@@ -28,7 +45,7 @@ colorLuminance = function(hex, lum) {
 	return rgb;
 };
 
-//log_to_console = 2;
+// log_to_console = 2;
 logger = function(l, err) {
 	if (!err)
 		err = "inf";
