@@ -28,26 +28,34 @@ colorLuminance = function(hex, lum) {
 	return rgb;
 };
 
-log_to_console = 2;
-xxlogger = function(l, err) {
-	logger(l, err);
-};
-
+//log_to_console = 2;
 logger = function(l, err) {
 	if (!err)
 		err = "inf";
 
 	// TODO: make this more resolute
-	if (err == "dbg" && log_to_console >= 3) {
+	// if (err == "dbg" && log_to_console >= 3) {
+	// console.debug(l);
+	// }
+	// if (err == "inf" && log_to_console >= 2) {
+	// console.log(l);
+	// }
+	// if (err == "wrn" && log_to_console >= 1) {
+	// console.warn(l);
+	// }
+	// if (err == "err" && log_to_console >= 0) {
+	// console.error(l);
+	// }
+	if (err == "dbg") {
 		console.debug(l);
 	}
-	if (err == "inf" && log_to_console >= 2) {
+	if (err == "inf") {
 		console.log(l);
 	}
-	if (err == "wrn" && log_to_console >= 1) {
+	if (err == "wrn") {
 		console.warn(l);
 	}
-	if (err == "err" && log_to_console >= 0) {
+	if (err == "err") {
 		console.error(l);
 	}
 };

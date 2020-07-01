@@ -29,26 +29,34 @@ colorLuminance = function(hex, lum) {
 	return rgb;
 };
 
-log_to_console = 2;
-xxlogger = function(l, err) {
-	logger(l, err);
-};
-
+//log_to_console = 2;
 logger = function(l, err) {
 	if (!err)
 		err = "inf";
 
 	// TODO: make this more resolute
-	if (err == "dbg" && log_to_console >= 3) {
+	// if (err == "dbg" && log_to_console >= 3) {
+	// console.debug(l);
+	// }
+	// if (err == "inf" && log_to_console >= 2) {
+	// console.log(l);
+	// }
+	// if (err == "wrn" && log_to_console >= 1) {
+	// console.warn(l);
+	// }
+	// if (err == "err" && log_to_console >= 0) {
+	// console.error(l);
+	// }
+	if (err == "dbg") {
 		console.debug(l);
 	}
-	if (err == "inf" && log_to_console >= 2) {
+	if (err == "inf") {
 		console.log(l);
 	}
-	if (err == "wrn" && log_to_console >= 1) {
+	if (err == "wrn") {
 		console.warn(l);
 	}
-	if (err == "err" && log_to_console >= 0) {
+	if (err == "err") {
 		console.error(l);
 	}
 };
@@ -356,7 +364,7 @@ app.service('apiSvc', [ "$http", function($http, netSvc) {
 			qs = "?" + $.param(txdata);
 		}
 
-		xxlogger("apiSvc.call('" + api + "', '" + method + "')");
+		logger("apiSvc.call('" + api + "', '" + method + "')", "dbg");
 		//console.log(logtxdata);
 
 		// Send it all over to the server
@@ -369,16 +377,16 @@ app.service('apiSvc', [ "$http", function($http, netSvc) {
 			'Content-Type' : 'application/x-www-form-urlencoded'
 		}
 		}).then(function(data) {
-			xxlogger("apiSvc.call(): success");
+			logger("apiSvc.call(): success", "dbg");
 			//console.log(data);
 			data = data.data; // http response object returned, strip out the server response
 
 			if (typeof notify == "function") {
-				xxlogger("apiSvc.call(): calling notifier");
+				logger("apiSvc.call(): calling notifier", "dbg");
 				notify(data);
 			}
 		}, function(data) {
-			xxlogger("apiSvc.call(): failed");
+			logger("apiSvc.call(): failed", "err");
 			//console.log(data);
 			ldata = {};
 			if (data.status != 200) {
@@ -426,8 +434,8 @@ app.controller('HomeCtrl', [ "$scope", "$interval", "apiSvc",
 			// https://stackoverflow.com/a/21989838
 			var getEnv = function() {
 				apiSvc.call("getEnv", {}, function(data) {
-					logger("HomeCtrl::handleGetEnv()");
-					console.log(data);
+					logger("HomeCtrl::handleGetEnv()", "dbg");
+					logger(data, "dbg");
 					if (data.success) {
 						$scope.env = data.env;
 					} else {
@@ -444,8 +452,8 @@ app.controller('HomeCtrl', [ "$scope", "$interval", "apiSvc",
 
 			var getSnapshotImage = function() {
 				apiSvc.call("getSnapshotImage", {}, function(data) {
-					logger("HomeCtrl::handleGetSnapshotImage()");
-					console.log(data);
+					logger("HomeCtrl::handleGetSnapshotImage()", "dbg");
+					logger(data, "dbg");
 					if (data.success) {
 						$scope.camshot = data.camshot;
 					} else {

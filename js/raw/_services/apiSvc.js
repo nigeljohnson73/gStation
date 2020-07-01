@@ -51,7 +51,7 @@ app.service('apiSvc', [ "$http", function($http, netSvc) {
 			qs = "?" + $.param(txdata);
 		}
 
-		xxlogger("apiSvc.call('" + api + "', '" + method + "')");
+		logger("apiSvc.call('" + api + "', '" + method + "')", "dbg");
 		//console.log(logtxdata);
 
 		// Send it all over to the server
@@ -64,16 +64,16 @@ app.service('apiSvc', [ "$http", function($http, netSvc) {
 			'Content-Type' : 'application/x-www-form-urlencoded'
 		}
 		}).then(function(data) {
-			xxlogger("apiSvc.call(): success");
+			logger("apiSvc.call(): success", "dbg");
 			//console.log(data);
 			data = data.data; // http response object returned, strip out the server response
 
 			if (typeof notify == "function") {
-				xxlogger("apiSvc.call(): calling notifier");
+				logger("apiSvc.call(): calling notifier", "dbg");
 				notify(data);
 			}
 		}, function(data) {
-			xxlogger("apiSvc.call(): failed");
+			logger("apiSvc.call(): failed", "err");
 			//console.log(data);
 			ldata = {};
 			if (data.status != 200) {
