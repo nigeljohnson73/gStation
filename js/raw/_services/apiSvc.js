@@ -66,41 +66,42 @@ app.service('apiSvc', [ "$http", function($http, netSvc) {
 		}).then(function(data) {
 			logger("apiSvc.call(): success", "dbg");
 			//console.log(data);
+			ldata = {};
 			if(isJson(data.data)) {
 				// http response object returned, strip out the server response
-				data = data.data;
+				ldata = data.data;
 			} else {
-				logger("apiSvc.call(): malformed response, creating error data object", "wrn");
-				ldata = {};
-				// text in the console where you would expect some explanation
-				ldata.console = data.data.split(/\r\n|\r|\n/); 
+				logger("apiSvc.call(): malformed response", "wrn");
+				// Any returned text in the console where you would expect some explanation
+				ldata.console = data.data.trim().split(/\r\n|\r|\n/); 
 				ldata.success = false;
 				ldata.status = "error";
 				ldata.message = "";
-				data = ldata;
-				logger(data, "wrn");
+				logger(ldata, "wrn");
 			}
 
 			if (typeof notify == "function") {
 				logger("apiSvc.call(): calling notifier", "dbg");
-				notify(data);
+				notify(ldata);
 			}
 		}, function(data) {
 			logger("apiSvc.call(): failed", "err");
 			//console.log(data);
 			ldata = {};
-			if (data.status != 200) {
-				logger("apiSvc.call(): creating error data object", "wrn");
-				// We probably got rubbish back, so create a pretified version
+			if (data.status == 200) {
+				ldata = data.data;
+			} else {
+				logger("apiSvc.call(): HTTP failed with status code " + data.status, "wrn");
+				// Any returned text in the console where you would expect some explanation
+				ldata.console = data.data.trim().split(/\r\n|\r|\n/); 
 				ldata.success = false;
 				ldata.status = "error";
-				ldata.message = "The server failed to process the request (Err#" + data.status + ")";
-				ldata.console = data.data; // allows you to see the error text in the console where you would expect some explanation
-			} else {
-				ldata = data.data;
+				ldata.message = "";
+				logger(ldata, "wrn");
 			}
 
 			if (typeof notify == "function") {
+				logger("apiSvc.call(): calling notifier", "dbg");
 				notify(ldata);
 			}
 		});
