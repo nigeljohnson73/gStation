@@ -51,7 +51,7 @@ app.service('apiSvc', [ "$http", function($http, netSvc) {
 			qs = "?" + $.param(txdata);
 		}
 
-		xxlogger("apiSvc.call('" + api + "', '" + method + "')");
+		logger("apiSvc.call('" + api + "', '" + method + "')", "dbg");
 		//console.log(logtxdata);
 
 		// Send it all over to the server
@@ -64,33 +64,46 @@ app.service('apiSvc', [ "$http", function($http, netSvc) {
 			'Content-Type' : 'application/x-www-form-urlencoded'
 		}
 		}).then(function(data) {
-			xxlogger("apiSvc.call(): success");
-			//console.log(data);
-			data = data.data; // http response object returned, strip out the server response
-
-			if (typeof notify == "function") {
-				xxlogger("apiSvc.call(): calling notifier");
-				notify(data);
-			}
-		}, function(data) {
-			xxlogger("apiSvc.call(): failed");
+			logger("apiSvc.call(): success", "dbg");
 			//console.log(data);
 			ldata = {};
-			if (data.status != 200) {
-				xxlogger("apiSvc.call(): creating error data object");
-				// We probably got rubbish back, so create a pretified version
+			if(isJson(data.data)) {
+				// http response object returned, strip out the server response
+				ldata = data.data;
+			} else {
+				logger("apiSvc.call(): malformed response", "wrn");
+				// Any returned text in the console where you would expect some explanation
+				ldata.console = data.data.trim().split(/\r\n|\r|\n/); 
 				ldata.success = false;
 				ldata.status = "error";
-				ldata.message = "The server failed to process the request (Err#" + data.status + ")";
-				ldata.console = data.data; // allows you to see the error text in the console where you would expect some explanation
-			} else {
-				ldata = data.data;
+				ldata.message = "";
+				logger(ldata, "wrn");
 			}
 
 			if (typeof notify == "function") {
+				logger("apiSvc.call(): calling notifier", "dbg");
+				notify(ldata);
+			}
+		}, function(data) {
+			logger("apiSvc.call(): failed", "err");
+			//console.log(data);
+			ldata = {};
+			if (data.status == 200) {
+				ldata = data.data;
+			} else {
+				logger("apiSvc.call(): HTTP failed with status code " + data.status, "wrn");
+				// Any returned text in the console where you would expect some explanation
+				ldata.console = data.data.trim().split(/\r\n|\r|\n/); 
+				ldata.success = false;
+				ldata.status = "error";
+				ldata.message = "";
+				logger(ldata, "wrn");
+			}
+
+			if (typeof notify == "function") {
+				logger("apiSvc.call(): calling notifier", "dbg");
 				notify(ldata);
 			}
 		});
 	};
-
 } ]);

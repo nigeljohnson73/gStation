@@ -9,8 +9,8 @@ app.controller('HomeCtrl', [ "$scope", "$interval", "apiSvc",
 			// https://stackoverflow.com/a/21989838
 			var getEnv = function() {
 				apiSvc.call("getEnv", {}, function(data) {
-					logger("HomeCtrl::handleGetEnv()");
-					console.log(data);
+					logger("HomeCtrl::handleGetEnv()", "dbg");
+					logger(data, "dbg");
 					if (data.success) {
 						$scope.env = data.env;
 					} else {
@@ -27,8 +27,8 @@ app.controller('HomeCtrl', [ "$scope", "$interval", "apiSvc",
 
 			var getSnapshotImage = function() {
 				apiSvc.call("getSnapshotImage", {}, function(data) {
-					logger("HomeCtrl::handleGetSnapshotImage()");
-					console.log(data);
+					logger("HomeCtrl::handleGetSnapshotImage()", "dbg");
+					logger(data, "dbg");
 					if (data.success) {
 						$scope.camshot = data.camshot;
 					} else {

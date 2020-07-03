@@ -26,7 +26,6 @@ $apidate = newestFile ( dirname ( __FILE__ ) . "/api" );
 		<script src='js/app.<?php javascriptPayload() ?>.js?<?php echo $jsdate[0] ?>'></script>
 
 		<script>
-			log_to_console = 2; // Info messages and worse
 			var app_id = '<?php echo getAppId() ?>';
 			var build_date = '<?php echo date("Y/m/d H:i:s", $fdate[0]) ?>';
 			var app_version = '<?php echo getAppVersion() ?>';
