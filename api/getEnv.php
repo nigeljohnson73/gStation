@@ -86,9 +86,9 @@ foreach ( $sensors as $s ) {
 }
 // Calculate the sensor state
 foreach ( $env->sensors as $s ) {
-	if($s->type == "EMPTY") {
+	if($s->type == strtoupper("EMPTY")) {
 		$s->state = "disabled";
-	} else if($s->alarm == "yes") {
+	} else if(strtoupper($s->alarm) == "YES") {
 		$s->state = "alarm";
 	} else {
 		$s->state = "normal";
