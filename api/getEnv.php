@@ -60,7 +60,11 @@ $env->data->tod = str_replace("'", "", $env->data->tod);
 // Extract and process the system demands
 $env->demand = envExtract ( "DEMAND", $dbenv );
 $env->demand->light = str_replace("'", "", $env->demand->light);
-$env->demand->light="sun";
+$env->demand->name = $sensors [6]->name;
+$env->demand->label = $sensors [6]->label;
+$env->demand->colour = $sensors [6]->colour;
+
+//$env->demand->light="sun";
 unset($env->demand->alarm);
 
 $env->pi = envExtract ( "PI", $dbenv );

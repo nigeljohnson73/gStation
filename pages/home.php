@@ -79,6 +79,9 @@ function getSensorData($env) {
 		</div>
 	
 		<div class="col-sm-7 text-center">
+		<div class="chart-container" style="position: relative"><canvas id="temperature-graph"></canvas></div>
+		<div class="chart-container" style="position: relative"><canvas id="humidity-graph"></canvas></div>
+		<hr />
 			<div class='colour-container'>
 <?php
 				$cols = getAllGraphColours();
