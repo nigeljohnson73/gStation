@@ -3,7 +3,7 @@ $local_timezone = "Europe/London"; // Where are you locally based for time refer
 $loc = "gsDev"; // Specific instance of the gStation - used in alerts and the browser
 
 $sensor_age = 30; // sensor data older than this in seconds will be ignored
-$sensor_age_alarm = 5*60;
+$sensor_age_alarm = 2*60;
 $sensors = [ ];
 $sensors [] = ( object ) [
 		"name" => "PI",
