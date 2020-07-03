@@ -3,7 +3,7 @@ app.controller('HomeCtrl', [ "$scope", "$interval", "apiSvc", function($scope, $
 	$scope.humds = [];
 
 	var addSensorReading = function(arr, sensor, value) {
-		while (arr.length >= 1000) {
+		while (arr.length >= (24*60*60/5)) {
 			// Only keep the last hour and a half or so.
 			arr.shift();
 		}
