@@ -473,7 +473,7 @@ app.controller('HomeCtrl', [ "$scope", "$interval", "apiSvc", function($scope, $
 	$scope.humds = [];
 
 	var addSensorReading = function(arr, sensor, value) {
-		while (arr.length >= (24*60*60/5)) {
+		while (arr.length >= (24 * 60 * 60 / 5)) {
 			// Only keep the last hour and a half or so.
 			arr.shift();
 		}
@@ -522,7 +522,7 @@ app.controller('HomeCtrl', [ "$scope", "$interval", "apiSvc", function($scope, $
 		return true;
 	};
 
-	var updateGraph = function(id, arr, title) {
+	var updateGraph = function(id, arr, title, ind) {
 		var ctx = $(id);
 		var myChart = new Chart(ctx, {
 			type : 'line',
@@ -542,6 +542,14 @@ app.controller('HomeCtrl', [ "$scope", "$interval", "apiSvc", function($scope, $
 					text : title
 				},
 				scales : {
+					yAxes : [ {
+						ticks : {
+							// Include a dollar sign in the ticks
+							callback : function(value, index, values) {
+								return value + ind;
+							}
+						}
+					} ],
 					xAxes : [ {
 						type : 'time',
 						distribution : 'linear',
@@ -583,14 +591,14 @@ app.controller('HomeCtrl', [ "$scope", "$interval", "apiSvc", function($scope, $
 				if ($scope.temp_graph) {
 					$scope.temp_graph.update();
 				} else {
-					$scope.temp_graph = updateGraph('#temperature-graph', $scope.temps, "Temperature Readings");
+					$scope.temp_graph = updateGraph('#temperature-graph', $scope.temps, "Temperature Readings", "°C");
 				}
 				;
 
 				if ($scope.humd_graph) {
 					$scope.humd_graph.update();
 				} else {
-					$scope.humd_graph = updateGraph('#humidity-graph', $scope.humds, "Humidity Readings");
+					$scope.humd_graph = updateGraph('#humidity-graph', $scope.humds, "Humidity Readings", "%");
 				}
 				;
 			} else {

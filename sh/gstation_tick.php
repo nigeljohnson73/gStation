@@ -38,11 +38,11 @@ setupGpio ();
 
 echo "\ntick(): Startup at " . timestampFormat ( $tsnow, "Y-m-d\TH:i:s T" ) . "\n";
 // if ($darksky_key != "") {
-// 	echo "Location: " . $loc . " (" . latToDms ( $lat ) . ", " . lngToDms ( $lng ) . ")\n\n";
+// echo "Location: " . $loc . " (" . latToDms ( $lat ) . ", " . lngToDms ( $lng ) . ")\n\n";
 // } else {
-// 	echo "Location: SIMULATED ENVIRONMENT\n\n";
+// echo "Location: SIMULATED ENVIRONMENT\n\n";
 // }
-//clearSensorLogger ();
+// clearSensorLogger ();
 
 $quiet = false;
 foreach ( $secs as $k => $s ) {
@@ -51,18 +51,15 @@ foreach ( $secs as $k => $s ) {
 	tick ( $quiet );
 	$quiet = true;
 
-	//echo "\nChecking Alarm Status\n";
-	//checkAlarms ();
-	
 	echo "\nwriting env to oled file\n";
-	$estr = getConfig("env");
+	$estr = getConfig ( "env" );
 	file_put_contents ( "/tmp/oled.json", $estr );
-	print_r(json_decode($estr));
+	print_r ( json_decode ( $estr ) );
 	echo "\n";
 
 	$now = microTime ( true );
 	$tsnow = time2Timestamp ( floor ( $now ) );
-	
+
 	echo "TICK: " . timestampFormat ( $tsnow, "H:i:s " ) . ": ";
 	if (isset ( $secs [$k + 1] )) {
 		$wake = $secs [$k + 1];

@@ -79,7 +79,7 @@ function checkAlarms($env) {
 
 	$sqls = [ ];
 
-	//$env = ( array ) json_decode ( getConfig ( "env", json_encode ( ( object ) [ ] ) ) );
+	// $env = ( array ) json_decode ( getConfig ( "env", json_encode ( ( object ) [ ] ) ) );
 	$lalarms = ( array ) json_decode ( getConfig ( "alarms", json_encode ( ( object ) [ ] ) ) );
 
 	// print_r ( $lalarms );
@@ -118,16 +118,16 @@ function checkAlarms($env) {
 		}
 
 		// $alarms["ZONE3"] ->status =false;
-		$env["INFO.LASTCHECK"]=timestampNow();
-//echo "Writing LASTCHECK: '".$env["INFO.LASTCHECK"]."'\n";
+		$env ["INFO.LASTCHECK"] = timestampNow ();
+		// echo "Writing LASTCHECK: '".$env["INFO.LASTCHECK"]."'\n";
 		ksort ( $env );
 		ksort ( $alarms );
-		//print_r ( ( object ) $alarms );
+		// print_r ( ( object ) $alarms );
 		// print_r((object)$env);
 		if (! $fired) {
 			echo "checkAlarms(): No changes\n";
 		}
-		//setConfig ( "env", json_encode ( ( object ) $env ) );
+		// setConfig ( "env", json_encode ( ( object ) $env ) );
 		setConfig ( "alarms", json_encode ( ( object ) $alarms ) );
 
 		// print_r(json_decode(getConfig("env")));
@@ -309,15 +309,15 @@ function getConfig($id, $default = false) {
 			$id
 	) );
 	if (is_array ( $ret ) && count ( $ret ) > 0) {
-#echo "getConfig('".$id."')\n";
-#if(strtoupper($id) == "ENV") {
-	#$arr = ( array ) json_decode ( $ret[0]["data"]);
-	#if(isset($arr["INFO.LASTCHECK"])) {
-        	#echo "getConfig('".$id."'): Last Checked: ".timestampFormat($arr["INFO.LASTCHECK"], "Y-m-d\TH:i:s\Z")."\n";
-	#} else {
-        	#echo "getConfig('".$id."'): Last Checked: NEVER\n";
-	#}
-#}
+		// echo "getConfig('".$id."')\n";
+		// if(strtoupper($id) == "ENV") {
+		// $arr = ( array ) json_decode ( $ret[0]["data"]);
+		// if(isset($arr["INFO.LASTCHECK"])) {
+		// echo "getConfig('".$id."'): Last Checked: ".timestampFormat($arr["INFO.LASTCHECK"], "Y-m-d\TH:i:s\Z")."\n";
+		// } else {
+		// echo "getConfig('".$id."'): Last Checked: NEVER\n";
+		// }
+		// }
 		return $ret [0] ["data"];
 	}
 	return $default;
@@ -1940,8 +1940,8 @@ function tick() {
 	$data ["DEMAND.HUMIDITY"] = round ( $model->$humd, 3 );
 	$data ["DATA.HOUR"] = round ( $nowOffset / (60 * 60), 3 );
 	// $data ["DATA.HR"] = floor ( $nowOffset / (60 * 60) );
-	$data ["DATA.HR"] = "".timestampFormat ( timestampNow (), "H" );
-	$data ["DATA.MN"] = "".timestampFormat ( timestampNow (), "i" );
+	$data ["DATA.HR"] = "" . timestampFormat ( timestampNow (), "H" );
+	$data ["DATA.MN"] = "" . timestampFormat ( timestampNow (), "i" );
 	$data ["DATA.TOD"] = "'" . $tod . "'";
 
 	// setConfig ( "temperature_demand", $model->$temp );
@@ -2071,8 +2071,8 @@ function tick() {
 	$data ["INFO.NEXTSUN"] = $next_sun;
 
 	echo "\nChecking sensor alarms\n";
-	$data = checkAlarms($data);
-//echo "Writing LASTCHECK: '".@$data["INFO.LASTCHECK"]."'\n";
+	$data = checkAlarms ( $data );
+	// echo "Writing LASTCHECK: '".@$data["INFO.LASTCHECK"]."'\n";
 
 	// Set the display message
 	$ostr = "";

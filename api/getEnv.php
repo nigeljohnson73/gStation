@@ -10,13 +10,13 @@ function envExtract($what, $where, $override = null) {
 		// echo "Checking '$what' against '$k'\n";
 		if (strpos ( $k, $what ) !== false) {
 			list ( $n, $p ) = explode ( ".", $k );
-			if($override) {
+			if ($override) {
 				$p = $override;
 			} else {
-				$p = strtolower($p);
+				$p = strtolower ( $p );
 			}
 			// echo "Processing '$n'.'$p' = '$v'\n";
-			$ret->$p = strtolower($v);
+			$ret->$p = strtolower ( $v );
 		}
 	}
 	// print_r ( $ret );
@@ -32,11 +32,11 @@ function objExists($what, $arr) {
 	return false;
 }
 
-//$ret->message = "Loaded Environment - still to make it work";
+// $ret->message = "Loaded Environment - still to make it work";
 $dbenv = ( array ) json_decode ( getConfig ( "env", new StdClass () ) );
 $ret->env_dbg = $dbenv;
-if(isset($dbenv["INFO.LASTCHECK"])) {
-	//echo "Last Checked: ".timestampFormat($dbenv["INFO.LASTCHECK"], "Y-m-d\TH:i:s\Z")."\n";
+if (isset ( $dbenv ["INFO.LASTCHECK"] )) {
+	// echo "Last Checked: ".timestampFormat($dbenv["INFO.LASTCHECK"], "Y-m-d\TH:i:s\Z")."\n";
 } else {
 	echo "ALARM STATUS CHECK IS INVALID!\n";
 }
@@ -46,32 +46,32 @@ $env = new StdClass ();
 
 // Extract and process the location details
 $env->location = json_decode ( getConfig ( "location", new StdClass () ) );
-if(isset($env->location->lat)) {
-	$env->location->lat_dms = latToDms($env->location->lat);
+if (isset ( $env->location->lat )) {
+	$env->location->lat_dms = latToDms ( $env->location->lat );
 }
-if(isset($env->location->lon)) {
-	$env->location->lon_dms = lngToDms($env->location->lon);
+if (isset ( $env->location->lon )) {
+	$env->location->lon_dms = lngToDms ( $env->location->lon );
 }
-if(isset($env->location->lat) && isset($env->location->lon)) {
-	$env->location->maplink="https://www.google.com/maps/place/".$env->location->lat.",".$env->location->lon;
+if (isset ( $env->location->lat ) && isset ( $env->location->lon )) {
+	$env->location->maplink = "https://www.google.com/maps/place/" . $env->location->lat . "," . $env->location->lon;
 }
-	
+
 // Extract raw info
 $env->info = envExtract ( "INFO", $dbenv );
 
 // Extract and process the server data block
 $env->data = envExtract ( "DATA", $dbenv );
-$env->data->tod = str_replace("'", "", $env->data->tod);
+$env->data->tod = str_replace ( "'", "", $env->data->tod );
 
 // Extract and process the system demands
 $env->demand = envExtract ( "DEMAND", $dbenv );
-$env->demand->light = str_replace("'", "", $env->demand->light);
+$env->demand->light = str_replace ( "'", "", $env->demand->light );
 $env->demand->name = $sensors [6]->name;
 $env->demand->label = $sensors [6]->label;
 $env->demand->colour = $sensors [6]->colour;
 
-//$env->demand->light="sun";
-unset($env->demand->alarm);
+// $env->demand->light="sun";
+unset ( $env->demand->alarm );
 
 $env->pi = envExtract ( "PI", $dbenv );
 
@@ -92,13 +92,12 @@ foreach ( $sensors as $s ) {
 }
 // Calculate the sensor state
 foreach ( $env->sensors as $s ) {
-	if($s->type == strtoupper("EMPTY")) {
+	if ($s->type == strtoupper ( "EMPTY" )) {
 		$s->state = "disabled";
-	} else if(strtoupper($s->alarm) == "YES") {
+	} else if (strtoupper ( $s->alarm ) == "YES") {
 		$s->state = "alarm";
 	} else {
 		$s->state = "normal";
-		
 	}
 }
 
@@ -112,24 +111,23 @@ foreach ( $triggers as $t ) {
 		$trigger->name = $t->name;
 		$trigger->type = $t->type;
 		$trigger->label = $t->label;
-		$trigger->colour = strtolower($t->colour);
+		$trigger->colour = strtolower ( $t->colour );
 		// print_r ( $sensor );
 		$env->triggers [] = $trigger;
 	}
 }
 // Calculate the trigger state
 foreach ( $env->triggers as $t ) {
-	if($t->type == "EMPTY") {
+	if ($t->type == "EMPTY") {
 		$t->state = "disabled";
-	} else if($t->state == 0) {
+	} else if ($t->state == 0) {
 		$t->state = "off";
 	} else {
 		$t->state = "on";
-		
 	}
 }
 
-$env->timestamp = timestampFormat(timestampNow(), "Y-m-d\TH:i:s\Z");
+$env->timestamp = timestampFormat ( timestampNow (), "Y-m-d\TH:i:s\Z" );
 $ret->env = $env;
 
 endJsonRespose ( $ret, true );

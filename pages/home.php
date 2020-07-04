@@ -41,6 +41,7 @@ function getSensorData($env) {
 ?>
 <div class="container-fluid text-center">
 	<div class="row">
+		<div class="col-sm-1"></div>
 		<div class="col-sm-5">
 			<div data-ng-hide='env'><img src='/gfx/ajax-loader-bar.gif' alt='Waiting for environment to load'/></div>
 			<div class="snapshot-container" data-ng-show="camshot.available"><a href='{{camshot.livestream_url}}' target='live_stream'><img  src='{{camshot.src}}' alt='Video capture snapshot' class='img-thumbnail' /></a></div>
@@ -78,7 +79,7 @@ function getSensorData($env) {
 			</div>
 		</div>
 	
-		<div class="col-sm-7 text-center">
+		<div class="col-sm-5 text-center">
 		<div class="chart-container" style="position: relative"><canvas id="temperature-graph"></canvas></div>
 		<div class="chart-container" style="position: relative"><canvas id="humidity-graph"></canvas></div>
 		<hr />
@@ -105,6 +106,8 @@ function getSensorData($env) {
 				<img src="gfx/static_graph_sun_scheduled.png?<?php echo randomQuery() ?>" alt="Sunrise and sunset schedule graph" class="img-thumbnail" style="margin-bottom:8px; margin-right:5px;" />
 				<img src="gfx/static_graph_daylight_scheduled.png?<?php echo randomQuery() ?>" alt="Scheduled day length graph" class="img-thumbnail" style="margin-bottom:8px; margin-right:5px;" />
 		</div>
+
+		<div class="col-sm-1"></div>
 	</div> <!-- ROW --> 
 
 </div>
