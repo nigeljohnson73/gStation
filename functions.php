@@ -1,12 +1,23 @@
 <?php
-ini_set ( 'memory_limit', '64M' );
-ini_set ( 'post_max_size', '32M' );
+ini_set ( 'memory_limit', '128M' );
+ini_set ( 'post_max_size', '64M' );
 ini_set ( 'upload_max_filesize', '32M' );
 error_reporting ( E_ALL );
 ini_set ( 'display_errors', 'on' );
 
 // All calcuations are done in UTC
 date_default_timezone_set ( "UTC" );
+
+function inArrayByName($name, $arr) {
+	foreach ( $arr as $a ) {
+		if ($a->name == $name) {
+			return true;
+		}
+	}
+	return false;
+}
+
+
 
 function cleanFile($filename, $key) {
 	if (! file_exists ( $filename )) {

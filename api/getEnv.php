@@ -23,15 +23,6 @@ function envExtract($what, $where, $override = null) {
 	return $ret;
 }
 
-function objExists($what, $arr) {
-	foreach ( $arr as $a ) {
-		if ($a->name == $what) {
-			return true;
-		}
-	}
-	return false;
-}
-
 // $ret->message = "Loaded Environment - still to make it work";
 $dbenv = ( array ) json_decode ( getConfig ( "env", new StdClass () ) );
 $ret->env_dbg = $dbenv;
@@ -78,7 +69,7 @@ $env->pi = envExtract ( "PI", $dbenv );
 // Extract and process sensor information
 $env->sensors = [ ];
 foreach ( $sensors as $s ) {
-	if ($s->name != "DEMAND" && $s->name != "PI" && ! objExists ( $s->name, $env->sensors )) {
+	if ($s->name != "DEMAND" && $s->name != "PI" && ! inArrayByName ( $s->name, $env->sensors )) {
 		// echo "Processing sensor '".$s->name."'\n";
 		// print_r ( $s );
 		$sensor = envExtract ( $s->name, $dbenv );
@@ -104,7 +95,7 @@ foreach ( $env->sensors as $s ) {
 // Extract and process trigger details
 $env->triggers = [ ];
 foreach ( $triggers as $t ) {
-	if (! objExists ( $t->name, $env->triggers )) {
+	if (! inArrayByName ( $t->name, $env->triggers )) {
 		// echo "Processing sensor '".$s->name."'\n";
 		// print_r ( $s );
 		$trigger = envExtract ( $t->name, $dbenv, "state" );
