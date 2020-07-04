@@ -34,6 +34,12 @@ function objExists($what, $arr) {
 
 //$ret->message = "Loaded Environment - still to make it work";
 $dbenv = ( array ) json_decode ( getConfig ( "env", new StdClass () ) );
+$ret->env_dbg = $dbenv;
+if(isset($dbenv["INFO.LASTCHECK"])) {
+	//echo "Last Checked: ".timestampFormat($dbenv["INFO.LASTCHECK"], "Y-m-d\TH:i:s\Z")."\n";
+} else {
+	echo "ALARM STATUS CHECK IS INVALID!\n";
+}
 
 // New returnable object
 $env = new StdClass ();

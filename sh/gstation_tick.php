@@ -51,8 +51,8 @@ foreach ( $secs as $k => $s ) {
 	tick ( $quiet );
 	$quiet = true;
 
-	echo "\nChecking Alarm Status\n";
-	checkAlarms ();
+	//echo "\nChecking Alarm Status\n";
+	//checkAlarms ();
 	
 	echo "\nwriting env to oled file\n";
 	$estr = getConfig("env");
