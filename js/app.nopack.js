@@ -477,12 +477,6 @@ app.controller('HomeCtrl', [ "$scope", "$interval", "apiSvc", function($scope, $
 	};
 
 	var addSensorReadingWithDate = function(arr, sensor, value, dte) {
-		while (arr.length >= (24 * 60 * 60 / 5)) {
-			// TODO: Fix this to drop out the values oder than this time ago
-			// Only keep the last hour and a half or so.
-			arr.shift();
-		}
-
 		found = false;
 		if (value == undefined) {
 			// console.log("Skipping bad value for " +
@@ -651,19 +645,33 @@ app.controller('HomeCtrl', [ "$scope", "$interval", "apiSvc", function($scope, $
 				$scope.history.temperature = null;
 				$scope.history.humidity = null;
 
+				// Perform a tidy up so we don't have anything prior to 24 hours ago
+				remove = new Date();
+				remove.setDate(remove.getDate() - 1);
+				angular.forEach($scope.temps, function(item, index) {
+					while (item.date, item.data.length > 0 && item.data[0].t <= remove) {
+						logger("Removing old 'TEMPERATURE' data point from " + item.name, "dbg");
+						item.data.shift();
+					}
+				});
+				angular.forEach($scope.humds, function(item, index) {
+					while (item.date, item.data.length > 0 && item.data[0].t <= remove) {
+						logger("Removing old 'TEMPERATURE' data point from " + item.name, "dbg");
+						item.data.shift();
+					}
+				});
+
 				if ($scope.temp_graph) {
 					$scope.temp_graph.update();
 				} else {
 					$scope.temp_graph = updateGraph('#temperature-graph', $scope.temps, "Temperature Readings", "°C");
 				}
-				;
 
 				if ($scope.humd_graph) {
 					$scope.humd_graph.update();
 				} else {
 					$scope.humd_graph = updateGraph('#humidity-graph', $scope.humds, "Humidity Readings", "%");
 				}
-				;
 			} else {
 				$scope.env = null;
 			}
