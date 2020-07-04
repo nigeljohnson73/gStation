@@ -1,13 +1,48 @@
 <?php
 include_once (dirname ( __FILE__ ) . "/../functions.php");
 $ret = startJsonRespose ();
-//$ret = (object)[];
+// $ret = (object)[];
 $ret->history = ( object ) [ ];
 $hl = 10 * 60;
 
-global $mysql;
+global $mysql, $show_empty, $sensors;
 
-$sql = "(SELECT param, name, event, value FROM sensors WHERE name != 'PI') UNION (SELECT param, 'DEMAND' as name, event, value FROM demands where param != 'LIGHT')";
+$demand_exclude = [];
+$sensor_exclude = [ 
+		"PI"
+];
+
+// Hide any disabled sensors. This is only for temp and humidtiy history... no triggers or other stuff
+if (! show_empty) {
+	foreach ( $sensors as $s ) {
+		if ($s->type == "EMPTY") {
+			$sensor_exclude [] = $s->name;
+		}
+	}
+}
+
+$swhere="";
+if (count ( $sensor_exclude )) {
+	$swhere = " WHERE name ";
+	if (count ( $sensor_exclude ) == 1) {
+		$swhere .= "!= '" . $sensor_exclude [0] . "'";
+	} else {
+		$swhere .= "NOT IN ('" . implode ( "', '", $sensor_exclude ) . "')";
+	}
+}
+
+$dwhere="";
+if (count ( $demand_exclude )) {
+	$dwhere = " WHERE param ";
+	if (count ( $demand_exclude ) == 1) {
+		$dwhere .= "!= '" . $demand_exclude [0] . "'";
+	} else {
+		$dwhere .= "NOT IN ('" . implode ( "', '", $demand_exclude ) . "')";
+	}
+}
+
+// $sql = "(SELECT param, name, event, value FROM sensors WHERE name != 'PI') UNION (SELECT param, 'DEMAND' as name, event, value FROM demands where param != 'LIGHT')";
+$sql = "(SELECT param, name, event, value FROM sensors" . $swhere . ") UNION (SELECT param, 'DEMAND' as name, event, value FROM demands".$dwhere.")";
 $res = $mysql->query ( $sql );
 
 echo "Averaging shots: " . $hl . "\n";
@@ -28,16 +63,16 @@ if ($res && count ( $res )) {
 			echo "\t" . $param . ": got " . count ( $values ) . " values for '" . $name . "'\n";
 			// $data = [ ];
 			foreach ( $values as $tm => $arr ) {
-			//	if (strtoupper ( $param ) == "TEMPERATURE") {
-					$t = timestampFormat ( time2Timestamp ( $tm ), "Y-m-d\TH:i:s\Z" );
-					// echo "\t\t" . $param . "." . $name . ": got " . count ( $arr ) . " values for " . $t . "(" . $tm . ")\n";
-					$avg = array_sum ( $arr ) / count ( $arr );
-					$int [$param] [$name] [$t] = $avg;
-					// $data [] = ( object ) [
-					// "t" => $t,
-					// "y" => $avg
-					// ];
-			//	}
+				// if (strtoupper ( $param ) == "TEMPERATURE") {
+				$t = timestampFormat ( time2Timestamp ( $tm ), "Y-m-d\TH:i:s\Z" );
+				// echo "\t\t" . $param . "." . $name . ": got " . count ( $arr ) . " values for " . $t . "(" . $tm . ")\n";
+				$avg = array_sum ( $arr ) / count ( $arr );
+				$int [$param] [$name] [$t] = $avg;
+				// $data [] = ( object ) [
+				// "t" => $t,
+				// "y" => $avg
+				// ];
+				// }
 				// $data_points [] = ( object ) [
 				// "name" => $name,
 				// "values" => $data
@@ -54,10 +89,10 @@ if ($res && count ( $res )) {
 	// var_dump($params);
 
 	foreach ( $tmp as $param => $names ) {
-		echo "Processing ".$param."\n";
+		echo "Processing " . $param . "\n";
 		$zones = [ ];
 		foreach ( $names as $name => $values ) {
-			echo "Processing ".$param.".".$name."\n";
+			echo "Processing " . $param . "." . $name . "\n";
 			$data = [ ];
 			foreach ( $values as $ts => $v ) {
 				$data [] = ( object ) [ 
@@ -70,10 +105,10 @@ if ($res && count ( $res )) {
 					"data" => $data
 			];
 		}
-		$param = strtolower($param);
-		//echo "Adding ".count($zones)." to '".$param."'\n";
+		$param = strtolower ( $param );
+		// echo "Adding ".count($zones)." to '".$param."'\n";
 		$ret->history->$param = $zones;
-		//print_r($ret);
+		// print_r($ret);
 	}
 } else {
 	echo "Got no data!!\n";

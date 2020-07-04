@@ -620,14 +620,13 @@ app.controller('HomeCtrl', [ "$scope", "$interval", "apiSvc", function($scope, $
 						addSensorReadingWithDate($scope.humds, obj, sitem.y, new Date(sitem.t));
 					});
 				}
-				// Now do the lastest in
+				// Now do the lastest values in
 				addSensorReading($scope.temps, obj, obj.temperature);
 				addSensorReading($scope.humds, obj, obj.humidity);
 
 				// See if we have a queue to add to the existing non demand
 				// stuff
 				angular.forEach($scope.env.sensors, function(item, index) {
-					addSensorReading($scope.temps, item, item.temperature);
 					if ($scope.history && $scope.history.temperature) {
 						if (r = objectDataByName($scope.history.temperature, item.name)) {
 							logger("Processing " + r.length + " historic temperatures into '" + item.name + "'", "dbg");
@@ -636,7 +635,7 @@ app.controller('HomeCtrl', [ "$scope", "$interval", "apiSvc", function($scope, $
 							});
 						}
 					}
-					addSensorReading($scope.humds, item, item.humidity);
+					addSensorReading($scope.temps, item, item.temperature);
 					if ($scope.history && $scope.history.humidity) {
 						if (r = objectDataByName($scope.history.humidity, item.name)) {
 							logger("Processing " + r.length + " historic humidities being loaded to '" + item.name + "'", "dbg");
@@ -645,6 +644,7 @@ app.controller('HomeCtrl', [ "$scope", "$interval", "apiSvc", function($scope, $
 							});
 						}
 					}
+					addSensorReading($scope.humds, item, item.humidity);
 				});
 
 				// Reset so we don't do this again
@@ -671,9 +671,7 @@ app.controller('HomeCtrl', [ "$scope", "$interval", "apiSvc", function($scope, $
 				toast(data.message);
 			}
 			$scope.loading = false;
-		}, true); // do post so
-		// response is not
-		// cached
+		}, true); // do post so response is not cached
 	};
 	getEnv();
 	$scope.env_api_call = $interval(getEnv, 5000);
@@ -681,10 +679,10 @@ app.controller('HomeCtrl', [ "$scope", "$interval", "apiSvc", function($scope, $
 	// Get the environmental data every 5 seconds
 	var getGraphHistory = function() {
 		apiSvc.call("getGraphHistory", {}, function(data) {
-			logger("HomeCtrl::handleGetGraphHistory()", "inf");
+			logger("HomeCtrl::handleGetGraphHistory()", "dbg");
 			logger(data, "dbg");
 			if (data.success) {
-				logger(data.history);
+				// logger(data.history, "dbg");
 				$scope.history = data.history;
 			} else {
 				// $scope.env = null;
@@ -693,14 +691,11 @@ app.controller('HomeCtrl', [ "$scope", "$interval", "apiSvc", function($scope, $
 				toast(data.message);
 			}
 			$scope.loading = false;
-		}, true); // do post so
-		// response is not
-		// cached
+		}, true); // do post so response is not cached
 	};
 	getGraphHistory();
 
-	// Get the snalshot image, it's only gnerated every
-	// minute, so no rush
+	// Get the snalshot image, it's only generated every minute, so no rush
 	var getSnapshotImage = function() {
 		apiSvc.call("getSnapshotImage", {}, function(data) {
 			logger("HomeCtrl::handleGetSnapshotImage()", "dbg");
@@ -714,9 +709,7 @@ app.controller('HomeCtrl', [ "$scope", "$interval", "apiSvc", function($scope, $
 				toast(data.message);
 			}
 			$scope.loading = false;
-		}, true); // do post so
-		// response is not
-		// cached
+		}, true); // do post so response is not cached
 	};
 	getSnapshotImage();
 	$scope.snapshot_image_api_call = $interval(getSnapshotImage, 10000);

@@ -3,6 +3,7 @@ include_once (dirname ( __FILE__ ) . "/../functions.php");
 $ret = startJsonRespose ();
 global $sensors;
 global $triggers;
+global $show_empty;
 
 function envExtract($what, $where, $override = null) {
 	$ret = new StdClass ();
@@ -72,13 +73,15 @@ foreach ( $sensors as $s ) {
 	if ($s->name != "DEMAND" && $s->name != "PI" && ! inArrayByName ( $s->name, $env->sensors )) {
 		// echo "Processing sensor '".$s->name."'\n";
 		// print_r ( $s );
-		$sensor = envExtract ( $s->name, $dbenv );
-		$sensor->name = $s->name;
-		$sensor->type = $s->type;
-		$sensor->label = $s->label;
-		$sensor->colour = ($s->colour);
-		// print_r ( $sensor );
-		$env->sensors [] = $sensor;
+		if($show_empty || $s->type != "EMPTY") {
+			$sensor = envExtract ( $s->name, $dbenv );
+			$sensor->name = $s->name;
+			$sensor->type = $s->type;
+			$sensor->label = $s->label;
+			$sensor->colour = ($s->colour);
+			// print_r ( $sensor );
+			$env->sensors [] = $sensor;
+		}
 	}
 }
 // Calculate the sensor state
@@ -98,13 +101,15 @@ foreach ( $triggers as $t ) {
 	if (! inArrayByName ( $t->name, $env->triggers )) {
 		// echo "Processing sensor '".$s->name."'\n";
 		// print_r ( $s );
-		$trigger = envExtract ( $t->name, $dbenv, "state" );
-		$trigger->name = $t->name;
-		$trigger->type = $t->type;
-		$trigger->label = $t->label;
-		$trigger->colour = strtolower ( $t->colour );
-		// print_r ( $sensor );
-		$env->triggers [] = $trigger;
+		if($show_empty || $t->type != "EMPTY") {
+			$trigger = envExtract ( $t->name, $dbenv, "state" );
+			$trigger->name = $t->name;
+			$trigger->type = $t->type;
+			$trigger->label = $t->label;
+			$trigger->colour = strtolower ( $t->colour );
+			// print_r ( $sensor );
+			$env->triggers [] = $trigger;
+		}
 	}
 }
 // Calculate the trigger state
