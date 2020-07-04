@@ -13,7 +13,7 @@ $sensor_exclude = [
 ];
 
 // Hide any disabled sensors. This is only for temp and humidtiy history... no triggers or other stuff
-if (! show_empty) {
+if (! $show_empty) {
 	foreach ( $sensors as $s ) {
 		if ($s->type == "EMPTY") {
 			$sensor_exclude [] = $s->name;
