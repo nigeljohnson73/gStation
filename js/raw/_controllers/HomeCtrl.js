@@ -175,18 +175,19 @@ app.controller('HomeCtrl', [ "$scope", "$interval", "apiSvc", function($scope, $
 				$scope.history.temperature = null;
 				$scope.history.humidity = null;
 
-				// Perform a tidy up so we don't have anything prior to 24 hours ago
+				// Perform a tidy up so we don't have anything prior to 24 hours
+				// ago
 				remove = new Date();
 				remove.setDate(remove.getDate() - 1);
 				angular.forEach($scope.temps, function(item, index) {
 					while (item.date, item.data.length > 0 && item.data[0].t <= remove) {
-						logger("Removing old 'TEMPERATURE' data point from " + item.name, "dbg");
+						logger("Removing old '" + item.name + "' from 'TEMERATURE' data points", "dbg");
 						item.data.shift();
 					}
 				});
 				angular.forEach($scope.humds, function(item, index) {
 					while (item.date, item.data.length > 0 && item.data[0].t <= remove) {
-						logger("Removing old 'TEMPERATURE' data point from " + item.name, "dbg");
+						logger("Removing old '" + item.name + "' from 'HUMIDITY' data points", "dbg");
 						item.data.shift();
 					}
 				});

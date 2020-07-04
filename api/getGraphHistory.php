@@ -7,7 +7,7 @@ $hl = 10 * 60;
 
 global $mysql, $show_empty, $sensors;
 
-$demand_exclude = [];
+$demand_exclude = [ ];
 $sensor_exclude = [ 
 		"PI"
 ];
@@ -21,7 +21,7 @@ if (! $show_empty) {
 	}
 }
 
-$swhere="";
+$swhere = "";
 if (count ( $sensor_exclude )) {
 	$swhere = " WHERE name ";
 	if (count ( $sensor_exclude ) == 1) {
@@ -31,7 +31,7 @@ if (count ( $sensor_exclude )) {
 	}
 }
 
-$dwhere="";
+$dwhere = "";
 if (count ( $demand_exclude )) {
 	$dwhere = " WHERE param ";
 	if (count ( $demand_exclude ) == 1) {
@@ -42,7 +42,7 @@ if (count ( $demand_exclude )) {
 }
 
 // $sql = "(SELECT param, name, event, value FROM sensors WHERE name != 'PI') UNION (SELECT param, 'DEMAND' as name, event, value FROM demands where param != 'LIGHT')";
-$sql = "(SELECT param, name, event, value FROM sensors" . $swhere . ") UNION (SELECT param, 'DEMAND' as name, event, value FROM demands".$dwhere.")";
+$sql = "(SELECT param, name, event, value FROM sensors" . $swhere . ") UNION (SELECT param, 'DEMAND' as name, event, value FROM demands" . $dwhere . ")";
 $res = $mysql->query ( $sql );
 
 echo "Averaging shots: " . $hl . "\n";
@@ -89,10 +89,10 @@ if ($res && count ( $res )) {
 	// var_dump($params);
 
 	foreach ( $tmp as $param => $names ) {
-		echo "Processing " . $param . "\n";
+		// echo "Processing " . $param . "\n";
 		$zones = [ ];
 		foreach ( $names as $name => $values ) {
-			echo "Processing " . $param . "." . $name . "\n";
+			// echo "\tProcessing " . $param . "." . $name . "\n";
 			$data = [ ];
 			foreach ( $values as $ts => $v ) {
 				$data [] = ( object ) [ 

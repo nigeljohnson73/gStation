@@ -4,11 +4,10 @@ body {
 	/*font-family: 'Ubuntu', sans-serif;*/
 	font-family: 'Lato', sans-serif;
 	font-weight: 400;
-	line-height: 1.4;
+	line-height: 1.6;
 	font-size: 16px;
 	color: #999;
 }
-
 p {
 	margin-bottom: 1em;
 }
@@ -16,10 +15,7 @@ p {
 strong {
 	/*font-size:110%;*/
 	font-weight: 700;
-}
-
-h1, h2, h3, h4, h5 {
-	margin-top: 0;
+	color: #666;
 }
 
 blockquote {
@@ -29,16 +25,6 @@ blockquote {
 textarea.text-input {
 	font-family: Consolas, Monaco, Lucida Console, Liberation Mono,
 		DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace;
-}
-
-body {
-	font: 400 15px Lato, sans-serif;
-	line-height: 1.6em;
-	color: #999;
-}
-
-strong {
-	color: #000;
 }
 
 h1, h2, h3, h4 {

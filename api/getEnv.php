@@ -73,7 +73,7 @@ foreach ( $sensors as $s ) {
 	if ($s->name != "DEMAND" && $s->name != "PI" && ! inArrayByName ( $s->name, $env->sensors )) {
 		// echo "Processing sensor '".$s->name."'\n";
 		// print_r ( $s );
-		if($show_empty || $s->type != "EMPTY") {
+		if ($show_empty || $s->type != "EMPTY") {
 			$sensor = envExtract ( $s->name, $dbenv );
 			$sensor->name = $s->name;
 			$sensor->type = $s->type;
@@ -101,7 +101,7 @@ foreach ( $triggers as $t ) {
 	if (! inArrayByName ( $t->name, $env->triggers )) {
 		// echo "Processing sensor '".$s->name."'\n";
 		// print_r ( $s );
-		if($show_empty || $t->type != "EMPTY") {
+		if ($show_empty || $t->type != "EMPTY") {
 			$trigger = envExtract ( $t->name, $dbenv, "state" );
 			$trigger->name = $t->name;
 			$trigger->type = $t->type;
