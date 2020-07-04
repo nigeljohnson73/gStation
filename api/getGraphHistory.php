@@ -15,7 +15,8 @@ $sensor_exclude = [
 // Hide any disabled sensors. This is only for temp and humidtiy history... no triggers or other stuff
 if (! $show_empty) {
 	foreach ( $sensors as $s ) {
-		if ($s->type == "EMPTY") {
+		if ($s->type == "EMPTY" && isset($s->label)) {
+			echo "Exluding EMPTY sensor '".$s->label."' (".$s->name.")\n";
 			$sensor_exclude [] = $s->name;
 		}
 	}
@@ -41,8 +42,8 @@ if (count ( $demand_exclude )) {
 	}
 }
 
-// $sql = "(SELECT param, name, event, value FROM sensors WHERE name != 'PI') UNION (SELECT param, 'DEMAND' as name, event, value FROM demands where param != 'LIGHT')";
 $sql = "(SELECT param, name, event, value FROM sensors" . $swhere . ") UNION (SELECT param, 'DEMAND' as name, event, value FROM demands" . $dwhere . ")";
+//echo "SQL\n".$sql."\n";
 $res = $mysql->query ( $sql );
 
 echo "Averaging shots: " . $hl . "\n";
