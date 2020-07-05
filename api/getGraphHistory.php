@@ -1,5 +1,6 @@
 <?php
 include_once (dirname ( __FILE__ ) . "/../functions.php");
+$pt = new ProcessTimer ();
 $ret = startJsonRespose ();
 // $ret = (object)[];
 $ret->history = ( object ) [ ];
@@ -7,16 +8,21 @@ $hl = 10 * 60;
 
 global $mysql, $show_empty, $sensors;
 
+$activity_prep = 0;
+$activity_db = 0;
+$activity_proc = 0;
+
 $demand_exclude = [ ];
 $sensor_exclude = [ 
 		"PI"
 ];
+echo "Averaging duration : " . $hl . "s\n";
 
 // Hide any disabled sensors. This is only for temp and humidtiy history... no triggers or other stuff
 if (! $show_empty) {
 	foreach ( $sensors as $s ) {
-		if ($s->type == "EMPTY" && isset($s->label)) {
-			echo "Exluding EMPTY sensor '".$s->label."' (".$s->name.")\n";
+		if ($s->type == "EMPTY" && isset ( $s->label )) {
+			echo "Exluding EMPTY sensor '" . $s->label . "' (" . $s->name . ")\n";
 			$sensor_exclude [] = $s->name;
 		}
 	}
@@ -43,10 +49,14 @@ if (count ( $demand_exclude )) {
 }
 
 $sql = "(SELECT param, name, event, value FROM sensors" . $swhere . ") UNION (SELECT param, 'DEMAND' as name, event, value FROM demands" . $dwhere . ")";
-//echo "SQL\n".$sql."\n";
-$res = $mysql->query ( $sql );
+// echo "SQL\n".$sql."\n";
+$activity_prep = $pt->duration ();
 
-echo "Averaging shots: " . $hl . "\n";
+$pt = new ProcessTimer ();
+$res = $mysql->query ( $sql );
+$activity_db = $pt->duration ();
+
+$pt = new ProcessTimer ();
 $tmp = [ ];
 $int = [ ];
 if ($res && count ( $res )) {
@@ -114,6 +124,12 @@ if ($res && count ( $res )) {
 } else {
 	echo "Got no data!!\n";
 }
+$activity_proc = $pt->duration ();
+
+echo "Preparation activity took " . durationStamp ( $activity_prep, true ) . "\n";
+echo "Database activity took " . durationStamp ( $activity_db ) . "\n";
+echo "Processing activity took " . durationStamp ( $activity_proc ) . "\n";
+echo "Total call duration: " . durationStamp ( $activity_prep + $activity_db + $activity_proc ) . "\n";
 
 endJsonRespose ( $ret, true );
 ?>

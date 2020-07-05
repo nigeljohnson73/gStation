@@ -8,8 +8,8 @@ function microtime_float() {
 class ProcessTimer {
 
 	function __construct() {
-		$this->_start = 0.0;
 		$this->_stop = 0.0;
+		$this->start();
 	}
 
 	function start() {
@@ -25,7 +25,7 @@ class ProcessTimer {
 		if ($this->_stop == 0) {
 			return microtime_float () - $this->_start;
 		}
-		return $this->_stop - $this->_start;
+		return ($this->_stop - $this->_start)/1000000;
 	}
 }
 ?>

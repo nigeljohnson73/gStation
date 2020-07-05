@@ -8,6 +8,38 @@
               |_|														   
  */
 
+class Duration {
+	constructor() {
+		this.start = new Date().getTime();
+	};
+	
+	end() {
+		return new Date().getTime() - this.start;
+	};
+	
+	prettyEnd() {
+		ret = "";
+
+		const ms2h = 1/(60*60*1000);
+		const ms2m = 1/(60*1000);
+		const ms2s = 1/(1000);
+		
+		var ms = this.end();
+		var h = Math.floor( ms * ms2h );
+		ms -= h / ms2h;
+		var m = Math.floor( ms * ms2m );
+		ms -= m / ms2m;
+		var s = Math.floor( ms * ms2s );
+		ms -= s / ms2s;
+		
+		ret += (h>0)?(h+"h"):("");
+		ret += ((ret.length>0)?(" "):("")) + ((m>0 || ret.length)?(m+"m"):(""));
+		ret += ((ret.length>0)?(" "):("")) + ((s>0 || ret.length)?(s+"m"):(""));
+		ret += ((ret.length>0)?(" "):("")) + ms+"ms";
+		return ret;
+	};
+};
+
 hexToRgb = function(hex) {
 	// Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
 	var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
@@ -687,10 +719,12 @@ app.controller('HomeCtrl', [ "$scope", "$interval", "apiSvc", function($scope, $
 
 	// Get the environmental data every 5 seconds
 	var getGraphHistory = function() {
-		console.time("getGraphHistory()");
+		//console.time("getGraphHistory()");
+		var d = new Duration();
 		apiSvc.call("getGraphHistory", {}, function(data) {
-			logger("HomeCtrl::handleGetGraphHistory()", "dbg");
-			logger(data, "dbg");
+			logger("HomeCtrl::handleGetGraphHistory()");
+			console.log("getGraphHistory(): Data transferred: " + d.prettyEnd());
+			logger(data);
 			if (data.success) {
 				// logger(data.history, "dbg");
 				$scope.history = data.history;
@@ -701,7 +735,7 @@ app.controller('HomeCtrl', [ "$scope", "$interval", "apiSvc", function($scope, $
 				toast(data.message);
 			}
 			$scope.loading = false;
-			console.timeEnd("getGraphHistory()");
+			//console.timeEnd("getGraphHistory()");
 		}, true); // do post so response is not cached
 	};
 	getGraphHistory();

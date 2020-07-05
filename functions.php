@@ -17,8 +17,6 @@ function inArrayByName($name, $arr) {
 	return false;
 }
 
-
-
 function cleanFile($filename, $key) {
 	if (! file_exists ( $filename )) {
 		echo "File '" . $filename . "' cannot be accessed\n";
@@ -26,7 +24,7 @@ function cleanFile($filename, $key) {
 	} else {
 		$quiet = false;
 		$output = "";
-		
+
 		$lines = file ( $filename );
 		foreach ( $lines as $line ) {
 			if (strpos ( $line, $key ) === 0) {
@@ -37,27 +35,27 @@ function cleanFile($filename, $key) {
 				}
 			}
 		}
-		
+
 		// echo $output;
 		$fn = "/tmp/cleansedata." . time () . ".txt";
 		file_put_contents ( $fn, $output );
-		
+
 		$cmd = "sudo rm -f " . $filename . ".orig";
 		// echo "Removing .orig file: $cmd\n";
 		exec ( $cmd );
-		
+
 		$cmd = "sudo cp " . $filename . " " . $filename . ".orig";
 		echo "Backing up original file to '" . $filename . ".orig'\n";
 		exec ( $cmd );
-		
+
 		$cmd = "sudo cp " . $fn . " " . $filename;
 		// echo "Overwriting original file: $cmd\n";
 		exec ( $cmd );
-		
+
 		// echo "Removing temp file\n";
 		@unlink ( $fn );
 	}
-	
+
 	return true;
 }
 
@@ -70,32 +68,32 @@ function installFile($src, $filename) {
 		global $led_pin;
 		$repl = array ();
 		$repl ["[[LED_PIN]]"] = $led_pin;
-		
+
 		$c = file_get_contents ( $src );
 		foreach ( $repl as $k => $v ) {
 			$c = str_replace ( $k, $v, $c );
 		}
-		
+
 		// echo $c."\n";
-		
+
 		$fn = "/tmp/cleansedata." . time () . ".txt";
 		file_put_contents ( $fn, $c );
 		$cmd = "sudo rm -f " . $filename . ".orig";
 		echo "Backing up original file to '" . $filename . ".orig'\n";
 		exec ( $cmd );
-		
+
 		$cmd = "sudo cp " . $filename . " " . $filename . ".orig";
 		// echo "Copying current file to .orig file: $cmd\n";
 		exec ( $cmd );
-		
+
 		$cmd = "sudo cat " . $fn . " | sudo tee -a " . $filename;
 		// echo "Adding update: $cmd\n";
 		exec ( $cmd );
-		
+
 		// echo "Removing temp file\n";
 		@unlink ( $fn );
 	}
-	
+
 	return true;
 }
 
@@ -530,38 +528,52 @@ function durationFormat($secs, $use_nearest_sec = false) {
 	return trim ( $ret );
 }
 
-function durationStamp($secs, $use_sec = false) {
-	$secs = nearest ( $secs, 1 );
-
+function durationStamp($secs, $use_us = false) {
+	// echo "durationStamp(): started with $secs seconds\n";
 	$sec_min = 60;
 	$sec_hour = $sec_min * 60;
 	$sec_day = $sec_hour * 24;
 
 	$days = floor ( $secs / $sec_day );
 	$secs -= $days * $sec_day;
+	// echo "durationStamp(): days: $days\n";
 
 	$hours = floor ( $secs / $sec_hour );
 	$secs -= $hours * $sec_hour;
+	// echo "durationStamp(): hours: $hours\n";
 
 	$mins = floor ( $secs / $sec_min );
 	$secs -= $mins * $sec_min;
+	// echo "durationStamp(): mins: $mins\n";
 
-	$st = true; // set to false for growing min hr etc
+	$ms = ($secs - (floor ( $secs ))) * 1000;
+	$secs = floor ( $secs );
+
+	$us = round(($ms - (floor ( $ms ))) * 1000);
+	$ms = floor ( $ms );
+
+	// echo "durationStamp(): secs: $secs\n";
+	// echo "durationStamp(): ms: $ms\n";
+	// echo "durationStamp(): us: $us\n";
+
 	$ret = "";
-	if ($st || $days > 0) {
-		$ret .= " " . sprintf ( "%d", $days ) . "d";
-		$st = true;
+	if ($days > 0) {
+		$ret .= (strlen ( $ret ) ? (" ") : ("")) . $days . "d";
 	}
-	if ($st || $hours > 0) {
-		$ret .= " " . sprintf ( "%02d", $hours ) . "h";
-		$st = true;
+	if (strlen ( $ret ) || $hours > 0) {
+		$ret .= (strlen ( $ret ) ? (" ") : ("")) . $hours . "h";
 	}
-	if ($st || $mins > 0) {
-		$ret .= " " . sprintf ( "%02d", $mins ) . "m";
-		$st = true;
+	if (strlen ( $ret ) || $mins > 0) {
+		$ret .= (strlen ( $ret ) ? (" ") : ("")) . $mins . "m";
 	}
-	if ($use_sec && ($st || $secs > 0)) {
-		$ret .= " " . sprintf ( "%02d", $secs ) . "s";
+	if (strlen ( $ret ) || $secs > 0) {
+		$ret .= (strlen ( $ret ) ? (" ") : ("")) . $secs . "s";
+	}
+	if (! $use_us || strlen ( $ret ) || $ms > 0) {
+		$ret .= (strlen ( $ret ) ? (" ") : ("")) . $ms . "ms";
+	}
+	if ($use_us) {
+		$ret .= (strlen ( $ret ) ? (" ") : ("")) . $us . "us";
 	}
 
 	return trim ( $ret );
@@ -762,7 +774,7 @@ function localJavascriptPayload() {
 }
 
 function javascriptPayload() {
-	//if (isset ( $_GET ["packed"] ) || strtolower ( @ $_SERVER ['SERVER_NAME'] ) != "localhost") {
+	// if (isset ( $_GET ["packed"] ) || strtolower ( @ $_SERVER ['SERVER_NAME'] ) != "localhost") {
 	if (isset ( $_GET ["packed"] )) { // TODO: Fix this!!!
 		echo "packed";
 	} elseif (isset ( $_GET ["nocr"] )) {
@@ -773,7 +785,7 @@ function javascriptPayload() {
 }
 
 function stylesheetPayload() {
-	//if (isset ( $_GET ["packed"] ) || strtolower ( @ $_SERVER ['SERVER_NAME'] ) != "localhost") {
+	// if (isset ( $_GET ["packed"] ) || strtolower ( @ $_SERVER ['SERVER_NAME'] ) != "localhost") {
 	if (isset ( $_GET ["packed"] )) { // TODO: Fix this!!!
 		echo "packed";
 	} elseif (isset ( $_GET ["nocr"] )) {
@@ -836,10 +848,10 @@ function includeDirectory($d, $ext = "php") {
 
 function compressJavascript($force = false, $debug = true) {
 	// return false;
-	//if (@ strtolower ( $_SERVER ['SERVER_NAME'] ) == "localhost") {
+	// if (@ strtolower ( $_SERVER ['SERVER_NAME'] ) == "localhost") {
 	if (1) { // TODO: Fix this!!!
-		// Only perform this action if we are on the development server
-		// Production payload files will be updloaded from the dev sever
+	         // Only perform this action if we are on the development server
+	         // Production payload files will be updloaded from the dev sever
 
 		// Set up the target filenames for the raw and packed versions
 		$targetfn = dirname ( __FILE__ ) . "/js/app.nopack.js";
@@ -912,12 +924,12 @@ function compressJavascript($force = false, $debug = true) {
 }
 
 function compressStylesheet($force = false, $debug = true) {
-//echo "<!-- ".strtolower ( $_SERVER ['SERVER_NAME'])."-->\n";
+	// echo "<!-- ".strtolower ( $_SERVER ['SERVER_NAME'])."-->\n";
 	// return false;
-	//if (@ strtolower ( $_SERVER ['SERVER_NAME'] ) == "localhost") {
+	// if (@ strtolower ( $_SERVER ['SERVER_NAME'] ) == "localhost") {
 	if (1) { // TODO: Fix this!!!
-		// Only perform this action if we are on the development server
-		// Production payload files will be updloaded from the dev sever
+	         // Only perform this action if we are on the development server
+	         // Production payload files will be updloaded from the dev sever
 
 		// Set up the target filenames for the raw and packed versions
 		$targetfn = dirname ( __FILE__ ) . "/css/app.nopack.css";
@@ -942,7 +954,7 @@ function compressStylesheet($force = false, $debug = true) {
 		$css = "";
 		foreach ( $files as $file ) {
 			// Add the sub file to the main file
-			//echo "<!-- Adding CSS '$file' -->\n";
+			// echo "<!-- Adding CSS '$file' -->\n";
 			$css .= "\n" . trim ( file_get_contents ( $file ) );
 
 			// Check if the sub-file is newer and make for saving

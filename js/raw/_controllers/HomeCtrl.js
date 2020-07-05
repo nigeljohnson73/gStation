@@ -217,10 +217,12 @@ app.controller('HomeCtrl', [ "$scope", "$interval", "apiSvc", function($scope, $
 
 	// Get the environmental data every 5 seconds
 	var getGraphHistory = function() {
-		console.time("getGraphHistory()");
+		//console.time("getGraphHistory()");
+		var d = new Duration();
 		apiSvc.call("getGraphHistory", {}, function(data) {
-			logger("HomeCtrl::handleGetGraphHistory()", "dbg");
-			logger(data, "dbg");
+			logger("HomeCtrl::handleGetGraphHistory()");
+			console.log("getGraphHistory(): Data transferred: " + d.prettyEnd());
+			logger(data);
 			if (data.success) {
 				// logger(data.history, "dbg");
 				$scope.history = data.history;
@@ -231,7 +233,7 @@ app.controller('HomeCtrl', [ "$scope", "$interval", "apiSvc", function($scope, $
 				toast(data.message);
 			}
 			$scope.loading = false;
-			console.timeEnd("getGraphHistory()");
+			//console.timeEnd("getGraphHistory()");
 		}, true); // do post so response is not cached
 	};
 	getGraphHistory();
