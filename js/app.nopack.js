@@ -12,30 +12,30 @@ class Duration {
 	constructor() {
 		this.start = new Date().getTime();
 	};
-	
+
 	end() {
 		return new Date().getTime() - this.start;
 	};
-	
-	prettyEnd() {
-		ret = "";
 
-		const ms2h = 1/(60*60*1000);
-		const ms2m = 1/(60*1000);
-		const ms2s = 1/(1000);
-		
+	prettyEnd() {
+		var ret = "";
+
+		const ms2h = 1 / (60 * 60 * 1000);
+		const ms2m = 1 / (60 * 1000);
+		const ms2s = 1 / (1000);
+
 		var ms = this.end();
-		var h = Math.floor( ms * ms2h );
+		var h = Math.floor(ms * ms2h);
 		ms -= h / ms2h;
-		var m = Math.floor( ms * ms2m );
+		var m = Math.floor(ms * ms2m);
 		ms -= m / ms2m;
-		var s = Math.floor( ms * ms2s );
+		var s = Math.floor(ms * ms2s);
 		ms -= s / ms2s;
-		
-		ret += (h>0)?(h+"h"):("");
-		ret += ((ret.length>0)?(" "):("")) + ((m>0 || ret.length)?(m+"m"):(""));
-		ret += ((ret.length>0)?(" "):("")) + ((s>0 || ret.length)?(s+"m"):(""));
-		ret += ((ret.length>0)?(" "):("")) + ms+"ms";
+
+		ret += (h > 0) ? (h + "h") : ("");
+		ret += ((ret.length > 0) ? (" ") : ("")) + ((m > 0 || ret.length) ? (m + "m") : (""));
+		ret += ((ret.length > 0) ? (" ") : ("")) + ((s > 0 || ret.length) ? (s + "s") : (""));
+		ret += ((ret.length > 0) ? (" ") : ("")) + ms + "ms";
 		return ret;
 	};
 };
@@ -128,10 +128,7 @@ logger = function(l, err) {
 function number_format(number, decimals, dec_point, thousands_sep) {
 	// Strip all characters but numerical ones.
 	number = (number + '').replace(/[^0-9+\-Ee.]/g, '');
-	var n = !isFinite(+number) ? 0 : +number, prec = !isFinite(+decimals) ? 0
-			: Math.abs(decimals), sep = (typeof thousands_sep === 'undefined') ? ','
-			: thousands_sep, dec = (typeof dec_point === 'undefined') ? '.'
-			: dec_point, s = '', toFixedFix = function(n, prec) {
+	var n = !isFinite(+number) ? 0 : +number, prec = !isFinite(+decimals) ? 0 : Math.abs(decimals), sep = (typeof thousands_sep === 'undefined') ? ',' : thousands_sep, dec = (typeof dec_point === 'undefined') ? '.' : dec_point, s = '', toFixedFix = function(n, prec) {
 		var k = Math.pow(10, prec);
 		return '' + Math.round(n * k) / k;
 	};
@@ -164,18 +161,14 @@ Array.prototype.random = function() {
  * for example genKey('unlllaaa') would produce 'E5ncyCgt'
  */
 function genKey(key) {
-	var uc = [ 'A', 'B', 'C', 'E', 'F', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'R',
-			'T', 'W', 'Y', 'Z' ];
-	var lc = [ 'a', 'b', 'd', 'e', 'g', 'h', 'k', 'n', 'p', 'q', 'r', 's', 't',
-			'x', 'y', 'z' ];
+	var uc = [ 'A', 'B', 'C', 'E', 'F', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'R', 'T', 'W', 'Y', 'Z' ];
+	var lc = [ 'a', 'b', 'd', 'e', 'g', 'h', 'k', 'n', 'p', 'q', 'r', 's', 't', 'x', 'y', 'z' ];
 	var nc = [ '2', '3', '4', '5', '6', '7', '8', '9' ];
 	var sc = [ '=', '-', '.', '_', '@' ];
 	var an = [].concat(uc).concat(lc).concat(nc);
 	var ny = [].concat(sc).concat(an);
 	return key.replace(/[xlunas]/g, function(c) {
-		return (c === 'u' ? uc.random() : (c === 'l' ? lc.random()
-				: (c === 'n' ? nc.random() : (c === 's' ? sc.random()
-						: (c === 'a' ? an.random() : ny.random())))));
+		return (c === 'u' ? uc.random() : (c === 'l' ? lc.random() : (c === 'n' ? nc.random() : (c === 's' ? sc.random() : (c === 'a' ? an.random() : ny.random())))));
 	});
 }
 
@@ -203,9 +196,7 @@ var Base64 = {
 			} else if (isNaN(chr3)) {
 				enc4 = 64;
 			}
-			output = output + this._keyStr.charAt(enc1)
-					+ this._keyStr.charAt(enc2) + this._keyStr.charAt(enc3)
-					+ this._keyStr.charAt(enc4);
+			output = output + this._keyStr.charAt(enc1) + this._keyStr.charAt(enc2) + this._keyStr.charAt(enc3) + this._keyStr.charAt(enc4);
 
 		}
 		return output;
@@ -282,8 +273,7 @@ var Base64 = {
 			} else {
 				c2 = utftext.charCodeAt(i + 1);
 				c3 = utftext.charCodeAt(i + 2);
-				string += String.fromCharCode(((c & 15) << 12)
-						| ((c2 & 63) << 6) | (c3 & 63));
+				string += String.fromCharCode(((c & 15) << 12) | ((c2 & 63) << 6) | (c3 & 63));
 				i += 3;
 			}
 		}
@@ -322,23 +312,22 @@ $(document).ready(function() {
 
 var app = angular.module("myApp", [ 'ngRoute' ]);
 
-app.config([ "$locationProvider", "$routeProvider",
-		function($locationProvider, $routeProvider) {
-			$locationProvider.html5Mode(true);
+app.config([ "$locationProvider", "$routeProvider", function($locationProvider, $routeProvider) {
+	$locationProvider.html5Mode(true);
 
-			$routeProvider.when('/', {
-				templateUrl : '/pages/home.php',
-				controller : 'HomeCtrl'
-			}).when('/about', {
-				templateUrl : '/pages/about.php',
-				controller : 'AboutCtrl'
-			}).when('/config', {
-				templateUrl : '/pages/config.php',
-				controller : 'ConfigCtrl'
-			}).otherwise({
-				templateUrl : '/pages/404.php'
-			});
-		} ]);
+	$routeProvider.when('/', {
+		templateUrl : '/pages/home.php',
+		controller : 'HomeCtrl'
+	}).when('/about', {
+		templateUrl : '/pages/about.php',
+		controller : 'AboutCtrl'
+	}).when('/config', {
+		templateUrl : '/pages/config.php',
+		controller : 'ConfigCtrl'
+	}).otherwise({
+		templateUrl : '/pages/404.php'
+	});
+} ]);
 
 logger("Hello There!");
 /*
@@ -500,9 +489,11 @@ app.controller('FooterCtrl', [ "$scope", function($scope) {
 	// This is only used to update the copyright year to "this year". Massive overkill.
 	$scope.nowDate = Date.now();
 } ]);
-app.controller('HomeCtrl', [ "$scope", "$interval", "apiSvc", function($scope, $interval, apiSvc) {
+app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", function($scope, $timeout, $interval, apiSvc) {
+	// Storage for graphing data
 	$scope.temps = [];
 	$scope.humds = [];
+	$scope.history_calls = [];
 
 	var addSensorReading = function(arr, sensor, value) {
 		return addSensorReadingWithDate(arr, sensor, value, new Date());
@@ -560,7 +551,7 @@ app.controller('HomeCtrl', [ "$scope", "$interval", "apiSvc", function($scope, $
 		return true;
 	};
 
-	var createGraph = function(id, arr, title, ind) {
+	var createMinuteGraph = function(id, arr, title, ind) {
 		var ctx = $(id);
 		var myChart = new Chart(ctx, {
 			type : 'line',
@@ -607,7 +598,7 @@ app.controller('HomeCtrl', [ "$scope", "$interval", "apiSvc", function($scope, $
 	var objectDataByName = function(arr, name) {
 		ret = null;
 		angular.forEach(arr, function(item, index) {
-			// logger("Searching for '" + name + "' found '" + item.name + "'");
+			//logger("Searching for '" + name + "' found '" + item.name + "'");
 			if (item.name == name) {
 				logger("Found " + item.data.length + " data points for '" + item.name + "'", "dbg");
 				ret = item.data;
@@ -628,52 +619,63 @@ app.controller('HomeCtrl', [ "$scope", "$interval", "apiSvc", function($scope, $
 			logger("HomeCtrl::handleGetEnv()", "dbg");
 			logger(data, "dbg");
 			if (data.success) {
+				// Save the env dat afirst so it can be used everywher else
 				$scope.env = data.env;
 
-				// Lets load the history demands first so they are on top of the
-				// stack
+				// Load demands first
 				var obj = {};
 				Object.assign(obj, $scope.env.demand);
-				if (r = objectDataByName($scope.history.temperature, obj.name)) {
-					logger("Processing " + r.length + " historic temperatures into '" + obj.name + "'", "dbg");
-					angular.forEach(r, function(sitem, index) {
-						addSensorReadingWithDate($scope.temps, obj, sitem.y, new Date(sitem.t));
-					});
+				if ($scope.history && $scope.history.temperature) {
+					if (r = objectDataByName($scope.history.temperature, obj.name)) {
+						logger("Processing " + r.length + " historic temperature values into '" + obj.name + "'");
+						angular.forEach(r, function(item, index) {
+							addSensorReadingWithDate($scope.temps, obj, item.y, new Date(item.t));
+						});
+					}
 				}
-				if (r = objectDataByName($scope.history.humidity, obj.name)) {
-					logger("Processing " + r.length + " historic humidities into '" + obj.name + "'", "dbg");
-					angular.forEach(r, function(sitem, index) {
-						addSensorReadingWithDate($scope.humds, obj, sitem.y, new Date(sitem.t));
-					});
+				if ($scope.history && $scope.history.humidity) {
+					if (r = objectDataByName($scope.history.humidity, obj.name)) {
+						logger("Processing " + r.length + " historic humidity values into '" + obj.name + "'");
+						angular.forEach(r, function(item, index) {
+							addSensorReadingWithDate($scope.humds, obj, item.y, new Date(item.t));
+						});
+					}
 				}
-				// Now do the lastest values in
+				
+				// Now do the lastest 'DEMAND' values in
 				addSensorReading($scope.temps, obj, obj.temperature);
 				addSensorReading($scope.humds, obj, obj.humidity);
 
 				// See if we have a queue to add to the existing non demand
 				// stuff
+				// Check for data for all known sensors
 				angular.forEach($scope.env.sensors, function(item, index) {
+					// Check for historic temperature data
 					if ($scope.history && $scope.history.temperature) {
 						if (r = objectDataByName($scope.history.temperature, item.name)) {
-							logger("Processing " + r.length + " historic temperatures into '" + item.name + "'", "dbg");
+							logger("Processing " + r.length + " historic temperature values into '" + item.name + "'");
 							angular.forEach(r, function(sitem, index) {
 								addSensorReadingWithDate($scope.temps, item, sitem.y, new Date(sitem.t));
 							});
 						}
 					}
+					// Now load the one we just got
 					addSensorReading($scope.temps, item, item.temperature);
+
+					// Check for historic humidity data
 					if ($scope.history && $scope.history.humidity) {
 						if (r = objectDataByName($scope.history.humidity, item.name)) {
-							logger("Processing " + r.length + " historic humidities being loaded to '" + item.name + "'", "dbg");
+							logger("Processing " + r.length + " historic humidity values into '" + item.name + "'");
 							angular.forEach(r, function(sitem, index) {
 								addSensorReadingWithDate($scope.humds, item, sitem.y, new Date(sitem.t));
 							});
 						}
 					}
+					// Now load the one we just got
 					addSensorReading($scope.humds, item, item.humidity);
 				});
 
-				// Reset so we don't do this again
+				// Reset the history data
 				$scope.history.temperature = null;
 				$scope.history.humidity = null;
 
@@ -697,13 +699,13 @@ app.controller('HomeCtrl', [ "$scope", "$interval", "apiSvc", function($scope, $
 				if ($scope.temp_graph) {
 					$scope.temp_graph.update();
 				} else {
-					$scope.temp_graph = createGraph('#temperature-graph', $scope.temps, "Temperature Readings", "°C");
+					$scope.temp_graph = createMinuteGraph('#temperature-graph', $scope.temps, "Temperature Readings", "°C");
 				}
 
 				if ($scope.humd_graph) {
 					$scope.humd_graph.update();
 				} else {
-					$scope.humd_graph = createGraph('#humidity-graph', $scope.humds, "Humidity Readings", "%");
+					$scope.humd_graph = createMinuteGraph('#humidity-graph', $scope.humds, "Humidity Readings", "%");
 				}
 			} else {
 				$scope.env = null;
@@ -716,29 +718,6 @@ app.controller('HomeCtrl', [ "$scope", "$interval", "apiSvc", function($scope, $
 	};
 	getEnv();
 	$scope.env_api_call = $interval(getEnv, 5000);
-
-	// Get the environmental data every 5 seconds
-	var getGraphHistory = function() {
-		//console.time("getGraphHistory()");
-		var d = new Duration();
-		apiSvc.call("getGraphHistory", {}, function(data) {
-			logger("HomeCtrl::handleGetGraphHistory()");
-			console.log("getGraphHistory(): Data transferred: " + d.prettyEnd());
-			logger(data);
-			if (data.success) {
-				// logger(data.history, "dbg");
-				$scope.history = data.history;
-			} else {
-				// $scope.env = null;
-			}
-			if (data.message.length) {
-				toast(data.message);
-			}
-			$scope.loading = false;
-			//console.timeEnd("getGraphHistory()");
-		}, true); // do post so response is not cached
-	};
-	getGraphHistory();
 
 	// Get the snalshot image, it's only generated every minute, so no rush
 	var getSnapshotImage = function() {
@@ -759,4 +738,89 @@ app.controller('HomeCtrl', [ "$scope", "$interval", "apiSvc", function($scope, $
 	getSnapshotImage();
 	$scope.snapshot_image_api_call = $interval(getSnapshotImage, 10000);
 
+	// // Get the graph history only the once
+	// var getHistoryAll = function() {
+	// var d = new Duration();
+	// apiSvc.call("history/getAll", {}, function(data) {
+	// logger("HomeCtrl::handleGetHistoryAll()");
+	// console.log("getGraphHistoryAll(): Data transferred: " + d.prettyEnd());
+	// logger(data);
+	// if (data.success) {
+	// // logger(data.history, "dbg");
+	// $scope.history = data.history;
+	// } else {
+	// // Not sure what to do??
+	// }
+	// if (data.message.length) {
+	// toast(data.message);
+	// }
+	// $scope.loading = false;
+	// }, true); // do post so response is not cached
+	// };
+	// // getHistoryAll();
+
+	var getHistoryTemperature = function() {
+		var d = new Duration();
+		apiSvc.call("history/getTemperature", {}, function(data) {
+			logger("HomeCtrl::handleGetHistoryTemperature()");
+			logger("getHistoryTemperature(): Data transferred: " + d.prettyEnd());
+			logger(data);
+			if (data.success) {
+				// logger(data.history, "dbg");
+				$scope.history.temperature = data.history;
+			} else {
+				// Not sure what to do??
+				// Redo?
+			}
+			if (data.message.length) {
+				toast(data.message);
+			}
+			$scope.loading = false;
+			// Chain the calls in the return from one, start the next
+			getHistory();
+		}, true); // do post so response is not cached
+	};
+
+	var getHistoryHumidity = function() {
+		var d = new Duration();
+		apiSvc.call("history/getHumidity", {}, function(data) {
+			logger("HomeCtrl::handleGetHistoryHumidity()");
+			logger("getHistoryHumidity(): Data transferred: " + d.prettyEnd());
+			logger(data);
+			if (data.success) {
+				// logger(data.history, "dbg");
+				$scope.history.humidity = data.history;
+			} else {
+				// Not sure what to do??
+				// Redo?
+			}
+			if (data.message.length) {
+				toast(data.message);
+			}
+			$scope.loading = false;
+			// Chain the calls in the return from one, start the next
+			getHistory();
+		}, true); // do post so response is not cached
+	};
+
+	var getHistory = function(ms) {
+		if(ms == undefined) {
+			ms = 5000;
+		}
+		// Chain the calls in the return from one, start the next
+		call = $scope.history_calls.shift();
+		if (call) {
+			logger("Calling history retrieval with " + ms + "ms delay");
+			$scope.history_api_call = $timeout(call, ms);
+		} else {
+			logger("All history up to date");
+			$scope.history_api_call = null;
+		}
+	};
+
+	$scope.history_calls.push(getHistoryTemperature);
+	$scope.history_calls.push(getHistoryHumidity);
+
+	// Start the history data chain
+	$scope.history_api_call = $timeout(getHistory, 1000, true, 100);
 } ]);

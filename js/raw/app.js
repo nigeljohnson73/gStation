@@ -11,30 +11,30 @@ class Duration {
 	constructor() {
 		this.start = new Date().getTime();
 	};
-	
+
 	end() {
 		return new Date().getTime() - this.start;
 	};
-	
-	prettyEnd() {
-		ret = "";
 
-		const ms2h = 1/(60*60*1000);
-		const ms2m = 1/(60*1000);
-		const ms2s = 1/(1000);
-		
+	prettyEnd() {
+		var ret = "";
+
+		const ms2h = 1 / (60 * 60 * 1000);
+		const ms2m = 1 / (60 * 1000);
+		const ms2s = 1 / (1000);
+
 		var ms = this.end();
-		var h = Math.floor( ms * ms2h );
+		var h = Math.floor(ms * ms2h);
 		ms -= h / ms2h;
-		var m = Math.floor( ms * ms2m );
+		var m = Math.floor(ms * ms2m);
 		ms -= m / ms2m;
-		var s = Math.floor( ms * ms2s );
+		var s = Math.floor(ms * ms2s);
 		ms -= s / ms2s;
-		
-		ret += (h>0)?(h+"h"):("");
-		ret += ((ret.length>0)?(" "):("")) + ((m>0 || ret.length)?(m+"m"):(""));
-		ret += ((ret.length>0)?(" "):("")) + ((s>0 || ret.length)?(s+"m"):(""));
-		ret += ((ret.length>0)?(" "):("")) + ms+"ms";
+
+		ret += (h > 0) ? (h + "h") : ("");
+		ret += ((ret.length > 0) ? (" ") : ("")) + ((m > 0 || ret.length) ? (m + "m") : (""));
+		ret += ((ret.length > 0) ? (" ") : ("")) + ((s > 0 || ret.length) ? (s + "s") : (""));
+		ret += ((ret.length > 0) ? (" ") : ("")) + ms + "ms";
 		return ret;
 	};
 };
@@ -127,10 +127,7 @@ logger = function(l, err) {
 function number_format(number, decimals, dec_point, thousands_sep) {
 	// Strip all characters but numerical ones.
 	number = (number + '').replace(/[^0-9+\-Ee.]/g, '');
-	var n = !isFinite(+number) ? 0 : +number, prec = !isFinite(+decimals) ? 0
-			: Math.abs(decimals), sep = (typeof thousands_sep === 'undefined') ? ','
-			: thousands_sep, dec = (typeof dec_point === 'undefined') ? '.'
-			: dec_point, s = '', toFixedFix = function(n, prec) {
+	var n = !isFinite(+number) ? 0 : +number, prec = !isFinite(+decimals) ? 0 : Math.abs(decimals), sep = (typeof thousands_sep === 'undefined') ? ',' : thousands_sep, dec = (typeof dec_point === 'undefined') ? '.' : dec_point, s = '', toFixedFix = function(n, prec) {
 		var k = Math.pow(10, prec);
 		return '' + Math.round(n * k) / k;
 	};
@@ -163,18 +160,14 @@ Array.prototype.random = function() {
  * for example genKey('unlllaaa') would produce 'E5ncyCgt'
  */
 function genKey(key) {
-	var uc = [ 'A', 'B', 'C', 'E', 'F', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'R',
-			'T', 'W', 'Y', 'Z' ];
-	var lc = [ 'a', 'b', 'd', 'e', 'g', 'h', 'k', 'n', 'p', 'q', 'r', 's', 't',
-			'x', 'y', 'z' ];
+	var uc = [ 'A', 'B', 'C', 'E', 'F', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'R', 'T', 'W', 'Y', 'Z' ];
+	var lc = [ 'a', 'b', 'd', 'e', 'g', 'h', 'k', 'n', 'p', 'q', 'r', 's', 't', 'x', 'y', 'z' ];
 	var nc = [ '2', '3', '4', '5', '6', '7', '8', '9' ];
 	var sc = [ '=', '-', '.', '_', '@' ];
 	var an = [].concat(uc).concat(lc).concat(nc);
 	var ny = [].concat(sc).concat(an);
 	return key.replace(/[xlunas]/g, function(c) {
-		return (c === 'u' ? uc.random() : (c === 'l' ? lc.random()
-				: (c === 'n' ? nc.random() : (c === 's' ? sc.random()
-						: (c === 'a' ? an.random() : ny.random())))));
+		return (c === 'u' ? uc.random() : (c === 'l' ? lc.random() : (c === 'n' ? nc.random() : (c === 's' ? sc.random() : (c === 'a' ? an.random() : ny.random())))));
 	});
 }
 
@@ -202,9 +195,7 @@ var Base64 = {
 			} else if (isNaN(chr3)) {
 				enc4 = 64;
 			}
-			output = output + this._keyStr.charAt(enc1)
-					+ this._keyStr.charAt(enc2) + this._keyStr.charAt(enc3)
-					+ this._keyStr.charAt(enc4);
+			output = output + this._keyStr.charAt(enc1) + this._keyStr.charAt(enc2) + this._keyStr.charAt(enc3) + this._keyStr.charAt(enc4);
 
 		}
 		return output;
@@ -281,8 +272,7 @@ var Base64 = {
 			} else {
 				c2 = utftext.charCodeAt(i + 1);
 				c3 = utftext.charCodeAt(i + 2);
-				string += String.fromCharCode(((c & 15) << 12)
-						| ((c2 & 63) << 6) | (c3 & 63));
+				string += String.fromCharCode(((c & 15) << 12) | ((c2 & 63) << 6) | (c3 & 63));
 				i += 3;
 			}
 		}
@@ -321,22 +311,21 @@ $(document).ready(function() {
 
 var app = angular.module("myApp", [ 'ngRoute' ]);
 
-app.config([ "$locationProvider", "$routeProvider",
-		function($locationProvider, $routeProvider) {
-			$locationProvider.html5Mode(true);
+app.config([ "$locationProvider", "$routeProvider", function($locationProvider, $routeProvider) {
+	$locationProvider.html5Mode(true);
 
-			$routeProvider.when('/', {
-				templateUrl : '/pages/home.php',
-				controller : 'HomeCtrl'
-			}).when('/about', {
-				templateUrl : '/pages/about.php',
-				controller : 'AboutCtrl'
-			}).when('/config', {
-				templateUrl : '/pages/config.php',
-				controller : 'ConfigCtrl'
-			}).otherwise({
-				templateUrl : '/pages/404.php'
-			});
-		} ]);
+	$routeProvider.when('/', {
+		templateUrl : '/pages/home.php',
+		controller : 'HomeCtrl'
+	}).when('/about', {
+		templateUrl : '/pages/about.php',
+		controller : 'AboutCtrl'
+	}).when('/config', {
+		templateUrl : '/pages/config.php',
+		controller : 'ConfigCtrl'
+	}).otherwise({
+		templateUrl : '/pages/404.php'
+	});
+} ]);
 
 logger("Hello There!");
