@@ -58,7 +58,7 @@ app.controller('HomeCtrl', [ "$scope", "$interval", "apiSvc", function($scope, $
 		return true;
 	};
 
-	var updateGraph = function(id, arr, title, ind) {
+	var createGraph = function(id, arr, title, ind) {
 		var ctx = $(id);
 		var myChart = new Chart(ctx, {
 			type : 'line',
@@ -195,13 +195,13 @@ app.controller('HomeCtrl', [ "$scope", "$interval", "apiSvc", function($scope, $
 				if ($scope.temp_graph) {
 					$scope.temp_graph.update();
 				} else {
-					$scope.temp_graph = updateGraph('#temperature-graph', $scope.temps, "Temperature Readings", "°C");
+					$scope.temp_graph = createGraph('#temperature-graph', $scope.temps, "Temperature Readings", "°C");
 				}
 
 				if ($scope.humd_graph) {
 					$scope.humd_graph.update();
 				} else {
-					$scope.humd_graph = updateGraph('#humidity-graph', $scope.humds, "Humidity Readings", "%");
+					$scope.humd_graph = createGraph('#humidity-graph', $scope.humds, "Humidity Readings", "%");
 				}
 			} else {
 				$scope.env = null;
@@ -217,6 +217,7 @@ app.controller('HomeCtrl', [ "$scope", "$interval", "apiSvc", function($scope, $
 
 	// Get the environmental data every 5 seconds
 	var getGraphHistory = function() {
+		console.time("getGraphHistory()");
 		apiSvc.call("getGraphHistory", {}, function(data) {
 			logger("HomeCtrl::handleGetGraphHistory()", "dbg");
 			logger(data, "dbg");
@@ -230,6 +231,7 @@ app.controller('HomeCtrl', [ "$scope", "$interval", "apiSvc", function($scope, $
 				toast(data.message);
 			}
 			$scope.loading = false;
+			console.timeEnd("getGraphHistory()");
 		}, true); // do post so response is not cached
 	};
 	getGraphHistory();

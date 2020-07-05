@@ -93,7 +93,7 @@ app.service('apiSvc', [ "$http", function($http, netSvc) {
 			} else {
 				logger("apiSvc.call(): HTTP failed with status code " + data.status, "wrn");
 				// Any returned text in the console where you would expect some explanation
-				ldata.console = data.data.trim().split(/\r\n|\r|\n/); 
+				ldata.console = (data.data+"").trim().split(/\r\n|\r|\n/); 
 				ldata.success = false;
 				ldata.status = "error";
 				ldata.message = "";
