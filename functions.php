@@ -8,6 +8,19 @@ ini_set ( 'display_errors', 'on' );
 // All calcuations are done in UTC
 date_default_timezone_set ( "UTC" );
 
+function hex2rgb($hex) {
+	(strlen ( $hex ) === 4) ? list ( $r, $g, $b ) = sscanf ( '#' . implode ( '', array_map ( 'str_repeat', str_split ( str_replace ( '#', '', $hex ) ), [
+			2,
+			2,
+			2
+	] ) ), "#%02x%02x%02x" ) : list ( $r, $g, $b ) = sscanf ( $hex, "#%2x%2x%2x" );
+	return ( object ) [
+			"r" => $r,
+			"g" => $g,
+			"b" => $b
+	];
+}
+
 function inArrayByName($name, $arr) {
 	foreach ( $arr as $a ) {
 		if ($a->name == $name) {

@@ -1,5 +1,39 @@
 <?php
 
+// Ueed to extract a parameter out of the model.
+// If $param_raw is set to false the label is added to the end of the param in retrieval
+function getModelParamDataset($param, $label, $col, $param_raw = false) {
+	static $model = null;
+	if ($model == null) {
+		$model = getModel ();
+	}
+
+	if (! $param_raw) {
+		$param .= ucwords ( $label );
+	}
+
+	$dataset = [ ];
+	foreach ( $model as $day => $data ) {
+		$ts = timestamp2Time ( timestampFormat ( timestampNow (), "Y" ) . $day ) + 1;
+		$dataset [] = ( object ) [ 
+				't' => timestampFormat ( time2Timestamp ( $ts ), "Y-m-d\TH:i:s" ) . "+00:00",
+				'y' => $data->$param
+		];
+	}
+
+	$rgb = hex2rgb ( $col );
+	$ret = ( object ) [ 
+			"name" => strtoupper ( $label ),
+			"label" => ucwords ( $label ),
+			"backgroundColor" => "rgba(" . $rgb->r . ", " . $rgb->g . ", " . $rgb->b . ", 0.2)",
+			"borderColor" => "rgba(" . $rgb->r . ", " . $rgb->g . ", " . $rgb->b . ", 1.0)",
+			"borderWidth" => 1,
+			"fill" => false,
+			"data" => $dataset
+	];
+	return $ret;
+}
+
 function sendPushover_RAW($message) {
 	global $loc, $app_title, $pushover_user_key, $pushover_api_token, $pushover_server_url, $pushover_server_title;
 	echo timestampFormat ( timestampNow (), "Y-m-d\TH:i:s\Z" ) . ": Pushover send starting.\n";

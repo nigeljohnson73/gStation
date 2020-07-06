@@ -455,6 +455,7 @@ app.service('apiSvc', [ "$http", function($http, netSvc) {
 			//console.log(data);
 			ldata = {};
 			if (data.status == 200) {
+				// Probbably should never be here ,since a 200 would be a success???
 				logger("apiSvc.call(): failed at the remote end", "err");
 				ldata = data.data;
 				ldata.console = (data.data+"").trim().split(/\r\n|\r|\n/); 
@@ -556,6 +557,60 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 		return true;
 	};
 
+	var createDayGraph = function(id, arr, title, ind, labels) {
+		var ctx = $(id);
+		var myChart = new Chart(ctx, {
+			type : 'line',
+			fill : false,
+			data : {
+				datasets : arr,
+				labels : labels
+			},
+			options : {
+				responsive : true,
+				aspectRatio : 2,
+				legend : {
+					display : true
+				},
+				title : {
+					display : true,
+					fontSize : 18,
+					text : title
+				},
+				scales : {
+					yAxes : [ {
+						ticks : {
+							callback : function(value, index, values) {
+								return value + ind;
+							}
+						}
+					} ],
+					xAxes : [ {
+						type : 'time',
+						ticks : {
+							callback : function(value, index, values) {
+								d = new Date(value);
+								if(d.getDate()==1||(d.getDate()==31&&d.getMonth()==11)) {
+											return ""+value;
+								}
+								return undefined; // don't show this label
+								
+							},
+							source : 'labels'
+						},
+						time : {
+							unit : 'day',
+							displayFormats : {
+								day : 'MMM DD'
+							}
+						},
+					} ]
+				}
+			}
+		});
+		return myChart;
+	};
+
 	var createMinuteGraph = function(id, arr, title, ind) {
 		var ctx = $(id);
 		var myChart = new Chart(ctx, {
@@ -603,7 +658,7 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 	var objectDataByName = function(arr, name) {
 		ret = null;
 		angular.forEach(arr, function(item, index) {
-			//logger("Searching for '" + name + "' found '" + item.name + "'");
+			// logger("Searching for '" + name + "' found '" + item.name + "'");
 			if (item.name == name) {
 				logger("Found " + item.data.length + " data points for '" + item.name + "'", "dbg");
 				ret = item.data;
@@ -646,7 +701,7 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 						});
 					}
 				}
-				
+
 				// Now do the lastest 'DEMAND' values in
 				addSensorReading($scope.temps, obj, obj.temperature);
 				addSensorReading($scope.humds, obj, obj.humidity);
@@ -743,26 +798,49 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 	getSnapshotImage();
 	$scope.snapshot_image_api_call = $interval(getSnapshotImage, 10000);
 
-	// // Get the graph history only the once
-	// var getHistoryAll = function() {
-	// var d = new Duration();
-	// apiSvc.call("history/getAll", {}, function(data) {
-	// logger("HomeCtrl::handleGetHistoryAll()");
-	// console.log("getGraphHistoryAll(): Data transferred: " + d.prettyEnd());
-	// logger(data);
-	// if (data.success) {
-	// // logger(data.history, "dbg");
-	// $scope.history = data.history;
-	// } else {
-	// // Not sure what to do??
-	// }
-	// if (data.message.length) {
-	// toast(data.message);
-	// }
-	// $scope.loading = false;
-	// }, true); // do post so response is not cached
-	// };
-	// // getHistoryAll();
+	var getScheduleTemperature = function() {
+		var d = new Duration();
+		apiSvc.call("schedule/getTemperature", {}, function(data) {
+			logger("HomeCtrl::handleScheduleTemperature()");
+			logger("getHistoryTemperature(): Data transferred: " + d.prettyEnd());
+			logger(data);
+			if (data.success) {
+				// logger(data.data, "inf");
+				$scope.schedule_temperature_graph = createDayGraph('#schedule-temperature-graph', data.data, "Temperature Schedule", "°C", data.labels);
+			} else {
+				// Not sure what to do??
+				// Redo?
+			}
+			if (data.message.length) {
+				toast(data.message);
+			}
+			$scope.loading = false;
+			// Chain the calls in the return from one, start the next
+			getHistory();
+		}, true); // do post so response is not cached
+	};
+
+	var getScheduleHumidity = function() {
+		var d = new Duration();
+		apiSvc.call("schedule/getHumidity", {}, function(data) {
+			logger("HomeCtrl::handleScheduleHumidity()");
+			logger("getScheduleHumidity(): Data transferred: " + d.prettyEnd());
+			logger(data);
+			if (data.success) {
+				// logger(data.data, "inf");
+				$scope.schedule_humidity_graph = createDayGraph('#schedule-humidity-graph', data.data, "Humidity Schedule", "%", data.labels);
+			} else {
+				// Not sure what to do??
+				// Redo?
+			}
+			if (data.message.length) {
+				toast(data.message);
+			}
+			$scope.loading = false;
+			// Chain the calls in the return from one, start the next
+			getHistory();
+		}, true); // do post so response is not cached
+	};
 
 	var getHistoryTemperature = function() {
 		var d = new Duration();
@@ -809,7 +887,7 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 	};
 
 	var getHistory = function(ms) {
-		if(ms == undefined) {
+		if (ms == undefined) {
 			ms = 2000;
 		}
 		// Chain the calls in the return from one, start the next
@@ -825,6 +903,8 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 
 	$scope.history_calls.push(getHistoryTemperature);
 	$scope.history_calls.push(getHistoryHumidity);
+	$scope.history_calls.push(getScheduleTemperature);
+	$scope.history_calls.push(getScheduleHumidity);
 
 	// Start the history data chain
 	$scope.history_api_call = $timeout(getHistory, 1000, true, 100);

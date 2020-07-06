@@ -1,5 +1,4 @@
 <?php
-
 include_once '_header.php';
 
 function getSensorData($env) {
@@ -91,11 +90,17 @@ function getSensorData($env) {
 		</div>
 
 		<div class="col-sm-5 text-center">
-			<div class="chart-container" style="position: relative">
+			<div class="chart-container">
 				<canvas id="temperature-graph"></canvas>
 			</div>
-			<div class="chart-container" style="position: relative">
+			<div class="chart-container">
 				<canvas id="humidity-graph"></canvas>
+			</div>
+			<div class="chart-container">
+				<canvas id="schedule-temperature-graph"></canvas>
+			</div>
+			<div class="chart-container">
+				<canvas id="schedule-humidity-graph"></canvas>
 			</div>
 		</div>
 
