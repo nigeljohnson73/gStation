@@ -85,14 +85,20 @@ app.service('apiSvc', [ "$http", function($http, netSvc) {
 				notify(ldata);
 			}
 		}, function(data) {
-			logger("apiSvc.call(): failed", "err");
+			//logger("apiSvc.call(): failed", "err");
 			//console.log(data);
 			ldata = {};
 			if (data.status == 200) {
+				// Probbably should never be here ,since a 200 would be a success???
+				logger("apiSvc.call(): failed at the remote end", "err");
 				ldata = data.data;
-			} else {
-				logger("apiSvc.call(): HTTP failed with status code " + data.status, "wrn");
+				ldata.console = (data.data+"").trim().split(/\r\n|\r|\n/); 
+				} else {
+				logger("apiSvc.call(): HTTP failed with status code " + data.status, "err");
 				// Any returned text in the console where you would expect some explanation
+				if(data.data == null) {
+					data.data = "";
+				}
 				ldata.console = (data.data+"").trim().split(/\r\n|\r|\n/); 
 				ldata.success = false;
 				ldata.status = "error";

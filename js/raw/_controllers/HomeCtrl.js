@@ -314,7 +314,7 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 
 	var getHistory = function(ms) {
 		if(ms == undefined) {
-			ms = 5000;
+			ms = 2000;
 		}
 		// Chain the calls in the return from one, start the next
 		call = $scope.history_calls.shift();

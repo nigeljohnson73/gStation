@@ -451,14 +451,19 @@ app.service('apiSvc', [ "$http", function($http, netSvc) {
 				notify(ldata);
 			}
 		}, function(data) {
-			logger("apiSvc.call(): failed", "err");
+			//logger("apiSvc.call(): failed", "err");
 			//console.log(data);
 			ldata = {};
 			if (data.status == 200) {
+				logger("apiSvc.call(): failed at the remote end", "err");
 				ldata = data.data;
-			} else {
-				logger("apiSvc.call(): HTTP failed with status code " + data.status, "wrn");
+				ldata.console = (data.data+"").trim().split(/\r\n|\r|\n/); 
+				} else {
+				logger("apiSvc.call(): HTTP failed with status code " + data.status, "err");
 				// Any returned text in the console where you would expect some explanation
+				if(data.data == null) {
+					data.data = "";
+				}
 				ldata.console = (data.data+"").trim().split(/\r\n|\r|\n/); 
 				ldata.success = false;
 				ldata.status = "error";
@@ -805,7 +810,7 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 
 	var getHistory = function(ms) {
 		if(ms == undefined) {
-			ms = 5000;
+			ms = 2000;
 		}
 		// Chain the calls in the return from one, start the next
 		call = $scope.history_calls.shift();
