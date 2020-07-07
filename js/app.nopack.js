@@ -619,6 +619,30 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 							}
 						},
 					} ]
+				},
+				tooltips : {
+					callbacks : {
+						title : function(tooltipItem, data) {
+							return moment(tooltipItem[0].label).format("MMMM D");
+						},
+						label : function(tooltipItem, data) {
+							var label = data.datasets[tooltipItem.datasetIndex].label || '';
+
+							if (label) {
+								label += ': ';
+							}
+							if (yhours) {
+								h = tooltipItem.value;
+								m = (tooltipItem.value - Math.floor(tooltipItem.value)) * 60;
+								hh = lpad("" + Math.floor(h), 2, "0");
+								mm = lpad("" + Math.floor(m), 2, "0");
+								label += hh + ":" + mm;
+							} else {
+								label += (Math.round(tooltipItem.value * 100) / 100) + ind;
+							}
+							return label;
+						}
+					}
 				}
 			}
 		});
@@ -647,7 +671,6 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 				scales : {
 					yAxes : [ {
 						ticks : {
-							// Include a dollar sign in the ticks
 							callback : function(value, index, values) {
 								return value + ind;
 							}
@@ -663,6 +686,24 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 							}
 						},
 					} ]
+				},
+				tooltips : {
+					callbacks : {
+						title : function(tooltipItem, data) {
+							label = data.datasets[tooltipItem[0].datasetIndex].data[tooltipItem[0].index].t;
+							return moment(label).format("MMMM Do, HH:mm:ss");
+						},
+						label : function(tooltipItem, data) {
+							var label = data.datasets[tooltipItem.datasetIndex].label || '';
+
+							if (label) {
+								label += ': ';
+							}
+							label += (Math.round(tooltipItem.value * 100) / 100) + ind;
+							return label;
+						}
+					}
+				
 				}
 			}
 		});
@@ -899,7 +940,7 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 			logger(data);
 			if (data.success) {
 				// logger(data.data, "inf");
-				$scope.schedule_temperature_graph = createDayGraph('#schedule-daylight-graph', data.data, "Daylight Schedule (hours)", "", data.xlabels);
+				$scope.schedule_temperature_graph = createDayGraph('#schedule-daylight-graph', data.data, "Daylight Schedule", "H", data.xlabels);
 			} else {
 				// Not sure what to do??
 				// Redo?
