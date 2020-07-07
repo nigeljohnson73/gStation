@@ -2,7 +2,7 @@
 
 // Ueed to extract a parameter out of the model.
 // If $param_raw is set to false the label is added to the end of the param in retrieval
-function getModelParamDataset($param, $label, $col, $param_raw = false) {
+function getModelParamDataset($param, $label, $col, $param_raw = false, $value_scale = 1) {
 	static $model = null;
 	if ($model == null) {
 		$model = getModel ();
@@ -14,10 +14,10 @@ function getModelParamDataset($param, $label, $col, $param_raw = false) {
 
 	$dataset = [ ];
 	foreach ( $model as $day => $data ) {
-		$ts = timestamp2Time ( timestampFormat ( timestampNow (), "Y" ) . $day ) + 1;
+		$ts = timestamp2Time ( timestampFormat ( timestampNow (), "Y" ) . $day ) + 0;
 		$dataset [] = ( object ) [ 
 				't' => timestampFormat ( time2Timestamp ( $ts ), "Y-m-d\TH:i:s" ) . "+00:00",
-				'y' => $data->$param
+				'y' => $data->$param * $value_scale
 		];
 	}
 

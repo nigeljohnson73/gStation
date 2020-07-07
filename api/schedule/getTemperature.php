@@ -33,7 +33,7 @@ $ret->data [] = getModelParamDataset ( "temperature", "Night", "#609" );
 $ret->labels = [ ];
 $ret->model = getModel ();
 foreach ( $ret->model as $day => $data ) {
-	$ret->labels [] = timestampFormat ( timestampFormat ( timestampNow (), "Y" ) . $day, "Y-m-d\TH:i:s\Z" );
+	$ret->xlabels [] = timestampFormat ( timestampFormat ( timestampNow (), "Y" ) . $day, "Y-m-d\TH:i:s\Z" );
 }
 
 endJsonRespose ( $ret, true );

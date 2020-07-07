@@ -102,6 +102,12 @@ function getSensorData($env) {
 			<div class="chart-container">
 				<canvas id="schedule-humidity-graph"></canvas>
 			</div>
+			<div class="chart-container">
+				<canvas id="schedule-sun-graph"></canvas>
+			</div>
+			<div class="chart-container">
+				<canvas id="schedule-daylight-graph"></canvas>
+			</div>
 		</div>
 
 		<div class="col-sm-1"></div>

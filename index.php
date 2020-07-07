@@ -24,7 +24,6 @@ $apidate = newestFile ( dirname ( __FILE__ ) . "/api" );
 		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.8/angular.min.js"></script>
 		<script src='https://ajax.googleapis.com/ajax/libs/angularjs/1.7.8/angular-route.min.js'></script>
 <!-- 		<script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.bundle.min.js'></script> -->
-<!-- 		<script src='https://momentjs.com/downloads/moment.min.js'></script> -->
 		<script src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js'></script>
 		<script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js'></script>
 		<script src='js/app.<?php javascriptPayload() ?>.js?<?php echo $jsdate[0] ?>'></script>

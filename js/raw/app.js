@@ -39,6 +39,19 @@ class Duration {
 	};
 };
 
+var lpad = function(n, width, z) {
+	  z = z || '0';
+	  n = n + '';
+	  return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+	};
+
+hours2Hm = function(num) {
+	num=num*60;
+	var hours = Math.floor(num / 60);
+	var minutes = num % 60;
+	return lpad(""+hours, 2) + ":" + lpad(""+minutes, 2);
+};
+
 hexToRgb = function(hex) {
 	// Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
 	var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;

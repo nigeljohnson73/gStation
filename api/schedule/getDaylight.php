@@ -9,11 +9,11 @@ $m = getModel ( timestampNow () );
 $dataset = [ ];
 $dataset [] = ( object ) [ 
 		't' => timestampFormat ( timestampNow (), "Y-m-d" ) . "T11:59:59+00:00",
-		'y' => $m->humidityDay
+		'y' => $m->daylightHours-0.25
 ];
 $dataset [] = ( object ) [ 
 		't' => timestampFormat ( timestampNow (), "Y-m-d" ) . "T12:00:01+00:00",
-		'y' => $m->humidityNight
+		'y' => $m->daylightHours+0.25
 ];
 $rgb = hex2rgb ( "#c00" );
 $today = ( object ) [ 
@@ -27,10 +27,9 @@ $today = ( object ) [
 ];
 
 $ret->data [] = $today;
-$ret->data [] = getModelParamDataset ( "humidity", "Day", "#090" );
-$ret->data [] = getModelParamDataset ( "humidity", "Night", "#609" );
+$ret->data [] = getModelParamDataset ( "daylightHours", "Daylight", "#090", true );
 
-$ret->labels = [ ];
+$ret->xlabels = [ ];
 $ret->model = getModel ();
 foreach ( $ret->model as $day => $data ) {
 	$ret->xlabels [] = timestampFormat ( timestampFormat ( timestampNow (), "Y" ) . $day, "Y-m-d\TH:i:s\Z" );
