@@ -232,7 +232,7 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 				Object.assign(obj, $scope.env.demand);
 				if ($scope.history && $scope.history.temperature) {
 					if (r = objectDataByName($scope.history.temperature, obj.name)) {
-						logger("Processing " + r.length + " historic temperature values into '" + obj.name + "'");
+						logger("Processing " + r.length + " historic temperature values into '" + obj.name + "'", "dbg");
 						angular.forEach(r, function(item, index) {
 							addSensorReadingWithDate($scope.temps, obj, item.y, new Date(item.t));
 						});
@@ -240,7 +240,7 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 				}
 				if ($scope.history && $scope.history.humidity) {
 					if (r = objectDataByName($scope.history.humidity, obj.name)) {
-						logger("Processing " + r.length + " historic humidity values into '" + obj.name + "'");
+						logger("Processing " + r.length + " historic humidity values into '" + obj.name + "'", "dbg");
 						angular.forEach(r, function(item, index) {
 							addSensorReadingWithDate($scope.humds, obj, item.y, new Date(item.t));
 						});
@@ -258,7 +258,7 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 					// Check for historic temperature data
 					if ($scope.history && $scope.history.temperature) {
 						if (r = objectDataByName($scope.history.temperature, item.name)) {
-							logger("Processing " + r.length + " historic temperature values into '" + item.name + "'");
+							logger("Processing " + r.length + " historic temperature values into '" + item.name + "'", "dbg");
 							angular.forEach(r, function(sitem, index) {
 								addSensorReadingWithDate($scope.temps, item, sitem.y, new Date(sitem.t));
 							});
@@ -270,7 +270,7 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 					// Check for historic humidity data
 					if ($scope.history && $scope.history.humidity) {
 						if (r = objectDataByName($scope.history.humidity, item.name)) {
-							logger("Processing " + r.length + " historic humidity values into '" + item.name + "'");
+							logger("Processing " + r.length + " historic humidity values into '" + item.name + "'", "dbg");
 							angular.forEach(r, function(sitem, index) {
 								addSensorReadingWithDate($scope.humds, item, sitem.y, new Date(sitem.t));
 							});
@@ -346,9 +346,9 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 	var getScheduleTemperature = function() {
 		var d = new Duration();
 		apiSvc.call("schedule/getTemperature", {}, function(data) {
-			logger("HomeCtrl::handleScheduleTemperature()");
+			//logger("HomeCtrl::handleScheduleTemperature()");
 			logger("getScheduleTemperature(): Data transferred: " + d.prettyEnd());
-			logger(data);
+			logger(data, "dbg");
 			if (data.success) {
 				// logger(data.data, "inf");
 				$scope.schedule_temperature_graph = createDayGraph('#schedule-temperature-graph', data.data, "Temperature Schedule", "°C", data.xlabels);
@@ -368,9 +368,9 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 	var getScheduleHumidity = function() {
 		var d = new Duration();
 		apiSvc.call("schedule/getHumidity", {}, function(data) {
-			logger("HomeCtrl::handleScheduleHumidity()");
+			//logger("HomeCtrl::handleScheduleHumidity()");
 			logger("getScheduleHumidity(): Data transferred: " + d.prettyEnd());
-			logger(data);
+			logger(data, "dbg");
 			if (data.success) {
 				// logger(data.data, "inf");
 				$scope.schedule_humidity_graph = createDayGraph('#schedule-humidity-graph', data.data, "Humidity Schedule", "%", data.xlabels);
@@ -390,9 +390,9 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 	var getScheduleSun = function() {
 		var d = new Duration();
 		apiSvc.call("schedule/getSun", {}, function(data) {
-			logger("HomeCtrl::handleScheduleSun()");
+			//logger("HomeCtrl::handleScheduleSun()");
 			logger("getScheduleSun(): Data transferred: " + d.prettyEnd());
-			logger(data);
+			logger(data, "dbg");
 			if (data.success) {
 				// logger(data.data, "inf");
 				angular.forEach(data.data, function(item, index) {
@@ -425,9 +425,9 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 	var getScheduleDaylight = function() {
 		var d = new Duration();
 		apiSvc.call("schedule/getDaylight", {}, function(data) {
-			logger("HomeCtrl::handleScheduleDaylight()");
+			//logger("HomeCtrl::handleScheduleDaylight()");
 			logger("getScheduleDaylight(): Data transferred: " + d.prettyEnd());
-			logger(data);
+			logger(data, "dbg");
 			if (data.success) {
 				// logger(data.data, "inf");
 				$scope.schedule_temperature_graph = createDayGraph('#schedule-daylight-graph', data.data, "Daylight Schedule", "H", data.xlabels);
@@ -447,9 +447,9 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 	var getHistoryTemperature = function() {
 		var d = new Duration();
 		apiSvc.call("history/getTemperature", {}, function(data) {
-			logger("HomeCtrl::handleGetHistoryTemperature()");
+			//logger("HomeCtrl::handleGetHistoryTemperature()");
 			logger("getHistoryTemperature(): Data transferred: " + d.prettyEnd());
-			logger(data);
+			logger(data, "dbg");
 			if (data.success) {
 				// logger(data.history, "dbg");
 				$scope.history.temperature = data.history;
@@ -469,9 +469,9 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 	var getHistoryHumidity = function() {
 		var d = new Duration();
 		apiSvc.call("history/getHumidity", {}, function(data) {
-			logger("HomeCtrl::handleGetHistoryHumidity()");
+			//logger("HomeCtrl::handleGetHistoryHumidity()");
 			logger("getHistoryHumidity(): Data transferred: " + d.prettyEnd());
-			logger(data);
+			logger(data, "dbg");
 			if (data.success) {
 				// logger(data.history, "dbg");
 				$scope.history.humidity = data.history;
