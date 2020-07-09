@@ -249,7 +249,7 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 	});
 
 	$scope.api_calls.push({
-		api : "history/getServerCpuload",
+		api : "history/getServerCpuLoad",
 		requeue : false,
 		success : function(data) {
 			$scope.history.server_cpu_load = data.history;
@@ -257,7 +257,7 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 	});
 
 	$scope.api_calls.push({
-		api : "history/getServerMemoryload",
+		api : "history/getServerMemoryLoad",
 		requeue : false,
 		success : function(data) {
 			$scope.history.server_mem_load = data.history;
@@ -265,7 +265,7 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 	});
 
 	$scope.api_calls.push({
-		api : "history/getServerHddload",
+		api : "history/getServerHddLoad",
 		requeue : false,
 		success : function(data) {
 			$scope.history.server_hdd_load = data.history;
