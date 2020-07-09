@@ -1,19 +1,18 @@
 <?php
 include_once (dirname ( __FILE__ ) . "/../../functions.php");
-$pt = new ProcessTimer ();
+$today = getPostArgs ( "today", timestampNow () );
 $ret = startJsonRespose ();
-
 $ret->data = [ ];
 
-$m = getModel ( timestampNow () );
+$m = getModel ( $today );
 $dataset = [ ];
 $dataset [] = ( object ) [ 
 		't' => timestampFormat ( timestampNow (), "Y-m-d" ) . "T11:59:59+00:00",
-		'y' => $m->daylightHours-0.25
+		'y' => $m->daylightHours - 0.25
 ];
 $dataset [] = ( object ) [ 
 		't' => timestampFormat ( timestampNow (), "Y-m-d" ) . "T12:00:01+00:00",
-		'y' => $m->daylightHours+0.25
+		'y' => $m->daylightHours + 0.25
 ];
 $rgb = hex2rgb ( "#c00" );
 $today = ( object ) [ 

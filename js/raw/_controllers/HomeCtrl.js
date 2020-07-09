@@ -2,24 +2,29 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 	// Storage for graphing data
 	$scope.temps = [];
 	$scope.humds = [];
-	$scope.history_calls = [];
+	$scope.api_calls = [];
 
+	// Called when one of the graph tabs is clicked, don't refresh the page
+	$scope.preventRefresh = function(ev) {
+		ev.preventDefault();
+		return false;
+	};
+
+	// When the ticker comes back every 5 seconds wrap the adding of asensor
+	// reading with the timestamp from now.
 	var addSensorReading = function(arr, sensor, value) {
 		return addSensorReadingWithDate(arr, sensor, value, new Date());
 	};
 
+	// Add a sensor reading in the scatter graph
 	var addSensorReadingWithDate = function(arr, sensor, value, dte) {
 		found = false;
 		if (value == undefined) {
-			// console.log("Skipping bad value for " +
-			// sensor.name);
 			return false;
 		}
 
 		angular.forEach(arr, function(item, index) {
 			if (item.name == sensor.name) {
-				// console.log("item.name: '" + item.name + "', sensor.name: '"
-				// + sensor.name + "'");
 				found = true;
 				item.data.push({
 					t : dte,
@@ -36,11 +41,9 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 					return 0;
 				});
 			}
-			// console.log("Adding " + value + " to " + item.name);
 		});
 
 		if (!found) {
-			// console.log("Creating " + sensor.name + " and adding " + value);
 			rgb = hexToRgb(sensor.colour);
 			arr.push({
 				name : sensor.name,
@@ -56,9 +59,11 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 			});
 		}
 
-		// console.log(arr);
 		return true;
 	};
+
+	// Creates the graphs used for the model that cover a year with each item
+	// being a day.
 	var createDayGraph = function(id, arr, title, ind, xlabels, yhours) {
 		var ctx = $(id);
 		var myChart = new Chart(ctx, {
@@ -139,6 +144,7 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 		return myChart;
 	};
 
+	// Used for graphs that are driven from the server tick
 	var createMinuteGraph = function(id, arr, title, ind) {
 		var ctx = $(id);
 		var myChart = new Chart(ctx, {
@@ -193,24 +199,11 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 							return label;
 						}
 					}
-				
+
 				}
 			}
 		});
 		return myChart;
-	};
-
-	var objectDataByName = function(arr, name) {
-		ret = null;
-		angular.forEach(arr, function(item, index) {
-			// logger("Searching for '" + name + "' found '" + item.name + "'");
-			if (item.name == name) {
-				logger("Found " + item.data.length + " data points for '" + item.name + "'", "dbg");
-				ret = item.data;
-				return;
-			}
-		});
-		return ret;
 	};
 
 	$scope.loading = true;
@@ -304,13 +297,13 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 				if ($scope.temp_graph) {
 					$scope.temp_graph.update();
 				} else {
-					$scope.temp_graph = createMinuteGraph('#temperature-graph', $scope.temps, "Temperature Readings", "°C");
+					$scope.temp_graph = createMinuteGraph('#temperature-graph', $scope.temps, "Temperature", "°C");
 				}
 
 				if ($scope.humd_graph) {
 					$scope.humd_graph.update();
 				} else {
-					$scope.humd_graph = createMinuteGraph('#humidity-graph', $scope.humds, "Humidity Readings", "%");
+					$scope.humd_graph = createMinuteGraph('#humidity-graph', $scope.humds, "Humidity", "%");
 				}
 			} else {
 				$scope.env = null;
@@ -343,15 +336,167 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 	getSnapshotImage();
 	$scope.snapshot_image_api_call = $interval(getSnapshotImage, 10000);
 
-	var getScheduleTemperature = function() {
+	// var getScheduleTemperature = function() {
+	// var d = new Duration();
+	// apiSvc.call("schedule/getTemperature", {}, function(data) {
+	// // logger("HomeCtrl::handleScheduleTemperature()");
+	// logger("getScheduleTemperature(): Data transferred: " + d.prettyEnd());
+	// logger(data, "dbg");
+	// if (data.success) {
+	// // logger(data.data, "inf");
+	// $scope.schedule_temperature_graph =
+	// createDayGraph('#schedule-temperature-graph', data.data, "Temperature",
+	// "°C", data.xlabels);
+	// } else {
+	// // Not sure what to do??
+	// // Redo?
+	// }
+	// if (data.message.length) {
+	// toast(data.message);
+	// }
+	// $scope.loading = false;
+	// // Chain the calls in the return from one, start the next
+	// processApiCalls();
+	// }, true); // do post so response is not cached
+	// };
+
+	// var getScheduleHumidity = function() {
+	// var d = new Duration();
+	// apiSvc.call("schedule/getHumidity", {}, function(data) {
+	// // logger("HomeCtrl::handleScheduleHumidity()");
+	// logger("getScheduleHumidity(): Data transferred: " + d.prettyEnd());
+	// logger(data, "dbg");
+	// if (data.success) {
+	// // logger(data.data, "inf");
+	// $scope.schedule_humidity_graph =
+	// createDayGraph('#schedule-humidity-graph', data.data, "Humidity", "%",
+	// data.xlabels);
+	// } else {
+	// // Not sure what to do??
+	// // Redo?
+	// }
+	// if (data.message.length) {
+	// toast(data.message);
+	// }
+	// $scope.loading = false;
+	// // Chain the calls in the return from one, start the next
+	// processApiCalls();
+	// }, true); // do post so response is not cached
+	// };
+
+	// var getScheduleSun = function() {
+	// var d = new Duration();
+	// apiSvc.call("schedule/getSun", {}, function(data) {
+	// // logger("HomeCtrl::handleScheduleSun()");
+	// logger("getScheduleSun(): Data transferred: " + d.prettyEnd());
+	// logger(data, "dbg");
+	// if (data.success) {
+	// // logger(data.data, "inf");
+	// angular.forEach(data.data, function(item, index) {
+	// // if(item.name == "TODAY") {
+	// // logger(item, "inf");
+	// angular.forEach(item.data, function(item, index) {
+	// ts = moment(item.t);
+	// ts.local();
+	// h = parseFloat(ts.format("H")) + (parseFloat(ts.format("m")) / 60.0);
+	// item.t = ts.format();
+	// item.y = h;
+	// // logger(ts.format() + ", h: " + h);
+	// });
+	// // }
+	// });
+	// $scope.schedule_sunriseset_graph = createDayGraph('#schedule-sun-graph',
+	// data.data, "Sun rise and set", "", data.xlabels, true);
+	// } else {
+	// // Not sure what to do??
+	// // Redo?
+	// }
+	// if (data.message.length) {
+	// toast(data.message);
+	// }
+	// $scope.loading = false;
+	// // Chain the calls in the return from one, start the next
+	// processApiCalls();
+	// }, true); // do post so response is not cached
+	// };
+
+	// var getScheduleDaylight = function() {
+	// var d = new Duration();
+	// apiSvc.call("schedule/getDaylight", {}, function(data) {
+	// // logger("HomeCtrl::handleScheduleDaylight()");
+	// logger("getScheduleDaylight(): Data transferred: " + d.prettyEnd());
+	// logger(data, "dbg");
+	// if (data.success) {
+	// // logger(data.data, "inf");
+	// $scope.schedule_daylight_graph =
+	// createDayGraph('#schedule-daylight-graph', data.data, "Daylight hours",
+	// "", data.xlabels);
+	// } else {
+	// // Not sure what to do??
+	// // Redo?
+	// }
+	// if (data.message.length) {
+	// toast(data.message);
+	// }
+	// $scope.loading = false;
+	// // Chain the calls in the return from one, start the next
+	// processApiCalls();
+	// }, true); // do post so response is not cached
+	// };
+
+	// var getHistoryTemperature = function() {
+	// var d = new Duration();
+	// apiSvc.call("history/getTemperature", {}, function(data) {
+	// // logger("HomeCtrl::handleGetHistoryTemperature()");
+	// logger("getHistoryTemperature(): Data transferred: " + d.prettyEnd());
+	// logger(data, "dbg");
+	// if (data.success) {
+	// // logger(data.history, "dbg");
+	// $scope.history.temperature = data.history;
+	// } else {
+	// // Not sure what to do??
+	// // Redo?
+	// }
+	// if (data.message.length) {
+	// toast(data.message);
+	// }
+	// $scope.loading = false;
+	// // Chain the calls in the return from one, start the next
+	// processApiCalls();
+	// }, true); // do post so response is not cached
+	// };
+
+	// var getHistoryHumidity = function() {
+	// var d = new Duration();
+	// apiSvc.call("history/getHumidity", {}, function(data) {
+	// // logger("HomeCtrl::handleGetHistoryHumidity()");
+	// logger("getHistoryHumidity(): Data transferred: " + d.prettyEnd());
+	// logger(data, "dbg");
+	// if (data.success) {
+	// // logger(data.history, "dbg");
+	// $scope.history.humidity = data.history;
+	// } else {
+	// // Not sure what to do??
+	// // Redo?
+	// }
+	// if (data.message.length) {
+	// toast(data.message);
+	// }
+	// $scope.loading = false;
+	// // Chain the calls in the return from one, start the next
+	// processApiCalls();
+	// }, true); // do post so response is not cached
+	// };
+
+	var getApiData = function(o) {
 		var d = new Duration();
-		apiSvc.call("schedule/getTemperature", {}, function(data) {
-			//logger("HomeCtrl::handleScheduleTemperature()");
-			logger("getScheduleTemperature(): Data transferred: " + d.prettyEnd());
+		apiSvc.call(o.api, {
+			today : moment().format("MMDD")
+		}, function(data) {
+			logger(o.api + "(): Data transfer: " + d.prettyEnd());
 			logger(data, "dbg");
 			if (data.success) {
-				// logger(data.data, "inf");
-				$scope.schedule_temperature_graph = createDayGraph('#schedule-temperature-graph', data.data, "Temperature Schedule", "°C", data.xlabels);
+				o.success(data);
 			} else {
 				// Not sure what to do??
 				// Redo?
@@ -361,155 +506,94 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 			}
 			$scope.loading = false;
 			// Chain the calls in the return from one, start the next
-			getHistory();
-		}, true); // do post so response is not cached
-	};
-
-	var getScheduleHumidity = function() {
-		var d = new Duration();
-		apiSvc.call("schedule/getHumidity", {}, function(data) {
-			//logger("HomeCtrl::handleScheduleHumidity()");
-			logger("getScheduleHumidity(): Data transferred: " + d.prettyEnd());
-			logger(data, "dbg");
-			if (data.success) {
-				// logger(data.data, "inf");
-				$scope.schedule_humidity_graph = createDayGraph('#schedule-humidity-graph', data.data, "Humidity Schedule", "%", data.xlabels);
+			processApiCalls();
+			// Reschedule adding this to the call stack at midnight
+			if (o.requeue) {
+				logger("Requeuing call to '" + o.api + "'", "dbg")
+				$timeout(function() {
+					$scope.api_calls.push(o);
+				}, Math.max(millisecondsToMidnight(), 5 * 60));
 			} else {
-				// Not sure what to do??
-				// Redo?
+				logger("Call to '" + o.api + "' singleshot - no requeue", "dbg")
 			}
-			if (data.message.length) {
-				toast(data.message);
-			}
-			$scope.loading = false;
-			// Chain the calls in the return from one, start the next
-			getHistory();
+
 		}, true); // do post so response is not cached
 	};
 
-	var getScheduleSun = function() {
-		var d = new Duration();
-		apiSvc.call("schedule/getSun", {}, function(data) {
-			//logger("HomeCtrl::handleScheduleSun()");
-			logger("getScheduleSun(): Data transferred: " + d.prettyEnd());
-			logger(data, "dbg");
-			if (data.success) {
-				// logger(data.data, "inf");
-				angular.forEach(data.data, function(item, index) {
-					// if(item.name == "TODAY") {
-					// logger(item, "inf");
-					angular.forEach(item.data, function(item, index) {
-						ts = moment(item.t);
-						ts.local();
-						h = parseFloat(ts.format("H")) + (parseFloat(ts.format("m")) / 60.0);
-						item.t = ts.format();
-						item.y = h;
-						// logger(ts.format() + ", h: " + h);
-					});
-					// }
-				});
-				$scope.schedule_temperature_graph = createDayGraph('#schedule-sun-graph', data.data, "Sun Schedule", "", data.xlabels, true);
-			} else {
-				// Not sure what to do??
-				// Redo?
-			}
-			if (data.message.length) {
-				toast(data.message);
-			}
-			$scope.loading = false;
-			// Chain the calls in the return from one, start the next
-			getHistory();
-		}, true); // do post so response is not cached
-	};
-
-	var getScheduleDaylight = function() {
-		var d = new Duration();
-		apiSvc.call("schedule/getDaylight", {}, function(data) {
-			//logger("HomeCtrl::handleScheduleDaylight()");
-			logger("getScheduleDaylight(): Data transferred: " + d.prettyEnd());
-			logger(data, "dbg");
-			if (data.success) {
-				// logger(data.data, "inf");
-				$scope.schedule_temperature_graph = createDayGraph('#schedule-daylight-graph', data.data, "Daylight Schedule", "H", data.xlabels);
-			} else {
-				// Not sure what to do??
-				// Redo?
-			}
-			if (data.message.length) {
-				toast(data.message);
-			}
-			$scope.loading = false;
-			// Chain the calls in the return from one, start the next
-			getHistory();
-		}, true); // do post so response is not cached
-	};
-
-	var getHistoryTemperature = function() {
-		var d = new Duration();
-		apiSvc.call("history/getTemperature", {}, function(data) {
-			//logger("HomeCtrl::handleGetHistoryTemperature()");
-			logger("getHistoryTemperature(): Data transferred: " + d.prettyEnd());
-			logger(data, "dbg");
-			if (data.success) {
-				// logger(data.history, "dbg");
-				$scope.history.temperature = data.history;
-			} else {
-				// Not sure what to do??
-				// Redo?
-			}
-			if (data.message.length) {
-				toast(data.message);
-			}
-			$scope.loading = false;
-			// Chain the calls in the return from one, start the next
-			getHistory();
-		}, true); // do post so response is not cached
-	};
-
-	var getHistoryHumidity = function() {
-		var d = new Duration();
-		apiSvc.call("history/getHumidity", {}, function(data) {
-			//logger("HomeCtrl::handleGetHistoryHumidity()");
-			logger("getHistoryHumidity(): Data transferred: " + d.prettyEnd());
-			logger(data, "dbg");
-			if (data.success) {
-				// logger(data.history, "dbg");
-				$scope.history.humidity = data.history;
-			} else {
-				// Not sure what to do??
-				// Redo?
-			}
-			if (data.message.length) {
-				toast(data.message);
-			}
-			$scope.loading = false;
-			// Chain the calls in the return from one, start the next
-			getHistory();
-		}, true); // do post so response is not cached
-	};
-
-	var getHistory = function(ms) {
+	var processApiCalls = function(ms) {
+		logger("processApiCalls(): called", "dbg");
 		if (ms == undefined) {
 			ms = 2000;
 		}
 		// Chain the calls in the return from one, start the next
-		call = $scope.history_calls.shift();
-		if (call) {
-			logger("Calling history retrieval with " + ms + "ms delay");
-			$scope.history_api_call = $timeout(call, ms);
+		data = $scope.api_calls.shift();
+		if (data) {
+			logger("Calling history retrieval with " + ms + "ms delay", "dbg");
+			$scope.history_api_call = $timeout(getApiData, ms, true, data);
 		} else {
-			logger("All history up to date");
-			$scope.history_api_call = null;
+			logger("API queue complete");
+			var stm = millisecondsToMidnight();
+			logger("Milliseconds of sleep: " + stm, "dbg");
+			$scope.history_api_call = $timeout(processApiCalls, Math.max(millisecondsToMidnight() + 60 * 1000, 5 * 60 * 1000));
 		}
 	};
 
-	$scope.history_calls.push(getScheduleTemperature);
-	$scope.history_calls.push(getScheduleHumidity);
-	$scope.history_calls.push(getScheduleSun);
-	$scope.history_calls.push(getScheduleDaylight);
-	$scope.history_calls.push(getHistoryTemperature);
-	$scope.history_calls.push(getHistoryHumidity);
+	$scope.api_calls.push({
+		api : "schedule/getTemperature",
+		requeue : true,
+		success : function(data) {
+			$scope.schedule_temperature_graph = createDayGraph('#schedule-temperature-graph', data.data, "Temperature", "°C", data.xlabels);
+		}
+	});
 
+	$scope.api_calls.push({
+		api : "schedule/getHumidity",
+		requeue : true,
+		success : function(data) {
+			$scope.schedule_humidity_graph = createDayGraph('#schedule-humidity-graph', data.data, "Humidity", "%", data.xlabels);
+		}
+	});
+
+	$scope.api_calls.push({
+		api : "schedule/getSun",
+		requeue : true,
+		success : function(data) {
+			angular.forEach(data.data, function(item, index) {
+				angular.forEach(item.data, function(item, index) {
+					ts = moment(item.t);
+					ts.local();
+					h = parseFloat(ts.format("H")) + (parseFloat(ts.format("m")) / 60.0);
+					item.t = ts.format();
+					item.y = h;
+				});
+			});
+			$scope.schedule_sun_graph = createDayGraph('#schedule-sun-graph', data.data, "Sun rise and set", "", data.xlabels, true);
+		}
+	});
+
+	$scope.api_calls.push({
+		api : "schedule/getDaylight",
+		requeue : true,
+		success : function(data) {
+			$scope.schedule_daylight_graph = createDayGraph('#schedule-daylight-graph', data.data, "Daylight hours", "", data.xlabels);
+		}
+	});
+
+	$scope.api_calls.push({
+		api : "history/getHumidity",
+		requeue : false,
+		success : function(data) {
+			$scope.history.humidity = data.history;
+		}
+	});
+
+	$scope.api_calls.push({
+		api : "history/getTemperature",
+		requeue : false,
+		success : function(data) {
+			$scope.history.temperature = data.history;
+		}
+	});
 	// Start the history data chain
-	$scope.history_api_call = $timeout(getHistory, 1000, true, 100);
+	$scope.history_api_call = $timeout(processApiCalls, 1000, true, 100);
 } ]);

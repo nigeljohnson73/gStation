@@ -275,6 +275,11 @@ footer.app-footer p {
 	border-radius: 0 6px 6px 0;
 }
 
+.tab-pane {
+	padding-top:10px;
+	padding-bottom:20px;
+}
+
 /*************
  * image protection
  */

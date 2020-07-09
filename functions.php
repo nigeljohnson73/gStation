@@ -8,13 +8,44 @@ ini_set ( 'display_errors', 'on' );
 // All calcuations are done in UTC
 date_default_timezone_set ( "UTC" );
 
+function getPostArgs($args, $defs = null) {
+	if (! is_array ( $args )) {
+		$args = array (
+				$args
+		);
+	}
+
+	if ($defs && ! is_array ( $defs )) {
+		$defs = array (
+				$defs
+		);
+	}
+
+	$ret = [ ];
+	foreach ( $args as $k => $a ) {
+		if (isset ( $_POST [$a] )) {
+			$ret [$a] = $_POST [$a];
+		} else if (isset ( $defs [$k] )) {
+			$ret [$a] = $defs [$k];
+		}
+	}
+
+	if (count ( $ret ) == 0) {
+		return null;
+	}
+	if (count ( $ret ) == 1) {
+		return $ret [$args [0]];
+	}
+	return $args;
+}
+
 function hex2rgb($hex) {
-	(strlen ( $hex ) === 4) ? list ( $r, $g, $b ) = sscanf ( '#' . implode ( '', array_map ( 'str_repeat', str_split ( str_replace ( '#', '', $hex ) ), [
+	(strlen ( $hex ) === 4) ? list ( $r, $g, $b ) = sscanf ( '#' . implode ( '', array_map ( 'str_repeat', str_split ( str_replace ( '#', '', $hex ) ), [ 
 			2,
 			2,
 			2
 	] ) ), "#%02x%02x%02x" ) : list ( $r, $g, $b ) = sscanf ( $hex, "#%2x%2x%2x" );
-	return ( object ) [
+	return ( object ) [ 
 			"r" => $r,
 			"g" => $g,
 			"b" => $b
@@ -562,7 +593,7 @@ function durationStamp($secs, $use_us = false) {
 	$ms = ($secs - (floor ( $secs ))) * 1000;
 	$secs = floor ( $secs );
 
-	$us = round(($ms - (floor ( $ms ))) * 1000);
+	$us = round ( ($ms - (floor ( $ms ))) * 1000 );
 	$ms = floor ( $ms );
 
 	// echo "durationStamp(): secs: $secs\n";

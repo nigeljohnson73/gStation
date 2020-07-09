@@ -1,23 +1,18 @@
 <?php
 include_once (dirname ( __FILE__ ) . "/../../functions.php");
-$pt = new ProcessTimer ();
+$today = getPostArgs ( "today", timestampNow () );
 $ret = startJsonRespose ();
-
 $ret->data = [ ];
 
-$m = getModel ( timestampNow () );
+$m = getModel ( $today );
 $dataset = [ ];
 $dataset [] = ( object ) [ 
-		//'t' => timetampFormat(time2Timestamp(timestamp2Time(timestampFormat ( timestampNow (), "Y-m-d" ) . "T00:00:00Z") + $m->sunriseOffset), "Y-m-d\TH:i:s\Z"),
 		't' => timestampFormat ( timestampNow (), "Y-m-d" ) . "T00:00:00Z",
-		//'y' => 0.5
-		'y' => $m->sunriseOffset // / (60 * 60)
+		'y' => $m->sunriseOffset
 ];
 $dataset [] = ( object ) [ 
-		//'t' => timetampFormat(time2Timestamp(timestamp2Time(timestampFormat ( timestampNow (), "Y-m-d" ) . "T00:00:00Z") + $m->sunsetOffset), "Y-m-d\TH:i:s\Z"),
 		't' => timestampFormat ( timestampNow (), "Y-m-d" ) . "T00:00:00Z",
-		//'y' => 23.5
-		'y' => $m->sunsetOffset // / (60 * 60)
+		'y' => $m->sunsetOffset
 ];
 $rgb = hex2rgb ( "#c00" );
 $today = ( object ) [ 
@@ -31,14 +26,14 @@ $today = ( object ) [
 ];
 
 $ret->data [] = $today;
-$ret->data [] = getModelParamDataset ( "sunriseOffset", "Sunrise", "#090", true /*, 1 / (60 * 60)*/ );
-$ret->data [] = getModelParamDataset ( "sunsetOffset", "Sunset", "#609", true/*, 1 / (60 * 60)*/ );
+$ret->data [] = getModelParamDataset ( "sunriseOffset", "Sunrise", "#090", true );
+$ret->data [] = getModelParamDataset ( "sunsetOffset", "Sunset", "#609", true );
 
 // REset all of these to event times
-foreach($ret->data as $series) {
-	foreach($series->data as $point) {
-		$point->t = timestampFormat(time2Timestamp(timestamp2Time($point->t) + $point->y), "Y-m-d\TH:i:s")."Z";
-		unset($point->y);
+foreach ( $ret->data as $series ) {
+	foreach ( $series->data as $point ) {
+		$point->t = timestampFormat ( time2Timestamp ( timestamp2Time ( $point->t ) + $point->y ), "Y-m-d\TH:i:s" ) . "Z";
+		unset ( $point->y );
 	}
 }
 

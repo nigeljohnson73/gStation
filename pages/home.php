@@ -90,24 +90,41 @@ function getSensorData($env) {
 		</div>
 
 		<div class="col-sm-5 text-center">
-			<div class="chart-container">
-				<canvas id="temperature-graph"></canvas>
+
+			<ul class="nav nav-tabs" id="data-tabs" role="tablist">
+				<li class="nav-item active"><a class="nav-link" id="history-tab" href="#history-content" data-ng-click="preventRefresh($event)" data-toggle="tab" role="tab" aria-controls="history" aria-selected="true">History</a></li>
+				<li class="nav-item"><a class="nav-link" id="schedule-tab" href="#schedule-content" data-ng-click="preventRefresh($event)" data-toggle="tab" role="tab" aria-controls="schedule" aria-selected="false">Schedule</a></li>
+				<li class="nav-item"><a class="nav-link" id="server-tab" href="#server-content" data-ng-click="preventRefresh($event)" data-toggle="tab" role="tab" aria-controls="server" aria-selected="false">Server</a></li>
+			</ul>
+			<div class="tab-content" id="data-content">
+				<div class="tab-pane active" id="history-content" role="tabpanel" aria-labelledby="history-tab">
+					<div class="chart-container">
+						<canvas id="temperature-graph"></canvas>
+					</div>
+					<div class="chart-container">
+						<canvas id="humidity-graph"></canvas>
+					</div>
+				</div>
+				<div class="tab-pane fade" id="schedule-content" role="tabpanel" aria-labelledby="schedule-tab">
+					<div class="chart-container" data-ng-show="schedule_temperature_graph">
+						<canvas id="schedule-temperature-graph"></canvas>
+					</div>
+					<div class="chart-container" data-ng-show="schedule_humidity_graph">
+						<canvas id="schedule-humidity-graph"></canvas>
+					</div>
+					<div class="chart-container" data-ng-show="schedule_sun_graph">
+						<canvas id="schedule-sun-graph"></canvas>
+					</div>
+					<div class="chart-container" data-ng-show="schedule_daylight_graph">
+						<canvas id="schedule-daylight-graph"></canvas>
+					</div>
+					<div class="chart-container" data-ng-hide="schedule_temperature_graph && schedule_humidity_graph && schedule_sun_graph && schedule_daylight_graph">
+						<img src="/gfx/ajax-loader-bar.gif" alt="Schedule data loading" />
+					</div>
+				</div>
+				<div class="tab-pane fade" id="server-content" role="tabpanel" aria-labelledby="server-tab">Coming soon...</div>
 			</div>
-			<div class="chart-container">
-				<canvas id="humidity-graph"></canvas>
-			</div>
-			<div class="chart-container">
-				<canvas id="schedule-temperature-graph"></canvas>
-			</div>
-			<div class="chart-container">
-				<canvas id="schedule-humidity-graph"></canvas>
-			</div>
-			<div class="chart-container">
-				<canvas id="schedule-sun-graph"></canvas>
-			</div>
-			<div class="chart-container">
-				<canvas id="schedule-daylight-graph"></canvas>
-			</div>
+
 		</div>
 
 		<div class="col-sm-1"></div>

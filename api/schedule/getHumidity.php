@@ -1,11 +1,10 @@
 <?php
 include_once (dirname ( __FILE__ ) . "/../../functions.php");
-$pt = new ProcessTimer ();
+$today = getPostArgs ( "today", timestampNow () );
 $ret = startJsonRespose ();
-
 $ret->data = [ ];
 
-$m = getModel ( timestampNow () );
+$m = getModel ( $today );
 $dataset = [ ];
 $dataset [] = ( object ) [ 
 		't' => timestampFormat ( timestampNow (), "Y-m-d" ) . "T11:59:59+00:00",

@@ -7,49 +7,38 @@
               |_|														   
  */
 
-class Duration {
-	constructor() {
-		this.start = new Date().getTime();
-	};
-
-	end() {
-		return new Date().getTime() - this.start;
-	};
-
-	prettyEnd() {
-		var ret = "";
-
-		const ms2h = 1 / (60 * 60 * 1000);
-		const ms2m = 1 / (60 * 1000);
-		const ms2s = 1 / (1000);
-
-		var ms = this.end();
-		var h = Math.floor(ms * ms2h);
-		ms -= h / ms2h;
-		var m = Math.floor(ms * ms2m);
-		ms -= m / ms2m;
-		var s = Math.floor(ms * ms2s);
-		ms -= s / ms2s;
-
-		ret += (h > 0) ? (h + "h") : ("");
-		ret += ((ret.length > 0) ? (" ") : ("")) + ((m > 0 || ret.length) ? (m + "m") : (""));
-		ret += ((ret.length > 0) ? (" ") : ("")) + ((s > 0 || ret.length) ? (s + "s") : (""));
-		ret += ((ret.length > 0) ? (" ") : ("")) + ms + "ms";
-		return ret;
-	};
+// Returns the data element of an object array keyed by the name parameter
+var objectDataByName = function(arr, name) {
+	ret = null;
+	angular.forEach(arr, function(item, index) {
+		// logger("Searching for '" + name + "' found '" + item.name + "'");
+		if (item.name == name) {
+			logger("Found " + item.data.length + " data points for '" + item.name + "'", "dbg");
+			ret = item.data;
+			return;
+		}
+	});
+	return ret;
 };
 
+var millisecondsToMidnight = function() {
+	var now = new Date();
+	var then = new Date(now);
+	then.setHours(24, 0, 0, 0);
+	return (then - now);
+}
+
 var lpad = function(n, width, z) {
-	  z = z || '0';
-	  n = n + '';
-	  return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
-	};
+	z = z || '0';
+	n = n + '';
+	return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+};
 
 hours2Hm = function(num) {
-	num=num*60;
+	num = num * 60;
 	var hours = Math.floor(num / 60);
 	var minutes = num % 60;
-	return lpad(""+hours, 2) + ":" + lpad(""+minutes, 2);
+	return lpad("" + hours, 2) + ":" + lpad("" + minutes, 2);
 };
 
 hexToRgb = function(hex) {
@@ -105,35 +94,23 @@ colorLuminance = function(hex, lum) {
 	return rgb;
 };
 
-// log_to_console = 2;
 logger = function(l, err) {
 	if (!err)
 		err = "inf";
 
-	// TODO: make this more resolute
-	// if (err == "dbg" && log_to_console >= 3) {
-	// console.debug(l);
-	// }
-	// if (err == "inf" && log_to_console >= 2) {
-	// console.log(l);
-	// }
-	// if (err == "wrn" && log_to_console >= 1) {
-	// console.warn(l);
-	// }
-	// if (err == "err" && log_to_console >= 0) {
-	// console.error(l);
-	// }
+	//msg = moment().format("YYYY-MM-DD HH:mm:ss") + "| " + l;
+	msg = moment().format("HH:mm:ss") + "| " + l;
 	if (err == "dbg") {
-		console.debug(l);
+		console.debug(msg);
 	}
 	if (err == "inf") {
-		console.log(l);
+		console.log(msg);
 	}
 	if (err == "wrn") {
-		console.warn(l);
+		console.warn(msg);
 	}
 	if (err == "err") {
-		console.error(l);
+		console.error(msg);
 	}
 };
 
