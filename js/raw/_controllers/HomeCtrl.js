@@ -65,7 +65,7 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 	var getEnv = function() {
 		apiSvc.call("getEnv", {}, function(data) {
 			logger("HomeCtrl::handleGetEnv()", "dbg");
-			logObj(data, "inf");
+			logObj(data, "dbg");
 			if (data.success) {
 				// Save the env data first so it can be used everywhere else
 				$scope.env = data.env;
