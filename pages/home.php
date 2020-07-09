@@ -98,11 +98,14 @@ function getSensorData($env) {
 			</ul>
 			<div class="tab-content" id="data-content">
 				<div class="tab-pane active" id="history-content" role="tabpanel" aria-labelledby="history-tab">
-					<div class="chart-container">
-						<canvas id="temperature-graph"></canvas>
+					<div class="chart-container" data-ng-show="sensor_temperature_graph">
+						<canvas id="sensor-temperature-graph"></canvas>
 					</div>
-					<div class="chart-container">
-						<canvas id="humidity-graph"></canvas>
+					<div class="chart-container" data-ng-show="sensor_humidity_graph">
+						<canvas id="sensor-humidity-graph"></canvas>
+					</div>
+					<div class="chart-container" data-ng-hide="sensor_temperature_graph && sensor_humidity_graph">
+						<img src="/gfx/ajax-loader-bar.gif" alt="Sensor data loading" />
 					</div>
 				</div>
 				<div class="tab-pane fade" id="schedule-content" role="tabpanel" aria-labelledby="schedule-tab">
@@ -122,7 +125,23 @@ function getSensorData($env) {
 						<img src="/gfx/ajax-loader-bar.gif" alt="Schedule data loading" />
 					</div>
 				</div>
-				<div class="tab-pane fade" id="server-content" role="tabpanel" aria-labelledby="server-tab">Coming soon...</div>
+				<div class="tab-pane fade" id="server-content" role="tabpanel" aria-labelledby="server-tab">
+					<div class="chart-container" data-ng-show="server_temperature_graph">
+						<canvas id="server-temperature-graph"></canvas>
+					</div>
+					<div class="chart-container" data-ng-show="server_cpu_load_graph">
+						<canvas id="server-cpu_load-graph"></canvas>
+					</div>
+					<div class="chart-container" data-ng-show="server_mem_load_graph">
+						<canvas id="server-mem_load-graph"></canvas>
+					</div>
+					<div class="chart-container" data-ng-show="server_hdd_load_graph">
+						<canvas id="server-hdd_load-graph"></canvas>
+					</div>
+					<div class="chart-container" data-ng-hide="server_temperature_graph && server_cpu_load_graph && server_mem_load_graph && server_hdd_load_graph">
+						<img src="/gfx/ajax-loader-bar.gif" alt="Server data loading" />
+					</div>
+				</div>
 			</div>
 
 		</div>

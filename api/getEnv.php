@@ -66,6 +66,9 @@ $env->demand->colour = $sensors [6]->colour;
 unset ( $env->demand->alarm );
 
 $env->pi = envExtract ( "PI", $dbenv );
+$env->pi->name = "PI";
+$env->pi->label = $loc;//gethostname();//"CPU";
+$env->pi->colour = "#600";
 
 // Extract and process sensor information
 $env->sensors = [ ];

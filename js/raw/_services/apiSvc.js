@@ -77,7 +77,7 @@ app.service('apiSvc', [ "$http", function($http, netSvc) {
 				ldata.success = false;
 				ldata.status = "error";
 				ldata.message = "";
-				logger(ldata, "wrn");
+				logObj(ldata, "wrn");
 			}
 
 			if (typeof notify == "function") {
@@ -103,7 +103,7 @@ app.service('apiSvc', [ "$http", function($http, netSvc) {
 				ldata.success = false;
 				ldata.status = "error";
 				ldata.message = "";
-				logger(ldata, "wrn");
+				logObj(ldata, "wrn");
 			}
 
 			if (typeof notify == "function") {

@@ -114,6 +114,24 @@ logger = function(l, err) {
 	}
 };
 
+logObj = function(msg, err) {
+	if (!err)
+		err = "inf";
+
+	if (err == "dbg") {
+		console.debug(msg);
+	}
+	if (err == "inf") {
+		console.log(msg);
+	}
+	if (err == "wrn") {
+		console.warn(msg);
+	}
+	if (err == "err") {
+		console.error(msg);
+	}
+};
+
 function number_format(number, decimals, dec_point, thousands_sep) {
 	// Strip all characters but numerical ones.
 	number = (number + '').replace(/[^0-9+\-Ee.]/g, '');
@@ -272,11 +290,9 @@ var Base64 = {
 
 var toastTimeout = null;
 function toast(text) {
-	xxlogger("updating toast text");
 	$("#snackbar").html(text);
 
 	if (!$("#snackbar").hasClass("show")) {
-		xxlogger("showing toast");
 		$("#snackbar").addClass("show");
 	}
 
@@ -284,7 +300,6 @@ function toast(text) {
 	if (toastTimeout === null) {
 		toastTimeout = setTimeout(function() {
 			if (toastTimeout) {
-				xxlogger("Clearing toast");
 				$("#snackbar").removeClass("show");
 				toastTimeout = null;
 			}
@@ -317,5 +332,3 @@ app.config([ "$locationProvider", "$routeProvider", function($locationProvider, 
 		templateUrl : '/pages/404.php'
 	});
 } ]);
-
-logger("Hello There!");
