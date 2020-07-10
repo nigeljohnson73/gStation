@@ -76,6 +76,21 @@ function getHistoryData($param, $sensor_exclude = [ ], $demand = true) {
 	return $mysql->query ( $sql );
 }
 
+// Creates the series holder for chart.js dataset series
+function getParamHolder($label, $col, $dataset) {
+	$rgb = hex2rgb ( $col );
+	$ret = ( object ) [ 
+			"name" => strtoupper ( $label ),
+			"label" => ucwords ( $label ),
+			"backgroundColor" => "rgba(" . $rgb->r . ", " . $rgb->g . ", " . $rgb->b . ", 0.2)",
+			"borderColor" => "rgba(" . $rgb->r . ", " . $rgb->g . ", " . $rgb->b . ", 1.0)",
+			"borderWidth" => 1,
+			"fill" => false,
+			"data" => $dataset
+	];
+	return $ret;
+}
+
 // Ueed to extract a parameter out of the model.
 // If $param_raw is set to false the label is added to the end of the param in retrieval
 function getModelParamDataset($param, $label, $col, $param_raw = false, $value_scale = 1) {
@@ -97,17 +112,34 @@ function getModelParamDataset($param, $label, $col, $param_raw = false, $value_s
 		];
 	}
 
-	$rgb = hex2rgb ( $col );
-	$ret = ( object ) [ 
-			"name" => strtoupper ( $label ),
-			"label" => ucwords ( $label ),
-			"backgroundColor" => "rgba(" . $rgb->r . ", " . $rgb->g . ", " . $rgb->b . ", 0.2)",
-			"borderColor" => "rgba(" . $rgb->r . ", " . $rgb->g . ", " . $rgb->b . ", 1.0)",
-			"borderWidth" => 1,
-			"fill" => false,
-			"data" => $dataset
+	return getParamHolder ( $label, $col, $dataset );
+}
+
+// Pulls the values for 'today' and turns them into a data series. If bottom is numeric, then its the +/- value for top
+function getTodayModelParamDataset($top, $bottom, $col, $today) {
+	if (($today + 0) == 0) {
+		echo "Overriding today\n";
+		$today = timestampFormat ( timestampNow (), "md" );
+	}
+
+	$m = getModel ( $today );
+	if (is_numeric ( $bottom )) {
+		$val = $m->$top;
+		$top = $val - $bottom;
+		$bottom = $val + $bottom;
+	}
+
+	$dataset = [ ];
+	$dataset [] = ( object ) [ 
+			't' => timestampFormat ( timestampFormat ( timestampNow (), "Y" ) . $today, "Y-m-d" ) . "T00:00:00Z",
+			'y' => isset ( $m->$top ) ? ($m->$top) : ($top)
 	];
-	return $ret;
+	$dataset [] = ( object ) [ 
+			't' => timestampFormat ( timestampFormat ( timestampNow (), "Y" ) . $today, "Y-m-d" ) . "T00:00:00Z",
+			'y' => isset ( $m->$bottom ) ? ($m->$bottom) : ($bottom)
+	];
+
+	return getParamHolder ( "Today", $col, $dataset );
 }
 
 function sendPushover_RAW($message) {
