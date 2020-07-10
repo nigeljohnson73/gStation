@@ -8,6 +8,14 @@ ini_set ( 'display_errors', 'on' );
 // All calcuations are done in UTC
 date_default_timezone_set ( "UTC" );
 
+function getHost() {
+	$retvar = 0;
+	$output = "";
+	$cmd = "hostname 2>/dev/null";
+	exec ( $cmd, $output, $retvar );
+	return $output [0];
+}
+
 function getPostArgs($args, $defs = null) {
 	if (! is_array ( $args )) {
 		$args = array (
@@ -193,15 +201,15 @@ function runCmd($cmd) {
 }
 
 function bitCompare($str, $in, $now, $prev) {
-	//$bp = 24; // bit padding
+	// $bp = 24; // bit padding
 	$has_str = "YES";
 	$now_str = "NOW";
 	$no_str = "NEVER";
 	$ret = $no_str;
 
-// 	$hi = str_pad ( decbin ( $in ), $bp, "0", STR_PAD_LEFT );
-// 	$hn = str_pad ( decbin ( $now ), $bp, "0", STR_PAD_LEFT );
-// 	$hp = str_pad ( decbin ( $prev ), $bp, "0", STR_PAD_LEFT );
+	// $hi = str_pad ( decbin ( $in ), $bp, "0", STR_PAD_LEFT );
+	// $hn = str_pad ( decbin ( $now ), $bp, "0", STR_PAD_LEFT );
+	// $hp = str_pad ( decbin ( $prev ), $bp, "0", STR_PAD_LEFT );
 
 	// echo $str . ": ";
 	if ($in & $now) {
@@ -300,13 +308,13 @@ function _smoothArray($arr, $n = 1) {
 	foreach ( $keys as $i => $key ) {
 		// echo "Begin key '".$key."'\n";
 		$v = 0;
-		//$comma = "";
+		// $comma = "";
 		// echo " gathering: ";
 		for($j = - $n; $j <= $n; $j ++) {
 			$k = (($i + $j) < 0) ? (($i + $j) + count ( $arr )) : (($i + $j) >= count ( $arr ) ? (($i + $j) - count ( $arr )) : (($i + $j)));
 			// echo $comma.$keys[$k];//." (".$j.", ".$k.")";
 			$v += $arr [$keys [$k]];
-			//$comma = ", ";
+			// $comma = ", ";
 		}
 		// echo "\n";
 		$ret [$key] = $v / (2 * $n + 1);

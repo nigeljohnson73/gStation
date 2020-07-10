@@ -1,7 +1,6 @@
 <?php
 // Update this to where you are and the name you want to see in the browser
-$local_timezone = "Europe/London";
-//$loc = "gsDev"; // Used for the browser and alerts
+//$loc = getHostname(); // "gsDev"; // Used for the browser and alerts
 //$api_sensor_display_history = 10 * 60; // seconds per history sample to return to the browser - each point will be the average of this amount of time in seconds
 
 // Sensor zero is the PI itself.
