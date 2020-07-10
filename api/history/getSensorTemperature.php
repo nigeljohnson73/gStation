@@ -12,7 +12,7 @@ $activity_proc = 0;
 echo "Sample point duration : " . durationStamp ( $api_sensor_display_history ) . "\n";
 
 $pt = new ProcessTimer ();
-$res = getHistoryData ( "TEMPERAUTRE", [ 
+$res = getHistoryData ( "TEMPERATURE", [ 
 		"PI"
 ], true );
 $activity_db = $pt->duration ();
@@ -20,6 +20,8 @@ $activity_db = $pt->duration ();
 $pt = new ProcessTimer ();
 if ($res && count ( $res )) {
 	$ret->history = processHistoryData ( $res );
+}else{
+	echo "No Temp data\n";
 }
 $activity_proc = $pt->duration ();
 
