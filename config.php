@@ -5,6 +5,7 @@ $loc = "gsDev"; // Specific instance of the gStation - used in alerts and the br
 $sensor_age = 30; // sensor data older than this in seconds will be ignored
 $sensor_age_alarm = 2*60;
 $show_empty = false; // Do you want triggers and sensors and things that are empty to be displayed
+$api_sensor_display_history = 10 * 60; // seconds per history sample to return to the browser - each point will be the average of this amount of time in seconds
 
 $sensors = [ ];
 $sensors [] = ( object ) [

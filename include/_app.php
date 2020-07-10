@@ -1,5 +1,81 @@
 <?php
 
+// After extracting the sensor history and demands, process it into a timestamped array of values per zone
+// expected order from the database call is param, name, event, value, for example, "TEMPERATURE", "ZONE1", 2020-07..., 12.2132
+function processHistoryData($res) {
+	global $api_sensor_display_history;
+	$tmp = [ ];
+	$int = [ ];
+	foreach ( $res as $r ) {
+		$tmp [$r ["name"]] [timestamp2Time ( $r ["event"] ) - (timestamp2Time ( $r ["event"] ) % $api_sensor_display_history)] [] = $r ["value"];
+	}
+	foreach ( $tmp as $name => $values ) {
+		echo "got " . count ( $values ) . " values for '" . $name . "'\n";
+		foreach ( $values as $tm => $arr ) {
+			$t = timestampFormat ( time2Timestamp ( $tm ), "Y-m-d\TH:i:s\Z" );
+			$avg = array_sum ( $arr ) / count ( $arr );
+			$int [$name] [$t] = $avg;
+		}
+	}
+	$tmp = $int;
+	$int = [ ];
+
+	foreach ( $tmp as $name => $values ) {
+		// echo "\tProcessing " . $param . "." . $name . "\n";
+		$data = [ ];
+		foreach ( $values as $ts => $v ) {
+			$data [] = ( object ) [ 
+					"t" => $ts,
+					"y" => $v
+			];
+		}
+		$zones [] = ( object ) [ 
+				"name" => $name,
+				"data" => $data
+		];
+	}
+	// echo "Adding ".count($zones)." to '".$param."'\n";
+	return $zones;
+	// print_r($ret);
+}
+
+function getSpecificHistoryData($sensor, $param) {
+	global $mysql;
+	$sql = "SELECT param, name, event, value FROM sensors WHERE name = '" . $sensor . "' AND param = '" . $param . "'";
+	return $mysql->query ( $sql );
+}
+
+// Extracts the history data and optionally demand data for a specific parameter
+function getHistoryData($param, $sensor_exclude = [ ], $demand = true) {
+	global $mysql, $show_empty, $sensors;
+
+	// Hide any disabled sensors. This is only for temp and humidtiy history... no triggers or other stuff
+	if (! $show_empty) {
+		foreach ( $sensors as $s ) {
+			if ($s->type == "EMPTY" && isset ( $s->label )) {
+				echo "Exluding EMPTY sensor '" . $s->label . "' (" . $s->name . ")\n";
+				$sensor_exclude [] = $s->name;
+			}
+		}
+	}
+
+	$swhere = "";
+	if (count ( $sensor_exclude )) {
+		$swhere = " AND name ";
+		if (count ( $sensor_exclude ) == 1) {
+			$swhere .= "!= '" . $sensor_exclude [0] . "'";
+		} else {
+			$swhere .= "NOT IN ('" . implode ( "', '", $sensor_exclude ) . "')";
+		}
+	}
+
+	$sql = "(SELECT param, name, event, value FROM sensors WHERE param = '" . $param . "'" . $swhere . ")";
+	if ($demand) {
+		$sql .= " UNION (SELECT param, 'DEMAND' as name, event, value FROM demands WHERE param = '" . $param . "')";
+	}
+	return $mysql->query ( $sql );
+}
+
 // Ueed to extract a parameter out of the model.
 // If $param_raw is set to false the label is added to the end of the param in retrieval
 function getModelParamDataset($param, $label, $col, $param_raw = false, $value_scale = 1) {

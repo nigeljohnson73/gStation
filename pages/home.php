@@ -126,11 +126,14 @@ function getSensorData($env) {
 					</div>
 				</div>
 				<div class="tab-pane fade" id="server-content" role="tabpanel" aria-labelledby="server-tab">
-					<div class="chart-container" data-ng-show="server_temperature_graph">
-						<canvas id="server-temperature-graph"></canvas>
-					</div>
 					<div class="chart-container" data-ng-show="server_cpu_load_graph">
 						<canvas id="server-cpu_load-graph"></canvas>
+					</div>
+					<div class="chart-container" data-ng-show="server_cpu_wait_graph">
+						<canvas id="server-cpu_wait-graph"></canvas>
+					</div>
+					<div class="chart-container" data-ng-show="server_temperature_graph">
+						<canvas id="server-temperature-graph"></canvas>
 					</div>
 					<div class="chart-container" data-ng-show="server_mem_load_graph">
 						<canvas id="server-mem_load-graph"></canvas>
@@ -138,7 +141,7 @@ function getSensorData($env) {
 					<div class="chart-container" data-ng-show="server_hdd_load_graph">
 						<canvas id="server-hdd_load-graph"></canvas>
 					</div>
-					<div class="chart-container" data-ng-hide="server_temperature_graph && server_cpu_load_graph && server_mem_load_graph && server_hdd_load_graph">
+					<div class="chart-container" data-ng-hide="server_cpu_load_graph && server_cpu_wait_graph && server_temperature_graph && server_mem_load_graph && server_hdd_load_graph">
 						<img src="/gfx/ajax-loader-bar.gif" alt="Server data loading" />
 					</div>
 				</div>

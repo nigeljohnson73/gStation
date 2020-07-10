@@ -8,8 +8,9 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 	// Storage for graphing data
 	$scope.sensor_temperature = [];
 	$scope.sensor_humidity = [];
-	$scope.server_temperature = [];
 	$scope.server_cpu_load = [];
+	$scope.server_cpu_wait = [];
+	$scope.server_temperature = [];
 	$scope.server_mem_load = [];
 	$scope.server_hdd_load = [];
 
@@ -84,8 +85,9 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 
 				var obj = {};
 				Object.assign(obj, $scope.env.pi);
-				processLoad($scope.history.server_temperature, $scope.server_temperature, obj, obj.temperature);
 				processLoad($scope.history.server_cpu_load, $scope.server_cpu_load, obj, obj.cpu_load);
+				processLoad($scope.history.server_cpu_wait, $scope.server_cpu_wait, obj, obj.cpu_wait);
+				processLoad($scope.history.server_temperature, $scope.server_temperature, obj, obj.temperature);
 				processLoad($scope.history.server_mem_load, $scope.server_mem_load, obj, obj.mem_load);
 				processLoad($scope.history.server_hdd_load, $scope.server_hdd_load, obj, obj.sd_load);
 
@@ -96,15 +98,17 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 				// ago
 				tidyData($scope.sensor_temperature);
 				tidyData($scope.sensor_humidity);
-				tidyData($scope.server_temperature);
 				tidyData($scope.server_cpu_load);
+				tidyData($scope.server_cpu_wait);
+				tidyData($scope.server_temperature);
 				tidyData($scope.server_mem_load);
 				tidyData($scope.server_hdd_load);
 
 				$scope.sensor_temperature_graph = checkGraph($scope.sensor_temperature_graph, '#sensor-temperature-graph', $scope.sensor_temperature, "Temperature", "°C");
 				$scope.sensor_humidity_graph = checkGraph($scope.sensor_humidity_graph, '#sensor-humidity-graph', $scope.sensor_humidity, "Humidity", "%");
-				$scope.server_temperature_graph = checkGraph($scope.server_temperature_graph, '#server-temperature-graph', $scope.server_temperature, "Temperature", "°C");
 				$scope.server_cpu_load_graph = checkGraph($scope.server_cpu_load_graph, '#server-cpu_load-graph', $scope.server_cpu_load, "CPU Load", "%");
+				$scope.server_cpu_wait_graph = checkGraph($scope.server_cpu_wait_graph, '#server-cpu_wait-graph', $scope.server_cpu_wait, "CPU Wait", "%");
+				$scope.server_temperature_graph = checkGraph($scope.server_temperature_graph, '#server-temperature-graph', $scope.server_temperature, "Temperature", "°C");
 				$scope.server_mem_load_graph = checkGraph($scope.server_mem_load_graph, '#server-mem_load-graph', $scope.server_mem_load, "Memory Usage", "%");
 				$scope.server_hdd_load_graph = checkGraph($scope.server_hdd_load_graph, '#server-hdd_load-graph', $scope.server_hdd_load, "Storage Usage", "%");
 
@@ -241,18 +245,26 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 	});
 
 	$scope.api_calls.push({
-		api : "history/getServerTemperature",
-		requeue : false,
-		success : function(data) {
-			$scope.history.server_temperature = data.history;
-		}
-	});
-
-	$scope.api_calls.push({
 		api : "history/getServerCpuLoad",
 		requeue : false,
 		success : function(data) {
 			$scope.history.server_cpu_load = data.history;
+		}
+	});
+
+	$scope.api_calls.push({
+		api : "history/getServerCpuWait",
+		requeue : false,
+		success : function(data) {
+			$scope.history.server_cpu_wait = data.history;
+		}
+	});
+
+	$scope.api_calls.push({
+		api : "history/getServerTemperature",
+		requeue : false,
+		success : function(data) {
+			$scope.history.server_temperature = data.history;
 		}
 	});
 

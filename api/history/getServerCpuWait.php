@@ -12,7 +12,7 @@ $activity_proc = 0;
 echo "Sample point duration : " . durationStamp ( $api_sensor_display_history ) . "\n";
 
 $pt = new ProcessTimer ();
-$res = getSpecificHistoryData ( "PI", "MEM_LOAD" );
+$res = getSpecificHistoryData ( "PI", "CPU_WAIT" );
 $activity_db = $pt->duration ();
 
 $pt = new ProcessTimer ();
