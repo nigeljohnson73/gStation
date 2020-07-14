@@ -96,10 +96,13 @@ colorLuminance = function(hex, lum) {
 };
 
 logger = function(l, err) {
+	if (typeof l == "object")
+		return logObj(l, err);
+
 	if (!err)
 		err = "inf";
 
-	//msg = moment().format("YYYY-MM-DD HH:mm:ss") + "| " + l;
+	// msg = moment().format("YYYY-MM-DD HH:mm:ss") + "| " + l;
 	msg = moment().format("HH:mm:ss") + "| " + l;
 	if (err == "dbg") {
 		console.debug(msg);
@@ -678,7 +681,7 @@ app.service('apiSvc', [ "$http", "$timeout", "$interval", function($http, $timeo
 		}
 
 		logger("apiSvc.call('" + api + "')", "dbg");
-		logObj(logtxdata, "dbg");
+		logger(logtxdata, "dbg");
 
 		// Send it all over to the server
 		$http({
@@ -705,7 +708,7 @@ app.service('apiSvc', [ "$http", "$timeout", "$interval", function($http, $timeo
 				ldata.success = false;
 				ldata.status = "error";
 				ldata.message = "";
-				logObj(ldata, "wrn");
+				logger(ldata, "wrn");
 			}
 
 			if (typeof notify == "function") {
@@ -732,7 +735,7 @@ app.service('apiSvc', [ "$http", "$timeout", "$interval", function($http, $timeo
 				ldata.success = false;
 				ldata.status = "error";
 				ldata.message = "";
-				// logObj(ldata, "wrn");
+				// logger(ldata, "wrn");
 
 				logger("apiSvc.call(): calling notifier", "dbg");
 				notify(ldata);
@@ -839,7 +842,7 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 	var getEnv = function() {
 		apiSvc.call("getEnv", {}, function(data) {
 			logger("HomeCtrl::handleGetEnv()", "dbg");
-			logObj(data, "dbg");
+			logger(data, "dbg");
 			if (data.success) {
 				// Save the env data first so it can be used everywhere else
 				$scope.env = data.env;
@@ -903,7 +906,7 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 	var getSnapshotImage = function() {
 		apiSvc.queue("getSnapshotImage", {}, function(data) {
 			logger("HomeCtrl::handleGetSnapshotImage()", "dbg");
-			logObj(data, "dbg");
+			logger(data, "dbg");
 			if (data.success) {
 				$scope.camshot = data.camshot;
 			} else {
@@ -930,7 +933,7 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 			};
 		}, function(data) {
 			logger(o.api + "(): Data transfer: " + d.prettyEnd());
-			logObj(data, "dbg");
+			logger(data, "dbg");
 			if (data.success) {
 				o.success(data);
 			} else {

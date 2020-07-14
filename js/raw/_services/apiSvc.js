@@ -83,7 +83,7 @@ app.service('apiSvc', [ "$http", "$timeout", "$interval", function($http, $timeo
 		}
 
 		logger("apiSvc.call('" + api + "')", "dbg");
-		logObj(logtxdata, "dbg");
+		logger(logtxdata, "dbg");
 
 		// Send it all over to the server
 		$http({
@@ -110,7 +110,7 @@ app.service('apiSvc', [ "$http", "$timeout", "$interval", function($http, $timeo
 				ldata.success = false;
 				ldata.status = "error";
 				ldata.message = "";
-				logObj(ldata, "wrn");
+				logger(ldata, "wrn");
 			}
 
 			if (typeof notify == "function") {
@@ -137,7 +137,7 @@ app.service('apiSvc', [ "$http", "$timeout", "$interval", function($http, $timeo
 				ldata.success = false;
 				ldata.status = "error";
 				ldata.message = "";
-				// logObj(ldata, "wrn");
+				// logger(ldata, "wrn");
 
 				logger("apiSvc.call(): calling notifier", "dbg");
 				notify(ldata);

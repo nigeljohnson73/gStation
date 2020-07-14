@@ -95,10 +95,13 @@ colorLuminance = function(hex, lum) {
 };
 
 logger = function(l, err) {
+	if (typeof l == "object")
+		return logObj(l, err);
+
 	if (!err)
 		err = "inf";
 
-	//msg = moment().format("YYYY-MM-DD HH:mm:ss") + "| " + l;
+	// msg = moment().format("YYYY-MM-DD HH:mm:ss") + "| " + l;
 	msg = moment().format("HH:mm:ss") + "| " + l;
 	if (err == "dbg") {
 		console.debug(msg);
