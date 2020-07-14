@@ -57,6 +57,7 @@ class MySqlDb {
 					'bind_result'
 			), $bindVarsArray );
 
+			$results = array ();
 			logger ( LL_DEBUG, "mySqlDb::query(): Statement Object: \n" . ob_print_r ( $stmt ) );
 			while ( $stmt->fetch () ) {
 				// echo "Got fetch: ".ob_print_r($bindVarsArray)."\n";
@@ -81,7 +82,7 @@ function __my_sql_db_copy_value($v) {
 	return $v;
 }
 
-global $mysql, $db_server, $db_user, $db_pass, $db_name;
+global $db_server, $db_user, $db_pass, $db_name;
 $mysql = new MySqlDb ( $db_server, $db_user, $db_pass, $db_name );
 $mysql = $mysql;
 // $mysql->query("INSERT INTO MyGuests (firstname, lastname, email) VALUES (?, ?, ?)", "sss", array("Nigel", "Johnson", "nigel@nigeljohnson.net"));
