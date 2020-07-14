@@ -777,7 +777,7 @@ function rebuildModelFromDarkSky() {
 	if ($hist && count ( $hist ) >= 365) {
 		logger ( LL_INFO, "rebuildDataModel(): Processing " . count ( $hist ) . " data points" );
 
-		global $season_adjust_days, $timeszone_adjust_hours, $smoothing_days, $smoothing_loops;
+		global $season_adjust_days, $timezone_adjust_hours, $smoothing_days, $smoothing_loops;
 
 		// Temporary store for the day/month combo data
 		$store = array ();
@@ -813,7 +813,7 @@ function rebuildModelFromDarkSky() {
 			);
 			$day_secs = 24 * 60 * 60;
 			foreach ( $time_offset as $o ) {
-				$v->$o += $timeszone_adjust_hours * 60 * 60;
+				$v->$o += $timezone_adjust_hours * 60 * 60;
 				// clamp to within day
 				$v->$o = ($v->$o < 0) ? ($v->$o + $day_secs) : (($v->$o >= $day_secs) ? ($v->$o - $day_secs) : ($v->$o));
 			}
@@ -958,7 +958,7 @@ function rebuildModelFromSimulation() {
 
 function rebuildDataModel() {
 	global $rebuild_from, $demand, $mysql;
-	global $season_adjust_days, $timeszone_adjust_hours;
+	global $season_adjust_days, $timezone_adjust_hours;
 
 	$model = array ();
 	$location = new StdClass ();
@@ -971,7 +971,7 @@ function rebuildDataModel() {
 		foreach ( $obj->model as $k => $v ) {
 			$date = "2022" . $k; // Start in 2022 so we don't (realsitically) hit a leap year;
 			$sod = timestamp2Time ( $date ); // Start of the day in unix
-			$delta = - ($season_adjust_days + $timeszone_adjust_hours / 24.0) * 24 * 60 * 60;
+			$delta = - ($season_adjust_days + $timezone_adjust_hours / 24.0) * 24 * 60 * 60;
 			$new_sod = $sod + $delta;
 
 			// Ajust the sun configs by the alotted amount

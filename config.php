@@ -132,7 +132,7 @@ $rebuild_from = "Simulation"; // 'Simulation', 'Demands' or filename in the loca
  * START FILE ENVIRONMENT
  */
 $season_adjust_days = 0; // If you want to move forward in the season, add this many days to the actual forcast. if set to 31, Real January 1 will be like February 1 at your location.
-$timeszone_adjust_hours = 0; // If you want to move forward in the day (because your location is suitably ahead of you) add this many hours. If set to 2, Real 07:30 will be like 09:30 at your location.
+$timezone_adjust_hours = 0; // If you want to move forward in the day (because your location is suitably ahead of you) add this many hours. If set to 2, Real 07:30 will be like 09:30 at your location.
 /**
  * END FILE ENVIRONMENT
  */

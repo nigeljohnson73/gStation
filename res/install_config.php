@@ -72,7 +72,7 @@ $graphs [] = "mem_load.PI";
 //$rebuild_from = "Demands";
 $rebuild_from = "Simulation"; // 'Simulation', 'Demands' or a filename in the locations folder for example 'SZ.Malkerns.json'
 $season_adjust_days = 0; // Adjust the file based data model
-$timeszone_adjust_hours = 0; // Adjust the file based data model
+$timezone_adjust_hours = 0; // Adjust the file based data model
 
 // Set this to the month and day you want the ramp to start on, for example 23rd of January is 0123
 //$demand_solstice = "0000";
