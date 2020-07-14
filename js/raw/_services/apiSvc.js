@@ -133,7 +133,7 @@ app.service('apiSvc', [ "$http", "$timeout", "$interval", function($http, $timeo
 					data.data = "";
 				}
 				datastr = (data.data + "").trim();
-				ldata.console = (strlen(datastr)) ? (data.split(/\r\n|\r|\n/)) : ([]);
+				ldata.console = (datastr.length) ? (data.split(/\r\n|\r|\n/)) : ([]);
 				ldata.success = false;
 				ldata.status = "error";
 				ldata.message = "";
