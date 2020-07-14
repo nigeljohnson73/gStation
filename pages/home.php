@@ -75,7 +75,7 @@ function getSensorData($env) {
 
 			<div class="info-container" data-ng-show="env.info">
 				<div class="nextsun-container" data-ng-show="env.info.nextsun">{{env.info.nextsun}}</div>
-				<div class="location-container" data-ng-show="env.location">
+				<div class="location-container visible-lg hidden-md hidden-sm hidden-xs" data-ng-show="env.location">
 					<div class="location-detail" data-ng-show="env.location.maplink">
 						Location: <a href="{{env.location.maplink}}" target="location_map">{{env.location.name}}</a>
 					</div>
@@ -84,6 +84,29 @@ function getSensorData($env) {
 					</div>
 					<div class="build-container">Model built on {{env.location.build | date : 'yyyy-MM-dd'}} at {{env.location.build | date : 'HH:mm:ss'}}</div>
 					<div class="updated-container">Environment updated on {{env.timestamp | date : 'yyyy-MM-dd'}} at {{env.timestamp | date : 'HH:mm:ss'}}</div>
+				</div>
+
+				<div class="location-container hidden-lg visible-md visible-sm visible-xs" data-ng-show="env.location">
+					<div class="location-detail" data-ng-show="env.location.maplink">
+						<p>
+							Location:<br /> <a href="{{env.location.maplink}}" target="location_map">{{env.location.name}}</a>
+						</p>
+					</div>
+					<div class="location-detail" data-ng-hide="env.location.maplink">
+						<p>
+							Model:<br /> <strong>{{env.location.name}}</strong>
+						</p>
+					</div>
+					<div class="build-container">
+						<p>
+							Model built<br /> {{env.location.build | date : 'yyyy-MM-dd'}} at {{env.location.build | date : 'HH:mm:ss'}}
+						</p>
+					</div>
+					<div class="updated-container">
+						<p>
+							Environment updated<br /> {{env.timestamp | date : 'yyyy-MM-dd'}} at {{env.timestamp | date : 'HH:mm:ss'}}
+						</p>
+					</div>
 				</div>
 
 			</div>

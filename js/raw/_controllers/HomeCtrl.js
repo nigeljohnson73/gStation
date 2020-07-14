@@ -62,10 +62,10 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 
 	var clearLog = function() {
 		console.clear();
-		logger("Consloe log cleared");
+		logger("Console log cleared");
 	};
 	// Ensure the console is cleared every hour or it seems to back up a shed load
-	$scope.env_api_call = $interval(clearLog, 60 * 60 * 1000);
+	$scope.console_clear_call = $interval(clearLog, 60 * 60 * 1000);
 
 	/***************************************************************************
 	 * The heartbeat handler is called every 5 seconds and requires some
