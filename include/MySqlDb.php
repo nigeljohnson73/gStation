@@ -7,7 +7,7 @@ class MySqlDb {
 
 		// Check connection
 		if ($this->conn->connect_error) {
-			logger ( LL_ERROR, "Database connection ('$db_server', '$db_user', '$db_pass', '$db_name') failed: " . $conn->connect_error );
+			logger ( LL_ERROR, "Database connection ('$db_server', '$db_user', '$db_pass', '$db_name') failed: " . $this->conn->connect_error );
 			if ($this->conn) {
 				@$this->conn->close ();
 				$this->conn = null;
@@ -48,6 +48,7 @@ class MySqlDb {
 		// logger ( LL_DEBUG, "mySqlDb::query(): \$stmt->result_metadata(): " . ob_print_r ( $meta ) );
 
 		if ($meta) {
+			$results = array ();
 			while ( $column = $meta->fetch_field () ) {
 				$bindVarsArray [$column->name] = &$results [$column->name];
 			}
@@ -56,7 +57,6 @@ class MySqlDb {
 					'bind_result'
 			), $bindVarsArray );
 
-			$results = array ();
 			logger ( LL_DEBUG, "mySqlDb::query(): Statement Object: \n" . ob_print_r ( $stmt ) );
 			while ( $stmt->fetch () ) {
 				// echo "Got fetch: ".ob_print_r($bindVarsArray)."\n";
@@ -81,7 +81,9 @@ function __my_sql_db_copy_value($v) {
 	return $v;
 }
 
+global $mysql, $db_server, $db_user, $db_pass, $db_name;
 $mysql = new MySqlDb ( $db_server, $db_user, $db_pass, $db_name );
+$mysql = $mysql;
 // $mysql->query("INSERT INTO MyGuests (firstname, lastname, email) VALUES (?, ?, ?)", "sss", array("Nigel", "Johnson", "nigel@nigeljohnson.net"));
 // $mysql->query("SELECT * FROM MyGuests");
 // $mysql->query("SELECT * FROM MyGuests WHERE id < ?", "i", array(9));

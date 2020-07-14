@@ -869,7 +869,7 @@ function directoryListing($dirname, $extensoes = null) {
 	$files = array ();
 	$dir = @ opendir ( $dirname );
 	while ( $dir && false !== ($file = readdir ( $dir )) ) {
-		$matches = array ();
+		//$matches = array ();
 		if ($file != "." && $file != ".." && $file != ".svn") {
 			for($i = 0; $i < count ( $extensoes ); $i ++) {
 				if ($extensoes [$i] [0] == "*") {
@@ -1066,7 +1066,6 @@ function getBackTrace() {
 	return $ret;
 }
 
-$timings = array ();
 
 /**
  * **********************************************************

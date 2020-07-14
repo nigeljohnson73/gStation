@@ -1,7 +1,7 @@
 <?php
 
 class JsonResponse {
-	
+
 	function __construct() {
 		$this->message = "";
 		$this->console = "";
@@ -9,7 +9,7 @@ class JsonResponse {
 }
 
 function startJsonRespose() {
-	global $database_domain;
+	// global $database_domain;
 	ob_start ();
 	$ret = new JsonResponse ();
 	return $ret;

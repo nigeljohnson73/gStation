@@ -207,8 +207,6 @@ function sendPushover($message) {
 }
 
 function sendAlert($message) {
-	global $loc, $app_title;
-
 	echo "Alert(): " . $message . "\n";
 	logger ( LL_INFO, "Alert(): " . $message );
 	sendPushover ( $message );
@@ -471,10 +469,11 @@ function setConfig($id, $value) {
 			$id,
 			$value
 	) );
+	return $ret;
 }
 
 function darkSkyObj($data, $id = null) {
-	global $mysql;
+	// global $mysql;
 	$obj = new StdClass ();
 
 	$temperature_high_labels = array (
@@ -510,7 +509,7 @@ function darkSkyObj($data, $id = null) {
 		return null;
 	}
 
-	$tm = $dso->time;
+	// $tm = $dso->time;
 	$obj->cloudCover = firstOf ( $dso, "cloudCover" );
 	// DarkSky does not differentiate a high and a low humidity :(
 	$obj->humidityDay = firstOf ( $dso, "humidity" );
@@ -564,7 +563,7 @@ function getDarkSkyApiData($force_recall) {
 	}
 
 	global $mysql;
-	global $yr_history, $dy_history, $lat, $lng, $api_call_cap;
+	global $yr_history, $lat, $lng, $api_call_cap;
 
 	// Calculate how many days to go back
 	$total_ndays = $yr_history * 365;
@@ -594,6 +593,7 @@ function getDarkSkyApiData($force_recall) {
 	// echo "getDarkSkyApiData(): forced requests: " . count ( $force ) ."\n";
 	// echo "getDarkSkyApiData(): data points available: " . count ( $data_points )."\n";
 	foreach ( $data_points as $k => $v ) {
+		$v = $v;
 		if (isset ( $dates [$k] )) {
 			unset ( $dates [$k] );
 		}
@@ -1267,7 +1267,7 @@ function isGpio($type) {
 }
 
 function createTriggersSetupScript() {
-	global $triggers, $led_pin, $button_pin;
+	global $triggers;
 	enumerateTriggers ();
 
 	$ret = "";
@@ -1281,24 +1281,6 @@ function createTriggersSetupScript() {
 			$ret .= "\n";
 		}
 	}
-
-	// Now handled with the heartbeat overlay
-	// if($led_pin != 99) {
-	// $ret .= "# LED\n";
-	// $ret .= "gpio -g mode " . $led_pin . " out\n";
-	// $ret .= "gpio -g mode " . $led_pin . " down\n";
-	// $ret .= "gpio -g write " . $led_pin . " 1\n";
-	// $ret .= "\n";
-	// }
-
-	// Handled in the Python library
-	// if($button_pin != 99) {
-	// $ret .= "# BUTTON\n";
-	// $ret .= "gpio -g mode " . $button_pin . " in\n";
-	// $ret .= "gpio -g mode " . $button_pin . " up\n";
-	// //$ret .= "gpio -g write " . $button_pin . " 1\n";
-	// $ret .= "\n";
-	// }
 
 	return $ret;
 }
@@ -1347,6 +1329,7 @@ function readSensorRaw_DS18B20($sensor) {
 				if (preg_match ( '/crc=[a-f0-9]{2} YES/', $output [0] )) {
 					echo ("CRC passed\n");
 					list ( $dummy, $temp ) = explode ( "t=", $output [1] );
+					$dummy = $dummy;
 					echo ("Got temp: " . $temp . "\n");
 					$val = (( double ) $temp) / 1000.0;
 					echo ("Set val: " . $val . "\n");
@@ -1371,7 +1354,7 @@ function readSensorRaw_DS18B20($sensor) {
 
 function readSensorRaw_DHT11($sensor) {
 	$ret = new StdClass ();
-	global $outlier_temperature_min, $outlier_temperature_max, $outlier_humidity_min, $outlier_humidity_max;
+	// global $outlier_temperature_min, $outlier_temperature_max, $outlier_humidity_min, $outlier_humidity_max;
 
 	$output = null;
 	$retvar = 0;
@@ -1395,6 +1378,7 @@ function readSensorRaw_DHT11($sensor) {
 		@list ( $err, $temp, $humidity ) = explode ( " ", $output [0] );
 		if ($err == 0) {
 			echo "Got zero error status. T: " . $temp . ", H: " . $humidity . "\n";
+			// TODO: check out of bounds
 			$ret->temperature = $temp;
 			$ret->humidity = $humidity;
 			$val = true;
@@ -1441,6 +1425,11 @@ function readSensorRaw_DHT11($sensor) {
 function readSensorRaw_DHT11_orig($sensor) {
 	$ret = new StdClass ();
 	global $outlier_temperature_min, $outlier_temperature_max, $outlier_humidity_min, $outlier_humidity_max;
+	// They are used, just as indirect string definitsions.
+	$outlier_temperature_min = $outlier_temperature_min;
+	$outlier_temperature_max = $outlier_temperature_max;
+	$outlier_humidity_min = $outlier_humidity_min;
+	$outlier_humidity_max = $outlier_humidity_max;
 
 	foreach ( $sensor->enumeration as $e ) {
 		$output = null;
@@ -2126,6 +2115,7 @@ function tick() {
 		if (preg_match ( "/\[\[(.*?)\]\]/", $c, $matches ) == 0) {
 			list ( $k, $expr ) = explode ( " IF ", $c );
 			if (isset ( $fires [$k] )) {
+				$fire = false;
 				$eval = '$fire = (' . $expr . ')?(highValue($fires[$k]->type)):(lowValue($fires[$k]->type));';
 				eval ( $eval );
 				$fires [$k]->demand = ($fire) ? ($fire) : ($fires [$k]->demand);
@@ -2204,6 +2194,7 @@ function tick() {
 	exec ( $cmd, $output, $retvar );
 	// echo "Ran: '".$cmd."' : ".ob_print_r($output)."\n";
 	@list ( $ipaddress, $dummy ) = explode ( " ", $output [0] );
+	$dummy = $dummy;
 
 	$next_sun = nextSunChange ();
 

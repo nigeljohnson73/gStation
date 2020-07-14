@@ -25,6 +25,8 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 		return false;
 	};
 
+	// This is called to load the data into the correct array, but it also
+	// checks to see if any history needs moving as well
 	var processLoad = function(history, dst, obj, val) {
 		if (history) {
 			if (r = objectDataByName(history, obj.name)) {
@@ -38,6 +40,8 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 
 	};
 
+	// Called to remove any data from the array that is out of scope, i.e. older
+	// than 24 hours
 	var tidyData = function(dst) {
 		remove = new Date();
 		remove.setDate(remove.getDate() - 1);
@@ -50,7 +54,9 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 		});
 	};
 
-	var checkGraph = function(g, id, src, title, units) {
+	// Called to handle the update or create for the minute graphs required by
+	// the heartbeat call. This just stops the significant creation animation
+	var updateMinuteGraph = function(g, id, src, title, units) {
 		ret = g;
 		if (g) {
 			g.update();
@@ -60,12 +66,13 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 		return ret;
 	};
 
+	// Ensure the console is cleared every so often or it seems to back up a
+	// shed load and cause the browser to die
 	var clearLog = function() {
 		console.clear();
 		logger("Console log cleared");
 	};
-	// Ensure the console is cleared every hour or it seems to back up a shed load
-	$scope.console_clear_call = $interval(clearLog, 60 * 60 * 1000);
+	$scope.console_clear_call = $interval(clearLog, 5 * 60 * 1000);
 
 	/***************************************************************************
 	 * The heartbeat handler is called every 5 seconds and requires some
@@ -112,13 +119,13 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 				tidyData($scope.server_mem_load);
 				tidyData($scope.server_hdd_load);
 
-				$scope.sensor_temperature_graph = checkGraph($scope.sensor_temperature_graph, '#sensor-temperature-graph', $scope.sensor_temperature, "Temperature", "°C");
-				$scope.sensor_humidity_graph = checkGraph($scope.sensor_humidity_graph, '#sensor-humidity-graph', $scope.sensor_humidity, "Humidity", "%");
-				$scope.server_cpu_load_graph = checkGraph($scope.server_cpu_load_graph, '#server-cpu_load-graph', $scope.server_cpu_load, "CPU Load", "%");
-				$scope.server_cpu_wait_graph = checkGraph($scope.server_cpu_wait_graph, '#server-cpu_wait-graph', $scope.server_cpu_wait, "CPU Wait", "%");
-				$scope.server_temperature_graph = checkGraph($scope.server_temperature_graph, '#server-temperature-graph', $scope.server_temperature, "Temperature", "°C");
-				$scope.server_mem_load_graph = checkGraph($scope.server_mem_load_graph, '#server-mem_load-graph', $scope.server_mem_load, "Memory Usage", "%");
-				$scope.server_hdd_load_graph = checkGraph($scope.server_hdd_load_graph, '#server-hdd_load-graph', $scope.server_hdd_load, "Storage Usage", "%");
+				$scope.sensor_temperature_graph = updateMinuteGraph($scope.sensor_temperature_graph, '#sensor-temperature-graph', $scope.sensor_temperature, "Temperature", "°C");
+				$scope.sensor_humidity_graph = updateMinuteGraph($scope.sensor_humidity_graph, '#sensor-humidity-graph', $scope.sensor_humidity, "Humidity", "%");
+				$scope.server_cpu_load_graph = updateMinuteGraph($scope.server_cpu_load_graph, '#server-cpu_load-graph', $scope.server_cpu_load, "CPU Load", "%");
+				$scope.server_cpu_wait_graph = updateMinuteGraph($scope.server_cpu_wait_graph, '#server-cpu_wait-graph', $scope.server_cpu_wait, "CPU Wait", "%");
+				$scope.server_temperature_graph = updateMinuteGraph($scope.server_temperature_graph, '#server-temperature-graph', $scope.server_temperature, "Temperature", "°C");
+				$scope.server_mem_load_graph = updateMinuteGraph($scope.server_mem_load_graph, '#server-mem_load-graph', $scope.server_mem_load, "Memory Usage", "%");
+				$scope.server_hdd_load_graph = updateMinuteGraph($scope.server_hdd_load_graph, '#server-hdd_load-graph', $scope.server_hdd_load, "Storage Usage", "%");
 
 			} else {
 				$scope.env = null;
@@ -127,7 +134,7 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 				toast(data.message);
 			}
 			$scope.loading = false;
-		}, true); // do post so response is not cached
+		});
 	};
 	getEnv();
 	$scope.env_api_call = $interval(getEnv, 5000);
@@ -136,7 +143,7 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 	 * Camera image updates every minutes so only refresh every 10 seconds
 	 */
 	var getSnapshotImage = function() {
-		apiSvc.call("getSnapshotImage", {}, function(data) {
+		apiSvc.queue("getSnapshotImage", {}, function(data) {
 			logger("HomeCtrl::handleGetSnapshotImage()", "dbg");
 			logObj(data, "dbg");
 			if (data.success) {
@@ -148,7 +155,7 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 				toast(data.message);
 			}
 			$scope.loading = false;
-		}, true); // do post so response is not cached
+		});
 	};
 	getSnapshotImage();
 	$scope.snapshot_image_api_call = $interval(getSnapshotImage, 10000);
@@ -159,8 +166,10 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 
 	var getApiData = function(o) {
 		var d = new Duration();
-		apiSvc.call(o.api, {
-			today : moment().format("MMDD")
+		apiSvc.queue(o.api, function() {
+			return {
+				today : moment().format("MMDD")
+			};
 		}, function(data) {
 			logger(o.api + "(): Data transfer: " + d.prettyEnd());
 			logObj(data, "dbg");
@@ -174,11 +183,13 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 				toast(data.message);
 			}
 			$scope.loading = false;
+
 			// Chain the calls in the return from one, start the next
 			processApiCalls();
-			// Reschedule adding this to the call stack at midnight
+
 			if (o.requeue) {
-				logger("Requeuing call to '" + o.api + "'", "dbg")
+				// Set up a timer to add this back into the queue at midnight
+				logger("Call to '" + o.api + "' being requeued", "dbg")
 				$timeout(function() {
 					$scope.api_calls.push(o);
 				}, Math.max(millisecondsToMidnight(), 5 * 60 * 1000));
@@ -186,20 +197,16 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 				logger("Call to '" + o.api + "' singleshot - no requeue", "dbg")
 			}
 
-		}, true); // do post so response is not cached
+		});
 	};
 
 	var processApiCalls = function(ms) {
 		logger("processApiCalls(): called", "dbg");
-		if (ms == undefined) {
-			ms = 2000;
-		}
-		// Chain the calls in the return from one, start the next
 		data = $scope.api_calls.shift();
 		if (data) {
-			logger("Calling history retrieval with " + ms + "ms delay", "dbg");
-			$scope.history_api_call = $timeout(getApiData, ms, true, data);
+			getApiData(data);
 		} else {
+			// Set up a timer to restart the checking at 1 minute past midnight
 			logger("API queue complete");
 			var stm = millisecondsToMidnight();
 			logger("Milliseconds of sleep: " + stm, "dbg");
@@ -254,7 +261,6 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 
 	$scope.api_calls.push({
 		api : "history/getServerCpuLoad",
-		requeue : false,
 		success : function(data) {
 			$scope.history.server_cpu_load = data.history;
 		}
@@ -262,7 +268,6 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 
 	$scope.api_calls.push({
 		api : "history/getServerCpuWait",
-		requeue : false,
 		success : function(data) {
 			$scope.history.server_cpu_wait = data.history;
 		}
@@ -270,7 +275,6 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 
 	$scope.api_calls.push({
 		api : "history/getServerTemperature",
-		requeue : false,
 		success : function(data) {
 			$scope.history.server_temperature = data.history;
 		}
@@ -278,7 +282,6 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 
 	$scope.api_calls.push({
 		api : "history/getServerMemoryLoad",
-		requeue : false,
 		success : function(data) {
 			$scope.history.server_mem_load = data.history;
 		}
@@ -286,7 +289,6 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 
 	$scope.api_calls.push({
 		api : "history/getServerHddLoad",
-		requeue : false,
 		success : function(data) {
 			$scope.history.server_hdd_load = data.history;
 		}
@@ -294,7 +296,6 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 
 	$scope.api_calls.push({
 		api : "history/getSensorTemperature",
-		requeue : false,
 		success : function(data) {
 			$scope.history.sensor_temperature = data.history;
 		}
@@ -302,12 +303,11 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 
 	$scope.api_calls.push({
 		api : "history/getSensorHumidity",
-		requeue : false,
 		success : function(data) {
 			$scope.history.sensor_humidity = data.history;
 		}
 	});
 
 	// Start the history data chain
-	$scope.history_api_call = $timeout(processApiCalls, 1000, true, 100);
+	$scope.history_api_call = $timeout(processApiCalls, 100);
 } ]);

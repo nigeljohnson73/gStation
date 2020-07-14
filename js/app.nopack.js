@@ -600,75 +600,108 @@ app.directive('imageonload', [ function() {
 | (_| | |_) | |___) \ V / (__
  \__,_| .__/|_|____/ \_/ \___|
       |_|
-*/
-app.service('apiSvc', [ "$http", function($http, netSvc) {
-//	app.service('apiSvc', [ "$http", "netSvc", function($http, netSvc) {
+ */
+app.service('apiSvc', [ "$http", "$timeout", "$interval", function($http, $timeout, $interval) {
 	apiSvc = this; // cuz "this" changes later
+	apiSvc._queue = []; // holds the API call queue
 
-	apiSvc.online = false;
+	/***************************************************************************
+	 * Internal call to perform a check to see if an API call is waiting to go
+	 */
+	apiSvc._queueTick = function() {
+		call = apiSvc._queue.shift();
+		if (call) {
+			logger("apiSvc._queueTick(): Processing queue item", "dbg");
+			// If we have a call in the queue, start processing the queue
+			apiSvc.queue_processing = true;
+			apiSvc.call(call.api, call.data, function(data) {
+				// here we have the response from the server, so process it as
+				// expected
+				call.notify(data);
 
-//	/***
-//	*
-//	*/
-//	netSvc.addStateListener(function(tf) {
-//		apiSvc.online = tf;
-//	});
-//
-//	apiSvc.isOnline = function() {
-//		return apiSvc.online;
-//	};
+				// Give the server a cooldown, then check for the next call
+				$timeout(apiSvc._queueTick, 200);
+			}, call.exludelog);
+		} else {
+			logger("apiSvc._queueTick(): Queue is empty", "dbg");
+			apiSvc.queue_processing = false;
+		}
+	};
 
-	/***
-	* CAll an API
-	* pass a data object, the callback to notify and whether to use POST method or not
-	* Use post=true for sending data so that it is not cached.
-	* If using GET, the nocache set to true will force a new version *if* the API has been updated recently
-	*/
-	apiSvc.call = function(api, data, notify, post, nocache) {
+	/***************************************************************************
+	 * Internal call to perform a start the queue check if required
+	 */
+	apiSvc._queueCheck = function() {
+		// If we finished processing, then just check we don't need resstarting
+		// again
+		if (!apiSvc.queue_processing) {
+			logger("apiSvc._queueCheck(): Starting queue processor", "dbg");
+			apiSvc._queueTick();
+		}
+	};
+	$timeout(apiSvc._queueCheck, 1000);
 
+	/***************************************************************************
+	 * Queue an API call to the next available slot. Use this is your call is
+	 * not urgent
+	 */
+	apiSvc.queue = function(api, data, notify, excludelog) {
+		apiSvc._queue.push({
+			api : api,
+			data : data,
+			notify : notify,
+			excludelog : excludelog
+		});
+	};
+
+	/***************************************************************************
+	 * Call an API immediately. Pass a data object to the API, the callback to
+	 * notify when the API returns. data can be an object or a function that
+	 * returns an object. excludelog is used to hide paramters in the txdata in
+	 * the logging process
+	 */
+	apiSvc.call = function(api, data, notify, excludelog) {
+		// If data is a function, call it to get the data
+		data = (typeof data == "function") ? data() : data;
+
+		// Convert any passed in excludelog into an array we can search through
+		excludelog = (excludelog == undefined) ? ([]) : (Array.isArray(excludelog) ? excludelog : [ excludelog ]);
+
+		// If there is any core data, like tokens, add them here somehow
 		txdata = {};
 		logtxdata = {};
 
 		// now move the user data in
 		for ( var attrname in data) {
 			txdata[attrname] = data[attrname];
-			logtxdata[attrname] = data[attrname];
+			logtxdata[attrname] = (excludelog.indexOf(attrname) == -1) ? (data[attrname]) : ("********");
 		}
 
-		var method = "GET"; // BAD BAD BAD, but I can't cache for offline otherwise
-		var qs = "";
-		if (post) {
-			method = "POST";
-		} else {
-			if (!nocache) {
-				txdata["cached"] = api_build_date_raw;
-			}
-			qs = "?" + $.param(txdata);
-		}
-
-		logger("apiSvc.call('" + api + "', '" + method + "')", "dbg");
-		//console.log(logtxdata);
+		logger("apiSvc.call('" + api + "')", "dbg");
+		logObj(logtxdata, "dbg");
 
 		// Send it all over to the server
 		$http({
-		method : method,
-		url : '/api/' + api + ".php" + qs,
-		data : $.param(txdata),
-		headers : {
-			// set the headers so angular passing info as form data (not request payload)
-			'Content-Type' : 'application/x-www-form-urlencoded'
-		}
+			method : "POST",
+			url : '/api/' + api + ".php",
+			data : $.param(txdata),
+			headers : {
+				// set the headers so angular passing info as form data (not
+				// request payload)
+				'Content-Type' : 'application/x-www-form-urlencoded'
+			}
 		}).then(function(data) {
 			logger("apiSvc.call(): success", "dbg");
-			//console.log(data);
+			// console.log(data);
 			ldata = {};
-			if(isJson(data.data)) {
+			if (isJson(data.data)) {
 				// http response object returned, strip out the server response
 				ldata = data.data;
 			} else {
 				logger("apiSvc.call(): malformed response", "wrn");
-				// Any returned text in the console where you would expect some explanation
-				ldata.console = data.data.trim().split(/\r\n|\r|\n/); 
+				// Any returned text in the console where you would expect some
+				// explanation
+				ldata.console = data.data.trim().split(/\r\n|\r|\n/);
 				ldata.success = false;
 				ldata.status = "error";
 				ldata.message = "";
@@ -680,28 +713,27 @@ app.service('apiSvc', [ "$http", function($http, netSvc) {
 				notify(ldata);
 			}
 		}, function(data) {
-			//logger("apiSvc.call(): failed", "err");
-			//console.log(data);
+			// logger("apiSvc.call(): failed", "err");
+			// console.log(data);
 			ldata = {};
-			if (data.status == 200) {
-				// Probbably should never be here ,since a 200 would be a success???
-				logger("apiSvc.call(): failed at the remote end", "err");
-				ldata = data.data;
-				ldata.console = (data.data+"").trim().split(/\r\n|\r|\n/); 
-				} else {
+			if (data.status == -1) {
+				logger("apiSvc.call(): No Internet", "err");
+			} else {
 				logger("apiSvc.call(): HTTP failed with status code " + data.status, "err");
-				// Any returned text in the console where you would expect some explanation
-				if(data.data == null) {
-					data.data = "";
-				}
-				ldata.console = (data.data+"").trim().split(/\r\n|\r|\n/); 
-				ldata.success = false;
-				ldata.status = "error";
-				ldata.message = "";
-				logObj(ldata, "wrn");
+				logger("apiSvc.call(): HTTP failed with status text '" + data.statusText + "'", "err");
 			}
 
 			if (typeof notify == "function") {
+				if (data.data == null) {
+					data.data = "";
+				}
+				datastr = (data.data + "").trim();
+				ldata.console = (strlen(datastr)) ? (data.split(/\r\n|\r|\n/)) : ([]);
+				ldata.success = false;
+				ldata.status = "error";
+				ldata.message = "";
+				// logObj(ldata, "wrn");
+
 				logger("apiSvc.call(): calling notifier", "dbg");
 				notify(ldata);
 			}
@@ -751,6 +783,8 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 		return false;
 	};
 
+	// This is called to load the data into the correct array, but it also
+	// checks to see if any history needs moving as well
 	var processLoad = function(history, dst, obj, val) {
 		if (history) {
 			if (r = objectDataByName(history, obj.name)) {
@@ -764,6 +798,8 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 
 	};
 
+	// Called to remove any data from the array that is out of scope, i.e. older
+	// than 24 hours
 	var tidyData = function(dst) {
 		remove = new Date();
 		remove.setDate(remove.getDate() - 1);
@@ -776,7 +812,9 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 		});
 	};
 
-	var checkGraph = function(g, id, src, title, units) {
+	// Called to handle the update or create for the minute graphs required by
+	// the heartbeat call. This just stops the significant creation animation
+	var updateMinuteGraph = function(g, id, src, title, units) {
 		ret = g;
 		if (g) {
 			g.update();
@@ -786,12 +824,13 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 		return ret;
 	};
 
+	// Ensure the console is cleared every so often or it seems to back up a
+	// shed load and cause the browser to die
 	var clearLog = function() {
 		console.clear();
 		logger("Console log cleared");
 	};
-	// Ensure the console is cleared every hour or it seems to back up a shed load
-	$scope.console_clear_call = $interval(clearLog, 60 * 60 * 1000);
+	$scope.console_clear_call = $interval(clearLog, 5 * 60 * 1000);
 
 	/***************************************************************************
 	 * The heartbeat handler is called every 5 seconds and requires some
@@ -838,13 +877,13 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 				tidyData($scope.server_mem_load);
 				tidyData($scope.server_hdd_load);
 
-				$scope.sensor_temperature_graph = checkGraph($scope.sensor_temperature_graph, '#sensor-temperature-graph', $scope.sensor_temperature, "Temperature", "°C");
-				$scope.sensor_humidity_graph = checkGraph($scope.sensor_humidity_graph, '#sensor-humidity-graph', $scope.sensor_humidity, "Humidity", "%");
-				$scope.server_cpu_load_graph = checkGraph($scope.server_cpu_load_graph, '#server-cpu_load-graph', $scope.server_cpu_load, "CPU Load", "%");
-				$scope.server_cpu_wait_graph = checkGraph($scope.server_cpu_wait_graph, '#server-cpu_wait-graph', $scope.server_cpu_wait, "CPU Wait", "%");
-				$scope.server_temperature_graph = checkGraph($scope.server_temperature_graph, '#server-temperature-graph', $scope.server_temperature, "Temperature", "°C");
-				$scope.server_mem_load_graph = checkGraph($scope.server_mem_load_graph, '#server-mem_load-graph', $scope.server_mem_load, "Memory Usage", "%");
-				$scope.server_hdd_load_graph = checkGraph($scope.server_hdd_load_graph, '#server-hdd_load-graph', $scope.server_hdd_load, "Storage Usage", "%");
+				$scope.sensor_temperature_graph = updateMinuteGraph($scope.sensor_temperature_graph, '#sensor-temperature-graph', $scope.sensor_temperature, "Temperature", "°C");
+				$scope.sensor_humidity_graph = updateMinuteGraph($scope.sensor_humidity_graph, '#sensor-humidity-graph', $scope.sensor_humidity, "Humidity", "%");
+				$scope.server_cpu_load_graph = updateMinuteGraph($scope.server_cpu_load_graph, '#server-cpu_load-graph', $scope.server_cpu_load, "CPU Load", "%");
+				$scope.server_cpu_wait_graph = updateMinuteGraph($scope.server_cpu_wait_graph, '#server-cpu_wait-graph', $scope.server_cpu_wait, "CPU Wait", "%");
+				$scope.server_temperature_graph = updateMinuteGraph($scope.server_temperature_graph, '#server-temperature-graph', $scope.server_temperature, "Temperature", "°C");
+				$scope.server_mem_load_graph = updateMinuteGraph($scope.server_mem_load_graph, '#server-mem_load-graph', $scope.server_mem_load, "Memory Usage", "%");
+				$scope.server_hdd_load_graph = updateMinuteGraph($scope.server_hdd_load_graph, '#server-hdd_load-graph', $scope.server_hdd_load, "Storage Usage", "%");
 
 			} else {
 				$scope.env = null;
@@ -853,7 +892,7 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 				toast(data.message);
 			}
 			$scope.loading = false;
-		}, true); // do post so response is not cached
+		});
 	};
 	getEnv();
 	$scope.env_api_call = $interval(getEnv, 5000);
@@ -862,7 +901,7 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 	 * Camera image updates every minutes so only refresh every 10 seconds
 	 */
 	var getSnapshotImage = function() {
-		apiSvc.call("getSnapshotImage", {}, function(data) {
+		apiSvc.queue("getSnapshotImage", {}, function(data) {
 			logger("HomeCtrl::handleGetSnapshotImage()", "dbg");
 			logObj(data, "dbg");
 			if (data.success) {
@@ -874,7 +913,7 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 				toast(data.message);
 			}
 			$scope.loading = false;
-		}, true); // do post so response is not cached
+		});
 	};
 	getSnapshotImage();
 	$scope.snapshot_image_api_call = $interval(getSnapshotImage, 10000);
@@ -885,8 +924,10 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 
 	var getApiData = function(o) {
 		var d = new Duration();
-		apiSvc.call(o.api, {
-			today : moment().format("MMDD")
+		apiSvc.queue(o.api, function() {
+			return {
+				today : moment().format("MMDD")
+			};
 		}, function(data) {
 			logger(o.api + "(): Data transfer: " + d.prettyEnd());
 			logObj(data, "dbg");
@@ -900,11 +941,13 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 				toast(data.message);
 			}
 			$scope.loading = false;
+
 			// Chain the calls in the return from one, start the next
 			processApiCalls();
-			// Reschedule adding this to the call stack at midnight
+
 			if (o.requeue) {
-				logger("Requeuing call to '" + o.api + "'", "dbg")
+				// Set up a timer to add this back into the queue at midnight
+				logger("Call to '" + o.api + "' being requeued", "dbg")
 				$timeout(function() {
 					$scope.api_calls.push(o);
 				}, Math.max(millisecondsToMidnight(), 5 * 60 * 1000));
@@ -912,20 +955,16 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 				logger("Call to '" + o.api + "' singleshot - no requeue", "dbg")
 			}
 
-		}, true); // do post so response is not cached
+		});
 	};
 
 	var processApiCalls = function(ms) {
 		logger("processApiCalls(): called", "dbg");
-		if (ms == undefined) {
-			ms = 2000;
-		}
-		// Chain the calls in the return from one, start the next
 		data = $scope.api_calls.shift();
 		if (data) {
-			logger("Calling history retrieval with " + ms + "ms delay", "dbg");
-			$scope.history_api_call = $timeout(getApiData, ms, true, data);
+			getApiData(data);
 		} else {
+			// Set up a timer to restart the checking at 1 minute past midnight
 			logger("API queue complete");
 			var stm = millisecondsToMidnight();
 			logger("Milliseconds of sleep: " + stm, "dbg");
@@ -980,7 +1019,6 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 
 	$scope.api_calls.push({
 		api : "history/getServerCpuLoad",
-		requeue : false,
 		success : function(data) {
 			$scope.history.server_cpu_load = data.history;
 		}
@@ -988,7 +1026,6 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 
 	$scope.api_calls.push({
 		api : "history/getServerCpuWait",
-		requeue : false,
 		success : function(data) {
 			$scope.history.server_cpu_wait = data.history;
 		}
@@ -996,7 +1033,6 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 
 	$scope.api_calls.push({
 		api : "history/getServerTemperature",
-		requeue : false,
 		success : function(data) {
 			$scope.history.server_temperature = data.history;
 		}
@@ -1004,7 +1040,6 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 
 	$scope.api_calls.push({
 		api : "history/getServerMemoryLoad",
-		requeue : false,
 		success : function(data) {
 			$scope.history.server_mem_load = data.history;
 		}
@@ -1012,7 +1047,6 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 
 	$scope.api_calls.push({
 		api : "history/getServerHddLoad",
-		requeue : false,
 		success : function(data) {
 			$scope.history.server_hdd_load = data.history;
 		}
@@ -1020,7 +1054,6 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 
 	$scope.api_calls.push({
 		api : "history/getSensorTemperature",
-		requeue : false,
 		success : function(data) {
 			$scope.history.sensor_temperature = data.history;
 		}
@@ -1028,12 +1061,11 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 
 	$scope.api_calls.push({
 		api : "history/getSensorHumidity",
-		requeue : false,
 		success : function(data) {
 			$scope.history.sensor_humidity = data.history;
 		}
 	});
 
 	// Start the history data chain
-	$scope.history_api_call = $timeout(processApiCalls, 1000, true, 100);
+	$scope.history_api_call = $timeout(processApiCalls, 100);
 } ]);

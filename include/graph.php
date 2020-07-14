@@ -12,9 +12,9 @@ function getLocalMeasurements_orig($what, $name) {
 		$swhere = "name in ('" . implode ( "','", $bits ) . "')";
 		$twhere = "param in ('" . implode ( "','", $bits ) . "')";
 	}
-	$sql = "SELECT event, name, value FROM sensors where param = '" . $what . "' and " . $where . " ";
+	$sql = "SELECT event, name, value FROM sensors where param = '" . $what . "' and " . $swhere . " ";
 	$sql .= "union select event, 'DEMANDED' as 'name', value from demands where param = '" . $what . "' ";
-	$sql .= "union select event, 'TRIGGER' as 'name', value from triggers where ".$twhere;
+	$sql .= "union select event, 'TRIGGER' as 'name', value from triggers where " . $twhere;
 	// echo "SQL: \"" . $sql . "\"\n";
 	$res = $mysql->query ( $sql );
 	// echo "Local temp count: ".count($res)."\n";
@@ -36,28 +36,34 @@ function getLocalMeasurements_orig($what, $name) {
 }
 
 function getLocalMeasurements($what, $name) {
-	//echo "getLocalMeasurements('$what', '$name'): Started\n";
+	// echo "getLocalMeasurements('$what', '$name'): Started\n";
 	$ret = null;
 	global $mysql;
-	$where = "name = '$name'";
+	// $where = "name = '$name'";
 	$bits = explode ( ",", $name );
 	$sqls = [ ];
-	foreach ( $bits as $k => $v ) {
+	foreach ( $bits as $v ) {
 		$obit = trim ( $v );
 		$bit = trim ( $v );
-		$arr = array();
-		preg_match('/(.*)(\((.*)\))/', $obit, $arr);
-		if(count($arr)) {
-			$bit = trim ( $arr[1] );
+		$arr = array ();
+		preg_match ( '/(.*)(\((.*)\))/', $obit, $arr );
+		if (count ( $arr )) {
+			$bit = trim ( $arr [1] );
 		}
-		//echo "Looking for '".$bit."'\n";
-		if (in_array(strtolower ( $what ), array("trigger", "triggers"))) {
-			$mult = ($bit[1] + 0)*(1/(count($bits)+1));//($bit[1] + 0)*0.2;
-			//$sqls [strtolower ( $obit )] = "SELECT event, param as 'name', (value*".$mult.") as value FROM triggers WHERE param = '" . $bit . "' AND value > 0.5";
-			$sqls [strtolower ( $obit )] = "SELECT event, param as 'name', (value*".$mult.") as value FROM triggers WHERE param = '" . $bit . "'";
+		// echo "Looking for '".$bit."'\n";
+		if (in_array ( strtolower ( $what ), array (
+				"trigger",
+				"triggers"
+		) )) {
+			$mult = ($bit [1] + 0) * (1 / (count ( $bits ) + 1)); // ($bit[1] + 0)*0.2;
+			                                                      // $sqls [strtolower ( $obit )] = "SELECT event, param as 'name', (value*".$mult.") as value FROM triggers WHERE param = '" . $bit . "' AND value > 0.5";
+			$sqls [strtolower ( $obit )] = "SELECT event, param as 'name', (value*" . $mult . ") as value FROM triggers WHERE param = '" . $bit . "'";
 		} else if (strtolower ( $bit ) == "demand" || strtolower ( $bit ) == "demanded") {
 			$sqls [strtolower ( $obit )] = "SELECT event, 'DEMANDED' as 'name', value FROM demands WHERE param = '" . $what . "'";
-		} else if (in_array(strtolower ( $what ), array("sensor_age", "sensor_ages"))) {
+		} else if (in_array ( strtolower ( $what ), array (
+				"sensor_age",
+				"sensor_ages"
+		) )) {
 			$sqls [strtolower ( $obit )] = "SELECT DISTINCT event, name, age as value FROM sensors WHERE name = '" . $bit . "' AND age IS NOT NULL";
 		} else {
 			$sqls [strtolower ( $obit )] = "SELECT event, name, value FROM sensors WHERE param = '" . $what . "' AND name = '" . $bit . "'";
@@ -81,87 +87,89 @@ function getLocalMeasurements($what, $name) {
 	return $ret;
 }
 
-if(!function_exists("getGraphColour")) {
+if (! function_exists ( "getGraphColour" )) {
+
 	function getGraphColour($name) {
 		return null;
 	}
 }
 
-function drawMeasuredGraph($what, $zone) {
-	echo timestampFormat ( timestampNow (), "H:i:s" ) . ": drawMeasuredGraph(): started\n";
+// function drawMeasuredGraph($what, $zone) {
+// echo timestampFormat ( timestampNow (), "H:i:s" ) . ": drawMeasuredGraph(): started\n";
 
-	$legend_keys = [ ];
-	$legend_key ["temperature"] = "C";
-	$legend_key ["humidity"] = "%";
-	$legend_key ["mem_load"] = "%";
-	$legend_key ["cpu_load"] = "%";
-	$legend_key ["cpu_wait"] = "%";
-	$legend_key ["sd_load"] = "%";
-	$legend_key ["trigger"] = "";
-	$legend_key ["triggers"] = "";
-	$legend_key ["sensor_age"] = "s";
-	$legend_key ["sensor_ages"] = "s";
+// $legend_keys = [ ];
+// $legend_key ["temperature"] = "C";
+// $legend_key ["humidity"] = "%";
+// $legend_key ["mem_load"] = "%";
+// $legend_key ["cpu_load"] = "%";
+// $legend_key ["cpu_wait"] = "%";
+// $legend_key ["sd_load"] = "%";
+// $legend_key ["trigger"] = "";
+// $legend_key ["triggers"] = "";
+// $legend_key ["sensor_age"] = "s";
+// $legend_key ["sensor_ages"] = "s";
 
-	$legend_key = $legend_key [$what];
+// $legend_key = $legend_key [$what];
 
-	$dbg = false;
-	$vals = getLocalMeasurements ( $what, $zone );
-	// echo "<pre>".ob_print_r($temps)."</pre>";
-	// Lets have some axes regardless of data
-	$legend = "Not enough " . $what . " measurements have been gathered";
-	$min_y = 0;
-	$max_y = 5;
-	$y_ticks = array ();
+// //$dbg = false;
+// $vals = getLocalMeasurements ( $what, $zone );
+// // echo "<pre>".ob_print_r($temps)."</pre>";
+// // Lets have some axes regardless of data
+// $legend = "Not enough " . $what . " measurements have been gathered";
+// $min_y = 0;
+// $max_y = 5;
+// $y_ticks = array ();
 
-	echo timestampFormat ( timestampNow (), "H:i:s" ) . ": drawMeasuredGraph(): Processing data points\n";
-	if ($vals && count ( $vals )) {
-		foreach ( $vals as $k => $v ) {
-			if ($v && count ( array_keys ( $v ) ) > 2) {
-				//$legend = "Measured " . $what . " (" . $zone . ")";
-				$legend = ucwords($what) . " - " . $zone;
-				$vc = count ( $v );
+// // $temps = [];
+// echo timestampFormat ( timestampNow (), "H:i:s" ) . ": drawMeasuredGraph(): Processing data points\n";
+// if ($vals && count ( $vals )) {
+// foreach ( $vals as $k => $v ) {
+// if ($v && count ( array_keys ( $v ) ) > 2) {
+// //$legend = "Measured " . $what . " (" . $zone . ")";
+// $legend = ucwords($what) . " - " . $zone;
+// $vc = count ( $v );
 
-				$ll = LL_DEBUG;
-				logger ( $ll, "graphLocalValues(" . $what . "): Got count: " . $vc );
+// $ll = LL_DEBUG;
+// logger ( $ll, "graphLocalValues(" . $what . "): Got count: " . $vc );
 
-				$vc_max = 400;
-				if ($vc >= (2 * $vc_max)) {
-					logger ( $ll, "graphLocalValues(" . $what . ", " . $k . "): calling deltaDecimateArray()" );
-					$temps [$k] = deltaDecimateArray ( $v, 0.1, floor ( $vc / $vc_max ) );
-				} else if ($vc >= ($vc_max)) {
-					logger ( $ll, "graphLocalValues(" . $what . ", " . $k . "): calling smoothArray()" );
-					$temps [$k] = smoothArray ( $v, 1, 1 );
-				} else {
-					logger ( $ll, "graphLocalValues(" . $what . ", " . $k . "): no need for point reduction" );
-				}
-				logger ( $ll, "graphLocalValues(" . $what . ", " . $k . "): Render count: " . $vc );
-			}
-		}
+// $vc_max = 400;
+// if ($vc >= (2 * $vc_max)) {
+// logger ( $ll, "graphLocalValues(" . $what . ", " . $k . "): calling deltaDecimateArray()" );
+// // $temps [$k] = deltaDecimateArray ( $v, 0.1, floor ( $vc / $vc_max ) );
+// } else if ($vc >= ($vc_max)) {
+// logger ( $ll, "graphLocalValues(" . $what . ", " . $k . "): calling smoothArray()" );
+// // $temps [$k] = smoothArray ( $v, 1, 1 );
+// } else {
+// logger ( $ll, "graphLocalValues(" . $what . ", " . $k . "): no need for point reduction" );
+// }
+// logger ( $ll, "graphLocalValues(" . $what . ", " . $k . "): Render count: " . $vc );
+// }
+// }
 
-		$min_y = floor ( graphValMin ( $vals ) );
-		$max_y = ceil ( graphValMax ( $vals ) );
-		$c_y = $max_y - $min_y;
-		$c_step = ($c_y < 20) ? (1) : (($c_y < 40) ? (2) : (($c_y < 60) ? (3) : (($c_y < 80) ? (4) : (($c_y < 100) ? (5) : (($c_y < 200) ? (10) : ((($c_y < 300) ? (20) : ((($c_y < 400) ? (30) : ((($c_y < 500) ? (40) : (50))))))))))));
-		$max_y = $min_y + ceil ( ($max_y - $min_y) / $c_step ) * $c_step;
+// $min_y = floor ( graphValMin ( $vals ) );
+// $max_y = ceil ( graphValMax ( $vals ) );
+// $c_y = $max_y - $min_y;
+// $c_step = ($c_y < 20) ? (1) : (($c_y < 40) ? (2) : (($c_y < 60) ? (3) : (($c_y < 80) ? (4) : (($c_y < 100) ? (5) : (($c_y < 200) ? (10) : ((($c_y < 300) ? (20) : ((($c_y < 400) ? (30) : ((($c_y < 500) ? (40) : (50))))))))))));
+// $max_y = $min_y + ceil ( ($max_y - $min_y) / $c_step ) * $c_step;
 
-		$y_ticks = array ();
-		for($i = $min_y; $i <= $max_y; $i += $c_step) {
-			$y_ticks [$i] = $i . $legend_key;
-		}
-	}
+// $y_ticks = array ();
+// for($i = $min_y; $i <= $max_y; $i += $c_step) {
+// $y_ticks [$i] = $i . $legend_key;
+// }
+// }
 
-	$x_ticks = 12;
-	$x_subticks = 1;
-	echo timestampFormat ( timestampNow (), "H:i:s" ) . ": drawMeasuredGraph(): Generating graph\n";
-	// return drawTimeGraph ( $vals, $legend, $x_ticks, $x_subticks, $min_y, $max_y, $max_y - $min_y, 1, $y_ticks );
-	return drawTimeGraph ( $vals, $legend, $x_ticks, $x_subticks, $min_y, $max_y, count ( $y_ticks ), 1, $y_ticks );
-}
-
+// $x_ticks = 12;
+// $x_subticks = 1;
+// echo timestampFormat ( timestampNow (), "H:i:s" ) . ": drawMeasuredGraph(): Generating graph\n";
+// // return drawTimeGraph ( $vals, $legend, $x_ticks, $x_subticks, $min_y, $max_y, $max_y - $min_y, 1, $y_ticks );
+// return drawTimeGraph ( $vals, $legend, $x_ticks, $x_subticks, $min_y, $max_y, count ( $y_ticks ), 1, $y_ticks );
+// }
 function _graphMinMax($arr, $compfunc, $blankval, $kvfunc) {
 	// echo "<pre>_graphMinMax(\$arr, $compfunc, $blankval, $kvfunc): called\n" . ob_print_r ( $arr ) . "</pre>\n";
 	$ret = $blankval;
 	if ($arr && count ( $arr )) {
 		foreach ( $arr as $legend => $vals ) {
+			$legend = $legend;
 			if (count ( $vals )) {
 				// echo "&nbsp;&nbsp;&nbsp;&nbsp;_graphMinMax(\$arr, $compfunc, $kvfunc): '$legend': curr: $ret, new: " . $compfunc ( $kvfunc ( $vals ) ) . "</br>";
 				$ret = $compfunc ( $ret, $compfunc ( $kvfunc ( $vals ) ) );
@@ -251,14 +259,14 @@ function drawTimeGraph($data, $legend, $nmajor_x, $nminor_x, $min_y, $max_y, $nm
 	$red = imagecolorallocate ( $im, 0xff, 0x00, 0x00 );
 	$light_blue = imagecolorallocate ( $im, 0x66, 0x66, 0xff );
 
-	//$bp_dark_green = "#090";
-	//$bp_lime_green = "#9c0";
-	//$bp_purple = "#609";
-	//$yellow = "#ff0";
-	//$orange = #f9a";
-	//$lorange = "f9a";
-	//$red = "#f00";
-	//$light_blue = "#66f";
+	// $bp_dark_green = "#090";
+	// $bp_lime_green = "#9c0";
+	// $bp_purple = "#609";
+	// $yellow = "#ff0";
+	// $orange = #f9a";
+	// $lorange = "f9a";
+	// $red = "#f00";
+	// $light_blue = "#66f";
 
 	$graph_cols = array (
 			$bp_dark_green,
@@ -363,25 +371,25 @@ function drawTimeGraph($data, $legend, $nmajor_x, $nminor_x, $min_y, $max_y, $nm
 		// Process in the data graphPoints
 		$col_index = 0;
 		foreach ( $data as $leg => $trace ) {
-			$hex = getGraphColour($leg);
-			if($hex == null) {
-				$rgb = $graph_cols[$col_index];
-
+			$hex = getGraphColour ( $leg );
+			if ($hex == null) {
+				$rgb = $graph_cols [$col_index];
 			} else {
-				(strlen($hex) === 4) 
-					? list($r,$g,$b) = sscanf('#'.implode('',array_map('str_repeat',str_split(str_replace('#','',$hex)), [2,2,2])), "#%02x%02x%02x") 
-					: list($r, $g, $b) = sscanf($hex, "#%2x%2x%2x");
+				(strlen ( $hex ) === 4) ? list ( $r, $g, $b ) = sscanf ( '#' . implode ( '', array_map ( 'str_repeat', str_split ( str_replace ( '#', '', $hex ) ), [ 
+						2,
+						2,
+						2
+				] ) ), "#%02x%02x%02x" ) : list ( $r, $g, $b ) = sscanf ( $hex, "#%2x%2x%2x" );
 
 				$rgb = imagecolorallocate ( $im, $r, $g, $b );
 			}
-
 
 			// echo "Leg: '$leg', col: '$hex', r: $r, g: $g, b: $b\n";
 			foreach ( $trace as $k => $v ) {
 				$xv = (scaleVal ( $k, $min_x, $max_x ) * ($x - 2 * $border)) + $border;
 				$yv = $y - ((scaleVal ( $v, $min_y, $max_y ) * ($y - 2 * $border)) + $border);
-				//graphPoint ( $im, $xv, $yv, $graph_cols [$col_index] );
-				graphPoint ( $im, $xv, $yv, $rgb);
+				// graphPoint ( $im, $xv, $yv, $graph_cols [$col_index] );
+				graphPoint ( $im, $xv, $yv, $rgb );
 				// graphPoint ( $im, $xv, $yvt, $red );
 			}
 			$col_index += 1;

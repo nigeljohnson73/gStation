@@ -930,6 +930,7 @@ class BulkSms {
 		// include_once ('http.inc');
 		$this->_push_debug_msg ( "posting to http" );
 		$http = new http ();
+		$u = [ ];
 		preg_match ( "/(.*):(\d*)/", $host, $u );
 		$http->host = $u [1];
 		if (USE_PORT_80 == true) {
@@ -948,6 +949,7 @@ class BulkSms {
 			if (preg_match ( '/^0\|Results to follow\n\n/', $response ) || preg_match ( '/^0\|records to follow\|\d*\n\n/', $response )) {
 				$eapi1 = array ();
 				$eapi2 = array ();
+				$r = [ ];
 				preg_match ( '/^(.*)\n\n/', $response, $r );
 				$eapi1 [0] = explode ( '|', $r [1] );
 				$response = preg_replace ( "/^.*\n\n/", "", $response );
@@ -1018,6 +1020,7 @@ class BulkSms {
 		// include_once ('http.inc');
 		$this->_push_debug_msg ( "posting to http" );
 		$http = new http ();
+		$u = [ ];
 		preg_match ( "/(.*):(\d*)/", $host, $u );
 		$http->host = $u [1];
 		$http->port = $u [2];
@@ -1305,12 +1308,14 @@ class http_response_header extends http_header {
 	function deserialize_headers($flat_headers) {
 		$flat_headers = preg_replace ( "/^" . HTTP_CRLF . "/", '', $flat_headers );
 		$tmp_headers = explode ( HTTP_CRLF, $flat_headers );
+		$matches = [];
 		if (preg_match ( "'HTTP/(\d\.\d)\s+(\d+).*'i", $tmp_headers [0], $matches )) {
 			$this->set_header ( 'Protocol-Version', $matches [1] );
 			$this->set_header ( 'Status', $matches [2] );
 		}
 		array_shift ( $tmp_headers );
 		foreach ( $tmp_headers as $index => $value ) {
+			$index = $index;
 			$pos = strpos ( $value, ':' );
 			if ($pos) {
 				$key = substr ( $value, 0, $pos );
@@ -1919,6 +1924,8 @@ class http {
 	 * ******************************************************************************
 	 */
 	function _connect() {
+		$errno = null;
+		$errstr = null;
 		if ($this->host == '')
 			user_error ( 'Class HTTP->_connect() : host property not set !', E_ERROR );
 		if (! $this->_use_proxy)

@@ -61,8 +61,8 @@ class ZipFile {
 		$cdrec .= pack ( "v", 0 ); // file comment length
 		$cdrec .= pack ( "v", 0 ); // disk number start
 		$cdrec .= pack ( "v", 0 ); // internal file attributes
-		$ext = "\x00\x00\x10\x00";
-		$ext = "\xff\xff\xff\xff";
+		                           // $ext = "\x00\x00\x10\x00";
+		                           // $ext = "\xff\xff\xff\xff";
 		$cdrec .= pack ( "V", 16 ); // external file attributes - 'directory' bit set
 
 		$cdrec .= pack ( "V", $this->old_offset ); // relative offset of local header

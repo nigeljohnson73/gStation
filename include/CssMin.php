@@ -2579,6 +2579,7 @@ class CssConvertRgbColorsMinifierPlugin extends aCssMinifierPlugin {
 	 * @return boolean Return TRUE to break the processing of this token; FALSE to continue
 	 */
 	public function apply(aCssToken &$token) {
+		$m = [];
 		if (stripos ( $token->Value, "rgb" ) !== false && preg_match ( $this->reMatch, $token->Value, $m )) {
 			for($i = 1, $l = count ( $m ); $i < $l; $i ++) {
 				if (strpos ( "%", $m[$i] ) !== false) {
@@ -4265,6 +4266,7 @@ class CssConvertHslColorsMinifierPlugin extends aCssMinifierPlugin {
 	 * @return boolean Return TRUE to break the processing of this token; FALSE to continue
 	 */
 	public function apply(aCssToken &$token) {
+		$m = [];
 		if (stripos ( $token->Value, "hsl" ) !== false && preg_match ( $this->reMatch, $token->Value, $m )) {
 			$token->Value = str_replace ( $m[0], $this->hsl2hex ( $m[1], $m[2], $m[3] ), $token->Value );
 		}
@@ -4433,6 +4435,7 @@ class CssConvertFontWeightMinifierPlugin extends aCssMinifierPlugin {
 	 * @return boolean Return TRUE to break the processing of this token; FALSE to continue
 	 */
 	public function apply(aCssToken &$token) {
+		$m = [];
 		if (in_array ( $token->Property, $this->include ) && preg_match ( $this->reMatch, $token->Value, $m )) {
 			$token->Value = preg_replace ( $this->reMatch, $this->reReplace, $token->Value );
 		}
@@ -4543,38 +4546,38 @@ class CssCompressUnitValuesMinifierPlugin extends aCssMinifierPlugin {
  * @license http://opensource.org/licenses/mit-license.php MIT License
  * @version 3.0.1
  */
-class CssCompressExpressionValuesMinifierPlugin extends aCssMinifierPlugin {
+// class CssCompressExpressionValuesMinifierPlugin extends aCssMinifierPlugin {
 
-	/**
-	 * Implements {@link aCssMinifierPlugin::minify()}.
-	 *
-	 * @param aCssToken $token
-	 *        	Token to process
-	 * @return boolean Return TRUE to break the processing of this token; FALSE to continue
-	 */
-	public function apply(aCssToken &$token) {
-		if (class_exists ( "JSMin" ) && stripos ( $token->Value, "expression(" ) !== false) {
-			$value = $token->Value;
-			$value = substr ( $token->Value, stripos ( $token->Value, "expression(" ) + 10 );
-			$value = trim ( JSMin::minify ( $value ) );
-			$token->Value = "expression(" . $value . ")";
-		}
-		return false;
-	}
+// 	/**
+// 	 * Implements {@link aCssMinifierPlugin::minify()}.
+// 	 *
+// 	 * @param aCssToken $token
+// 	 *        	Token to process
+// 	 * @return boolean Return TRUE to break the processing of this token; FALSE to continue
+// 	 */
+// 	public function apply(aCssToken &$token) {
+// 		if (class_exists ( "JSMin" ) && stripos ( $token->Value, "expression(" ) !== false) {
+// 			$value = $token->Value;
+// 			$value = substr ( $token->Value, stripos ( $token->Value, "expression(" ) + 10 );
+// 			$value = trim ( JSMin::minify ( $value ) );
+// 			$token->Value = "expression(" . $value . ")";
+// 		}
+// 		return false;
+// 	}
 
-	/**
-	 * Implements {@link aMinifierPlugin::getTriggerTokens()}
-	 *
-	 * @return array
-	 */
-	public function getTriggerTokens() {
-		return array (
-				"CssAtFontFaceDeclarationToken",
-				"CssAtPageDeclarationToken",
-				"CssRulesetDeclarationToken"
-		);
-	}
-}
+// 	/**
+// 	 * Implements {@link aMinifierPlugin::getTriggerTokens()}
+// 	 *
+// 	 * @return array
+// 	 */
+// 	public function getTriggerTokens() {
+// 		return array (
+// 				"CssAtFontFaceDeclarationToken",
+// 				"CssAtPageDeclarationToken",
+// 				"CssRulesetDeclarationToken"
+// 		);
+// 	}
+// }
 
 /**
  * This {@link aCssMinifierPlugin} will convert hexadecimal color value with 6 chars to their 3 char hexadecimal
@@ -4615,6 +4618,7 @@ class CssCompressColorValuesMinifierPlugin extends aCssMinifierPlugin {
 	 * @return boolean Return TRUE to break the processing of this token; FALSE to continue
 	 */
 	public function apply(aCssToken &$token) {
+		$m = [];
 		if (strpos ( $token->Value, "#" ) !== false && preg_match ( $this->reMatch, $token->Value, $m )) {
 			$value = strtolower ( $m[1] );
 			if ($value[0] == $value[1] && $value[2] == $value[3] && $value[4] == $value[5]) {

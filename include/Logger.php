@@ -125,7 +125,7 @@ class Logger {
 
 		$lev = $this->strings [$level];
 		$ts = date ( "H:i:s" );
-		$un = "";
+		//$un = "";
 		// if (class_exists("tUsers")) {
 		// $un = tUsers :: getLoggedInUser();
 		// }
@@ -157,6 +157,7 @@ class Logger {
 	}
 }
 
+global $log_dir, $log_level, $app_title;
 if (strlen ( @$log_dir ) == 0) {
 	$log_dir = "/tmp/logs";
 }
