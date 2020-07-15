@@ -171,7 +171,7 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 				today : moment().format("MMDD")
 			};
 		}, function(data) {
-			logger(o.api + "(): Data transfer: " + d.prettyEnd());
+			plogger(o.api + "(): Data transfer: " + d.prettyEnd());
 			logger(data, "dbg");
 			if (data.success) {
 				o.success(data);
@@ -189,10 +189,11 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 
 			if (o.requeue) {
 				// Set up a timer to add this back into the queue at midnight
-				logger("Call to '" + o.api + "' being requeued", "dbg")
+				ms = Math.max(millisecondsToMidnight(), 5 * 60 * 1000);
+				plogger(o.api + "(): requeue in " + prettyDuration(ms));
 				$timeout(function() {
 					$scope.api_calls.push(o);
-				}, Math.max(millisecondsToMidnight(), 5 * 60 * 1000));
+				}, ms);
 			} else {
 				logger("Call to '" + o.api + "' singleshot - no requeue", "dbg")
 			}

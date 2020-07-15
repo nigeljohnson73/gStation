@@ -21,6 +21,27 @@ var objectDataByName = function(arr, name) {
 	return ret;
 };
 
+var prettyDuration = function(ms) {
+	var ret = "";
+
+	const ms2h = 1 / (60 * 60 * 1000);
+	const ms2m = 1 / (60 * 1000);
+	const ms2s = 1 / (1000);
+
+	var h = Math.floor(ms * ms2h);
+	ms -= h / ms2h;
+	var m = Math.floor(ms * ms2m);
+	ms -= m / ms2m;
+	var s = Math.floor(ms * ms2s);
+	ms -= s / ms2s;
+
+	ret += (h > 0) ? (h + "h") : ("");
+	ret += ((ret.length > 0) ? (" ") : ("")) + ((m > 0 || ret.length) ? (m + "m") : (""));
+	ret += ((ret.length > 0) ? (" ") : ("")) + ((s > 0 || ret.length) ? (s + "s") : (""));
+	ret += ((ret.length > 0) ? (" ") : ("")) + ms + "ms";
+	return ret;
+};
+
 var millisecondsToMidnight = function() {
 	var now = new Date();
 	var then = new Date(now);
@@ -39,6 +60,15 @@ hours2Hm = function(num) {
 	var hours = Math.floor(num / 60);
 	var minutes = num % 60;
 	return lpad("" + hours, 2) + ":" + lpad("" + minutes, 2);
+};
+mins2Hm = function(num) {
+	return hours2Hm(num/60);
+};
+secs2Hm = function(num) {
+	return mins2Hm(num/60);
+};
+ms2Hm = function(num) {
+	return secs2Hm(num/1000);
 };
 
 hexToRgb = function(hex) {
@@ -92,6 +122,14 @@ colorLuminance = function(hex, lum) {
 	// + "'");
 
 	return rgb;
+};
+
+plogger = function(l) {
+	msg = moment().format("HH:mm:ss") + "| " + l;
+	$('.console-log').each(function() {
+		$(this).append("\n" + msg);
+	});
+	logger(l);
 };
 
 logger = function(l, err) {

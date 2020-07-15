@@ -118,6 +118,7 @@ function getSensorData($env) {
 				<li class="nav-item active"><a class="nav-link" id="history-tab" href="#history-content" data-ng-click="preventRefresh($event)" data-toggle="tab" role="tab" aria-controls="history" aria-selected="true">History</a></li>
 				<li class="nav-item"><a class="nav-link" id="schedule-tab" href="#schedule-content" data-ng-click="preventRefresh($event)" data-toggle="tab" role="tab" aria-controls="schedule" aria-selected="false">Schedule</a></li>
 				<li class="nav-item"><a class="nav-link" id="server-tab" href="#server-content" data-ng-click="preventRefresh($event)" data-toggle="tab" role="tab" aria-controls="server" aria-selected="false">Server</a></li>
+				<li class="nav-item"><a class="nav-link" id="logger-tab" href="#logger-content" data-ng-click="preventRefresh($event)" data-toggle="tab" role="tab" aria-controls="logger" aria-selected="false">Console</a></li>
 			</ul>
 			<div class="tab-content" id="data-content">
 				<div class="tab-pane active" id="history-content" role="tabpanel" aria-labelledby="history-tab">
@@ -167,6 +168,9 @@ function getSensorData($env) {
 					<div class="chart-container" data-ng-hide="server_cpu_load_graph && server_cpu_wait_graph && server_temperature_graph && server_mem_load_graph && server_hdd_load_graph">
 						<img src="/gfx/ajax-loader-bar.gif" alt="Server data loading" />
 					</div>
+				</div>
+				<div class="tab-pane fade" id="logger-content" role="tabpanel" aria-labelledby="logger-tab">
+				<pre class="console-log">Console log</pre>
 				</div>
 			</div>
 

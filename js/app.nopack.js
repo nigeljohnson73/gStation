@@ -22,6 +22,27 @@ var objectDataByName = function(arr, name) {
 	return ret;
 };
 
+var prettyDuration = function(ms) {
+	var ret = "";
+
+	const ms2h = 1 / (60 * 60 * 1000);
+	const ms2m = 1 / (60 * 1000);
+	const ms2s = 1 / (1000);
+
+	var h = Math.floor(ms * ms2h);
+	ms -= h / ms2h;
+	var m = Math.floor(ms * ms2m);
+	ms -= m / ms2m;
+	var s = Math.floor(ms * ms2s);
+	ms -= s / ms2s;
+
+	ret += (h > 0) ? (h + "h") : ("");
+	ret += ((ret.length > 0) ? (" ") : ("")) + ((m > 0 || ret.length) ? (m + "m") : (""));
+	ret += ((ret.length > 0) ? (" ") : ("")) + ((s > 0 || ret.length) ? (s + "s") : (""));
+	ret += ((ret.length > 0) ? (" ") : ("")) + ms + "ms";
+	return ret;
+};
+
 var millisecondsToMidnight = function() {
 	var now = new Date();
 	var then = new Date(now);
@@ -40,6 +61,15 @@ hours2Hm = function(num) {
 	var hours = Math.floor(num / 60);
 	var minutes = num % 60;
 	return lpad("" + hours, 2) + ":" + lpad("" + minutes, 2);
+};
+mins2Hm = function(num) {
+	return hours2Hm(num/60);
+};
+secs2Hm = function(num) {
+	return mins2Hm(num/60);
+};
+ms2Hm = function(num) {
+	return secs2Hm(num/1000);
 };
 
 hexToRgb = function(hex) {
@@ -93,6 +123,14 @@ colorLuminance = function(hex, lum) {
 	// + "'");
 
 	return rgb;
+};
+
+plogger = function(l) {
+	msg = moment().format("HH:mm:ss") + "| " + l;
+	$('.console-log').each(function() {
+		$(this).append("\n" + msg);
+	});
+	logger(l);
 };
 
 logger = function(l, err) {
@@ -346,25 +384,8 @@ class Duration {
 	};
 
 	prettyEnd() {
-		var ret = "";
-
-		const ms2h = 1 / (60 * 60 * 1000);
-		const ms2m = 1 / (60 * 1000);
-		const ms2s = 1 / (1000);
-
 		var ms = this.end();
-		var h = Math.floor(ms * ms2h);
-		ms -= h / ms2h;
-		var m = Math.floor(ms * ms2m);
-		ms -= m / ms2m;
-		var s = Math.floor(ms * ms2s);
-		ms -= s / ms2s;
-
-		ret += (h > 0) ? (h + "h") : ("");
-		ret += ((ret.length > 0) ? (" ") : ("")) + ((m > 0 || ret.length) ? (m + "m") : (""));
-		ret += ((ret.length > 0) ? (" ") : ("")) + ((s > 0 || ret.length) ? (s + "s") : (""));
-		ret += ((ret.length > 0) ? (" ") : ("")) + ms + "ms";
-		return ret;
+		return prettyDuration(ms);
 	};
 };
 // When the ticker comes back every 5 seconds wrap the adding of asensor
@@ -932,7 +953,7 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 				today : moment().format("MMDD")
 			};
 		}, function(data) {
-			logger(o.api + "(): Data transfer: " + d.prettyEnd());
+			plogger(o.api + "(): Data transfer: " + d.prettyEnd());
 			logger(data, "dbg");
 			if (data.success) {
 				o.success(data);
@@ -950,10 +971,11 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 
 			if (o.requeue) {
 				// Set up a timer to add this back into the queue at midnight
-				logger("Call to '" + o.api + "' being requeued", "dbg")
+				ms = Math.max(millisecondsToMidnight(), 5 * 60 * 1000);
+				plogger(o.api + "(): requeue in " + prettyDuration(ms));
 				$timeout(function() {
 					$scope.api_calls.push(o);
-				}, Math.max(millisecondsToMidnight(), 5 * 60 * 1000));
+				}, ms);
 			} else {
 				logger("Call to '" + o.api + "' singleshot - no requeue", "dbg")
 			}
