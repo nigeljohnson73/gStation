@@ -359,6 +359,23 @@ cover {
 	color: #333;
 }
 
+.alarm-holder.alarm-never {
+	background-color: #cfc;
+	color: #999;
+}
+
+.alarm-holder.alarm-yes {
+	background-color: #fc9;
+	color: #666;
+}
+
+.alarm-holder.alarm-now {
+	border-color: #000;
+	background-color: #c00;
+	color: #ccc;
+	background-color: #c00;
+}
+
 .sensor-holder.light-moon .name {
 	color: #fff;
 }
