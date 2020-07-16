@@ -4,7 +4,7 @@
 //$api_sensor_display_history = 10 * 60; // seconds per history sample to return to the browser - each point will be the average of this amount of time in seconds
 
 // Displaying demands for these paramters where you don't control them is annoying, so hide them if they are not required
-// $control_temperture = true;
+// $control_temperature = true;
 // $control_humidity = true;
 
 // Sensor zero is the PI itself.

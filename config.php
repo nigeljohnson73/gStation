@@ -6,7 +6,7 @@ $sensor_age_alarm = 2*60;
 $show_empty = false; // Do you want triggers and sensors and things that are empty to be displayed
 $api_sensor_display_history = 10 * 60; // seconds per history sample to return to the browser - each point will be the average of this amount of time in seconds
 
-$control_temperture = true;
+$control_temperature = true;
 $control_humidity = true;
 
 $sensors = [ ];

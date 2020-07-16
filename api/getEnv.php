@@ -5,7 +5,7 @@ global $sensors;
 global $triggers;
 global $show_empty;
 global $loc;
-global $control_temperture, $control_humidity;
+global $control_temperature, $control_humidity;
 
 function envExtract($what, $where, $override = null) {
 	$ret = new StdClass ();
@@ -54,7 +54,7 @@ if (isset ( $env->location->lat ) && isset ( $env->location->lon )) {
 // Extract raw info
 $env->info = envExtract ( "INFO", $dbenv );
 $env->control = new StdClass ();
-$env->control->temperature = $control_temperture;
+$env->control->temperature = $control_temperature;
 $env->control->humidity = $control_humidity;
 
 // Extract and process the server data block
@@ -63,7 +63,7 @@ $env->data->tod = str_replace ( "'", "", $env->data->tod );
 
 // Extract and process the system demands
 $env->demand = envExtract ( "DEMAND", $dbenv );
-if (! $control_temperture) {
+if (! $control_temperature) {
 	unset ( $env->demand->temperature );
 }
 if (! $control_humidity) {
