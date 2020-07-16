@@ -4,7 +4,7 @@ $ot = new ProcessTimer ();
 
 $ret = startJsonRespose ();
 $ret->history = ( object ) [ ];
-global $api_sensor_display_history;
+global $api_sensor_display_history, $control_temperature;
 
 $activity_db = 0;
 $activity_proc = 0;
@@ -20,8 +20,13 @@ $activity_db = $pt->duration ();
 $pt = new ProcessTimer ();
 if ($res && count ( $res )) {
 	$ret->history = processHistoryData ( $res );
-}else{
-	echo "No Temp data\n";
+}
+if (! $control_temperature) {
+	foreach($ret->history as $k => $v) {
+		if($v->name == "DEMAND") {
+			unset($ret->history[$k]);
+		}
+	}
 }
 $activity_proc = $pt->duration ();
 
