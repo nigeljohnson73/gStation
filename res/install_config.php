@@ -3,6 +3,10 @@
 //$loc = getHostname(); // "gsDev"; // Used for the browser and alerts
 //$api_sensor_display_history = 10 * 60; // seconds per history sample to return to the browser - each point will be the average of this amount of time in seconds
 
+// Displaying demands for these paramters where you don't control them is annoying, so hide them if they are not required
+// $control_temperture = true;
+// $control_humidity = true;
+
 // Sensor zero is the PI itself.
 $sensors [1]->type = "DS18B20"; // EMPTY, DS18B20, DHT11 or DHT22 // Root Zone (ZONE1)
 $sensors [2]->type = "DHT22"; // EMPTY, DS18B20, DHT11 or DHT22   // Air Zone (ZONE2)
@@ -51,17 +55,6 @@ $conditions [] = "T1 IF [[ZONE1.TEMPERATURE]] < [[DEMAND.TEMPERATURE]]";       /
 $conditions [] = "T2 IF [[DEMAND.LIGHT]] == 'SUN'";                            // Light on if it's day time
 $conditions [] = "T3 IF [[ZONE2.TEMPERATURE]] > ([[ZONE3.TEMPERATURE]] + 5)";  // Vent the atmosphere if its 5 degrees over ambient
 $conditions [] = "T3 IF [[DATA.HOUR]] >= 0.1 && [[DATA.HOUR]] < 0.2";          // vent the air overnight regarldess of temperature
-
-$graphs = [ ];
-$graphs [] = "temperature.Zone3 (Ambient), Zone2 (Air zone), Zone1 (Root zone), Demand";
-$graphs [] = "humidity.Zone3 (Ambient), Zone2 (Air zone), Demand";
-$graphs [] = "trigger.T3 (Vent), T2 (Light), T1 (Heat)";
-$graphs [] = "cpu_load.PI";
-$graphs [] = "temperature.PI";
-//$graphs [] = "sensor_age.Zone3 (".$sensors[3]->type."), Zone2 (".$sensors[2]->type."), Zone1 (".$sensors[1]->type.")";
-$graphs [] = "cpu_wait.PI";
-$graphs [] = "sd_load.PI";
-$graphs [] = "mem_load.PI";
 
 // If you're using DarkSky, this is where you configure the parameters
 // You can override the use of DarkSky with the parameters below, but you can also continue to collect data

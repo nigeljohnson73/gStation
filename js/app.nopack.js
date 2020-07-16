@@ -764,6 +764,20 @@ app.service('apiSvc', [ "$http", "$timeout", "$interval", function($http, $timeo
 		});
 	};
 } ]);
+/*
+           _              _       _           _____          
+          | |            | |     | |         / ____|         
+  ___  ___| |__   ___  __| |_   _| | ___ _ _| (_____   _____ 
+ / __|/ __| '_ \ / _ \/ _` | | | | |/ _ \ '__\___ \ \ / / __|
+ \__ \ (__| | | |  __/ (_| | |_| | |  __/ |  ____) \ V / (__ 
+ |___/\___|_| |_|\___|\__,_|\__,_|_|\___|_| |_____/ \_/ \___|
+
+ */
+app.service('schedulerSvc', [ "$interval", function($interval) {
+	schedulerSvc = this; // cuz "this" changes later
+	schedulerSvc._queue = []; // holds the call queue
+
+} ]);
 app.controller('AboutCtrl', [ "$scope", function($scope) {
 	$scope.app_id = app_id;
 	$scope.build_date = build_date;
@@ -972,7 +986,7 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 			if (o.requeue) {
 				// Set up a timer to add this back into the queue at midnight
 				ms = Math.max(millisecondsToMidnight(), 5 * 60 * 1000);
-				plogger(o.api + "(): requeue in " + prettyDuration(ms));
+				plogger(o.api + "(): requeue in " + prettyDuration(ms) + " (" + ms + "ms)");
 				$timeout(function() {
 					$scope.api_calls.push(o);
 				}, ms);

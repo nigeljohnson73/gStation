@@ -4,6 +4,8 @@ $ret = startJsonRespose ();
 global $sensors;
 global $triggers;
 global $show_empty;
+global $loc;
+global $control_temperture, $control_humidity;
 
 function envExtract($what, $where, $override = null) {
 	$ret = new StdClass ();
@@ -11,6 +13,7 @@ function envExtract($what, $where, $override = null) {
 		// echo "Checking '$what' against '$k'\n";
 		if (strpos ( $k, $what ) !== false) {
 			list ( $n, $p ) = explode ( ".", $k );
+			$n = $n;
 			if ($override) {
 				$p = $override;
 			} else {
@@ -50,6 +53,9 @@ if (isset ( $env->location->lat ) && isset ( $env->location->lon )) {
 
 // Extract raw info
 $env->info = envExtract ( "INFO", $dbenv );
+$env->control = new StdClass ();
+$env->control->temperature = $control_temperture;
+$env->control->humidity = $control_humidity;
 
 // Extract and process the server data block
 $env->data = envExtract ( "DATA", $dbenv );
@@ -57,6 +63,12 @@ $env->data->tod = str_replace ( "'", "", $env->data->tod );
 
 // Extract and process the system demands
 $env->demand = envExtract ( "DEMAND", $dbenv );
+if (! $control_temperture) {
+	unset ( $env->demand->temperature );
+}
+if (! $control_humidity) {
+	unset ( $env->demand->humidity );
+}
 $env->demand->light = str_replace ( "'", "", $env->demand->light );
 $env->demand->name = $sensors [6]->name;
 $env->demand->label = $sensors [6]->label;
@@ -67,7 +79,7 @@ unset ( $env->demand->alarm );
 
 $env->pi = envExtract ( "PI", $dbenv );
 $env->pi->name = "PI";
-$env->pi->label = $loc;//gethostname();//"CPU";
+$env->pi->label = $loc; // gethostname();//"CPU";
 $env->pi->colour = "#600";
 
 // Extract and process sensor information

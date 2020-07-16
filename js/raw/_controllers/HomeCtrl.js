@@ -190,7 +190,7 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 			if (o.requeue) {
 				// Set up a timer to add this back into the queue at midnight
 				ms = Math.max(millisecondsToMidnight(), 5 * 60 * 1000);
-				plogger(o.api + "(): requeue in " + prettyDuration(ms));
+				plogger(o.api + "(): requeue in " + prettyDuration(ms) + " (" + ms + "ms)");
 				$timeout(function() {
 					$scope.api_calls.push(o);
 				}, ms);

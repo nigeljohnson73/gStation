@@ -3,8 +3,7 @@
 # As this script is run quite late in the boot, switch the indicator to steady state here
 /webroot/gStation/sh/ledbeat.sh steady
 
-# TODO: Work ou twhy this ocilates and fix it
-# 0x3d is the 1.5" display, 0x3c is the 0.96" one
+# 0x3d is the 1.5" display, 0x3c is the 0.96" one, so try and detect a device on 0x3d to use the new logic
 avail="$( i2cget -y 1 0x3d 2>&1 )"
 
 if [ "$avail" != "Error: Read failed" ]; then
