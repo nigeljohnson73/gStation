@@ -152,17 +152,17 @@ function getSensorData($env) {
 					</div>
 				</div>
 				<div class="tab-pane fade" id="server-content" role="tabpanel" aria-labelledby="server-tab">
-					<div class='sensor-container' data-ng-show='env.pi'>
-						<div class='sensor-holder alarm-holder alarm-{{env.pi.frequency_capped}}'>
+					<div class='alarm-container' data-ng-show='env.pi'>
+						<div class='alarm-holder alarm-{{env.pi.frequency_capped}}'>
 							<div class='name'>FREQ</div>
 						</div>
-						<div class='sensor-holder alarm-holder alarm-{{env.pi.soft_temperature_limited}}'>
+						<div class='alarm-holder alarm-{{env.pi.soft_temperature_limited}}'>
 							<div class='name'>TEMP</div>
 						</div>
-						<div class='sensor-holder alarm-holder alarm-{{env.pi.throttled}}'>
+						<div class='alarm-holder alarm-{{env.pi.throttled}}'>
 							<div class='name'>THROT</div>
 						</div>
-						<div class='sensor-holder alarm-holder alarm-{{env.pi.under_voltage}}'>
+						<div class='alarm-holder alarm-{{env.pi.under_voltage}}'>
 							<div class='name'>VOLT</div>
 						</div>
 					</div>

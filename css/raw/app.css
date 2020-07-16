@@ -326,13 +326,13 @@ cover {
 	text-transform: capitalize;
 }
 
-.colour-container, .trigger-container, .sensor-container {
+.colour-container, .trigger-container, .sensor-container, .alarm-holder {
 	text-align: center;
 	vertical-align: top;
 	margin-bottom: 10px;
 }
 
-.colour-holder, .trigger-holder, .sensor-holder {
+.colour-holder, .trigger-holder, .sensor-holder, .alarm-holder {
 	display: inline-block;
 	margin: 0 auto;
 	width: 80px;
@@ -343,7 +343,7 @@ cover {
 	margin-right: 5px;
 }
 
-.sensor-holder {
+.sensor-holder, .alarm-holder {
 	width: 120px;
 	border: solid 1px #ccc;
 	border-radius: 10px;
@@ -371,7 +371,6 @@ cover {
 
 .alarm-holder.alarm-now {
 	border-color: #000;
-	background-color: #c00;
 	color: #ccc;
 	background-color: #c00;
 }
