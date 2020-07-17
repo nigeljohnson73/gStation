@@ -1016,6 +1016,20 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 	 */
 
 	$scope.api_calls.push({
+		api : "history/getSensorTemperature",
+		success : function(data) {
+			$scope.history.sensor_temperature = data.history;
+		}
+	});
+
+	$scope.api_calls.push({
+		api : "history/getSensorHumidity",
+		success : function(data) {
+			$scope.history.sensor_humidity = data.history;
+		}
+	});
+
+	$scope.api_calls.push({
 		api : "schedule/getTemperature",
 		requeue : true,
 		success : function(data) {
@@ -1088,20 +1102,6 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 		api : "history/getServerHddLoad",
 		success : function(data) {
 			$scope.history.server_hdd_load = data.history;
-		}
-	});
-
-	$scope.api_calls.push({
-		api : "history/getSensorTemperature",
-		success : function(data) {
-			$scope.history.sensor_temperature = data.history;
-		}
-	});
-
-	$scope.api_calls.push({
-		api : "history/getSensorHumidity",
-		success : function(data) {
-			$scope.history.sensor_humidity = data.history;
 		}
 	});
 
