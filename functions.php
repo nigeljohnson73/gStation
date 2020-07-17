@@ -1,4 +1,5 @@
 <?php
+ini_set ( 'max_execution_time', 300 );
 ini_set ( 'memory_limit', '128M' );
 ini_set ( 'post_max_size', '32M' );
 ini_set ( 'upload_max_filesize', '16M' );
@@ -869,7 +870,7 @@ function directoryListing($dirname, $extensoes = null) {
 	$files = array ();
 	$dir = @ opendir ( $dirname );
 	while ( $dir && false !== ($file = readdir ( $dir )) ) {
-		//$matches = array ();
+		// $matches = array ();
 		if ($file != "." && $file != ".." && $file != ".svn") {
 			for($i = 0; $i < count ( $extensoes ); $i ++) {
 				if ($extensoes [$i] [0] == "*") {
@@ -1065,7 +1066,6 @@ function getBackTrace() {
 
 	return $ret;
 }
-
 
 /**
  * **********************************************************
