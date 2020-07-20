@@ -1,6 +1,8 @@
 <?php
 include_once (dirname ( __FILE__ ) . "/../functions.php");
 
+global $argv;
+
 if ("" . @$argv [2] == "") {
 	echo $argv [0] . " <src file> <original file>\n";
 	exit ( 0 );

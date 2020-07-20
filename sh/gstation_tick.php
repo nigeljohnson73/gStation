@@ -1,31 +1,19 @@
 <?php
 include_once (dirname ( __FILE__ ) . "/../functions.php");
 
-// // Delete from here
-// $tsnow = timestampNow ();
-// echo "Normalising Database\n";
-// setupTables ();
-// echo "Setting up GPIO\n";
-// setupGpio ();
-// tick ();
-// exit ( 0 );
-// // Delete to here
-
-ob_start();
-$mypid = getMyPid();
-//$cmd = "ps -ef | grep ".basename($argv[0])." | grep -v grep| grep tmp | tee /tmp/ii.txt | sort -rk5 | awk '{print $2 , $5}'";
-$cmd = "ps -ef | grep ".basename($argv[0])." | grep -v grep | grep -v tmp | grep -v vi | tee /tmp/pid_list.txt | sort -rk5 | awk '{print $2 , $5}'";
-//echo "Running cmd: ".$cmd."\n";
-list($pid, $tm) = explode(" ", trim(system($cmd)));
-//echo "return: PID: '".$pid."', MYPID: '".$mypid."', TIME: '".$tm."'\n";
-if(strlen($pid) >0 && $pid != $mypid ) {
-logger(LL_ERROR, basename($argv[0])." already running since ".$tm.", exiting");
-ob_end_clean();
-echo $logger->getString();
-exit(100);
+// Check to see if we are alread running (backed up pi zero for example)
+ob_start ();
+global $logger, $argv;
+$mypid = getMyPid ();
+$cmd = "ps -ef | grep " . basename ( $argv [0] ) . " | grep -v grep | grep -v tmp | grep -v vi | tee /tmp/pid_list.txt | sort -rk5 | awk '{print $2 , $5}'";
+list ( $pid, $tm ) = explode ( " ", trim ( system ( $cmd ) ) );
+if (strlen ( $pid ) > 0 && $pid != $mypid) {
+	logger ( LL_ERROR, basename ( $argv [0] ) . " already running since " . $tm . ", exiting" );
+	ob_end_clean ();
+	echo $logger->getString ();
+	exit ( 100 );
 }
-ob_end_clean();
-
+ob_end_clean ();
 
 logger ( LL_DEBUG, "tick(): started" );
 $call_delay = 5;

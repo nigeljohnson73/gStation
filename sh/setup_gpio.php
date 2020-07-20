@@ -1,6 +1,7 @@
 <?php
 include_once (dirname ( __FILE__ ) . "/../functions.php");
 
+global $argv, $install_tag;
 if ("" . @$argv [1] == "") {
 	echo "You need to supply a board version on the command line\n";
 	exit ( 0 );

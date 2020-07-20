@@ -4,25 +4,25 @@ $tsnow = timestampNow ();
 
 echo "\nUpdating station at " . timestampFormat ( $tsnow, "Y-m-d\TH:i:s T" ) . "\n";
 // if ($darksky_key != "") {
-// 	echo "Location: " . $loc . " (" . latToDms ( $lat ) . ", " . lngToDms ( $lng ) . ")\n\n";
+// echo "Location: " . $loc . " (" . latToDms ( $lat ) . ", " . lngToDms ( $lng ) . ")\n\n";
 // } else {
-// 	echo "Location: SIMULATED ENVIRONMENT\n\n";
+// echo "Location: SIMULATED ENVIRONMENT\n\n";
 // }
 
 if (1) {
 	setupTables ();
 	setupGpio ();
-	
+
 	echo "Rebuilding data model\n";
 	rebuildDataModel ();
-	
-// 	echo "\n";
-	
+
+	// echo "\n";
+
 	echo "Rebuilding sensor and trigger configurations\n";
-	setupSensorsScript();
-	setupTriggersScript();
-	
-// 	echo "\n";
+	setupSensorsScript ();
+	setupTriggersScript ();
+
+	// echo "\n";
 
 	echo "Update complete\n\n";
 }
@@ -45,6 +45,7 @@ if (1) {
 // echo "March 23, and August 29:\n" . ob_print_r ( $model );
 // echo "\n";
 
+global $logger;
 $str = $logger->getString ();
 if (strlen ( trim ( $str ) ) == 0) {
 	$str = "*** NO LOG OUTPUT ***";
