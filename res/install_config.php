@@ -1,4 +1,8 @@
 <?php
+// If you are using a loaded pi zero, you may want to extend these if you get failures a lot
+//$sensor_age = 30; // sensor data older than this in seconds will be ignored
+//$sensor_age_alarm = 2*60; // If you haven't seen any data for a sensor for this long, assume it's dead.
+
 // Update this to where you are and the name you want to see in the browser
 //$loc = getHostname(); // "gsDev"; // Used for the browser and alerts
 //$api_sensor_display_history = 10 * 60; // seconds per history sample to return to the browser - each point will be the average of this amount of time in seconds
@@ -29,8 +33,8 @@ $sensors [3]->type = "DHT22"; // EMPTY, DS18B20, DHT11 or DHT22   // Ambient (ZO
 // Triggers start at zero
 $triggers [0]->type = "SSR"; // EMPTY, SSR, iSSR or LED           // Heater
 $triggers [1]->type = "SSR"; // EMPTY, SSR, iSSR or LED           // Lighting
-$triggers [2]->type = "SSR"; // EMPTY, SSR, iSSR or LED           // Air-zone vent
-//$triggers [3]->type = "EMPTY"; // EMPTY, SSR, iSSR or LED
+$triggers [2]->type = "SSR"; // EMPTY, SSR, iSSR or LED           // fogger
+$triggers [3]->type = "SSR"; // EMPTY, SSR, iSSR or LED           // Vent
 //$triggers [4]->type = "EMPTY"; // EMPTY, SSR, iSSR or LED
 //$triggers [5]->type = "EMPTY"; // EMPTY, SSR, iSSR or LED
 
