@@ -127,6 +127,10 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 				$scope.server_mem_load_graph = updateMinuteGraph($scope.server_mem_load_graph, '#server-mem_load-graph', $scope.server_mem_load, "Memory Usage", "%");
 				$scope.server_hdd_load_graph = updateMinuteGraph($scope.server_hdd_load_graph, '#server-hdd_load-graph', $scope.server_hdd_load, "Storage Usage", "%");
 
+				// Hide the demand box if there is no demand data
+				if(data.env.demand.light == "") {
+					$scope.env.demand = null;
+				}
 			} else {
 				$scope.env = null;
 			}

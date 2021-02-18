@@ -62,7 +62,7 @@ $env->data = envExtract ( "DATA", $dbenv );
 $env->data->tod = str_replace ( "'", "", $env->data->tod );
 
 // Extract and process the system demands
-$env->demand = envExtract ( "DEMAND", $dbenv );
+if($use_demand) $env->demand = envExtract ( "DEMAND", $dbenv );
 if (! $control_temperature) {
 	unset ( $env->demand->temperature );
 }

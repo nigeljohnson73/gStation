@@ -14,7 +14,7 @@ echo "Sample point duration : " . durationStamp ( $api_sensor_display_history ) 
 $pt = new ProcessTimer ();
 $res = getHistoryData ( "TEMPERATURE", [ 
 		"PI"
-], true );
+], $use_demand );
 $activity_db = $pt->duration ();
 
 $pt = new ProcessTimer ();
