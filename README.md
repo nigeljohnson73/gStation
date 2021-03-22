@@ -11,6 +11,8 @@
 
 ## Overview
 
+Moving stuff about this is all out of date at the moment.
+
 Being designed to read 5 sensors (4 one-wire and a serial CO2 monitor) and control 6 triggers meaning you can have up to 4 reptile vivariums or 
 Deep Water Culture (DWC) buckets (Assuming they have the same envirnomental requirements), or maybe a much more complex single growing environment, 
 requiring heating/cooling/dehumidfying/humidifying/venting in 3 zones and lighting across the whole environment... or a combination of any of that.
