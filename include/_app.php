@@ -1332,7 +1332,12 @@ function readSensorRaw_DS18B20($sensor) {
 					$dummy = $dummy;
 					echo ("Got temp: " . $temp . "\n");
 					$val = (( double ) $temp) / 1000.0;
-					echo ("Set val: " . $val . "\n");
+					if($val > 60) {
+						echo "Temp out of expected range\n";
+						$val = null;
+					} else {
+						echo ("Set val: " . $val . "\n");
+					}
 					$output = null;
 				} else {
 					echo ("CRC check failed\n");
