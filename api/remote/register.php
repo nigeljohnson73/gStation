@@ -9,6 +9,7 @@ if (isset ( $_POST ["sleep"] )) {
 } else {
 	echo "No sleep time supplied\n";
 }
+
 if (isset ( $_POST ["data"] )) {
 	echo "data supplied: '" . $_POST ["data"] . "'\n";
 } else {
