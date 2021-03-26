@@ -15,7 +15,7 @@ $sensors [] = ( object ) [
 		"name" => "PI",
 		"label" => "PI",
 		"type" => "PI",
-		"colour" => "#660000"
+		"colour" => "#009900"
 ];
 // $sensors [] = ( object ) [
 // "name" => "ZONE1",
@@ -45,12 +45,12 @@ $sensors [] = ( object ) [
 // "name" => "ZONE2", // Generic air zone
 // "type" => "EMPTY" // EMPTY or MH-Z19B
 // ];
-$sensors [] = ( object ) [ // This sensor is for display purposes
-		"name" => "EXPECT",
-		"label" => "EXPECT",
-		"type" => "EXPECT",
-		"colour" => "#fac" // Pink
-];
+// $sensors [] = ( object ) [ // This sensor is for display purposes
+// 		"name" => "EXPECT",
+// 		"label" => "EXPECT",
+// 		"type" => "EXPECT",
+// 		"colour" => "#fac" // Pink
+// ];
 
 $triggers = [ ];
 // $triggers [] = ( object ) [
@@ -126,7 +126,7 @@ $outlier_humidity_max = 95;
 /**
  * START REBUILD
  */
-$rebuild_from = "Simulation"; // 'Simulation', 'Demands' or filename in the locations directory, eg 'SZ.Malkerns.json'
+$rebuild_from = "Simulation"; // 'Demand', 'Simulation' or filename in the locations directory, eg 'SZ.Malkerns.json'
 /**
  * END REBUILD
  */

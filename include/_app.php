@@ -1,6 +1,16 @@
 <?php
 
-function setTrigger($name, $state) {
+function getRemoteData($url, $timeout = 5) {
+	$ch = curl_init ();
+	curl_setopt ( $ch, CURLOPT_URL, $url );
+	curl_setopt ( $ch, CURLOPT_TIMEOUT, $timeout );
+	curl_setopt ( $ch, CURLOPT_RETURNTRANSFER, true );
+	$response = curl_exec ( $ch );
+	curl_close ( $ch );
+	return $response;
+}
+
+function setTrigger($name, $state, $timeout = 2) {
 	global $mysql;
 	$ch = curl_init ();
 
@@ -9,16 +19,17 @@ function setTrigger($name, $state) {
 	) );
 	if ($ips and count ( $ips )) {
 		$ip = $ips [0] ["ip"];
+		$url = "http://" . $ip . "/api/trigger/set";
 
-		curl_setopt ( $ch, CURLOPT_URL, "http://" . $ip . "/api/trigger/set" );
+		curl_setopt ( $ch, CURLOPT_URL, $url );
+		curl_setopt ( $ch, CURLOPT_TIMEOUT, $timeout );
+		curl_setopt ( $ch, CURLOPT_RETURNTRANSFER, true );
+
 		curl_setopt ( $ch, CURLOPT_POST, 1 );
 		curl_setopt ( $ch, CURLOPT_POSTFIELDS, "name=" . urlencode ( $name ) . "&state=" . urlencode ( $state ) );
 		curl_setopt ( $ch, CURLOPT_HTTPHEADER, array (
 				'Content-Type: application/x-www-form-urlencoded'
 		) );
-
-		// receive server response ...
-		curl_setopt ( $ch, CURLOPT_RETURNTRANSFER, true );
 
 		$server_output = curl_exec ( $ch );
 
@@ -30,8 +41,15 @@ function setTrigger($name, $state) {
 		// } else {
 
 		// }
+		if ($server_output === false) {
+			logger ( LL_INF, "Set trigger '" . $name . "' to '" . (($state) ? ("ON") : ("OFF")) . "' - '" . $url . "' timed out" );
+			return false;
+		} else {
+			logger ( LL_INF, "Set trigger '" . $name . "' to '" . (($state) ? ("ON") : ("OFF")) . "' - success" );
+			return true;
+		}
 	} else {
-		echo "FAILED\n";
+		// echo "FAILED\n";
 		return false;
 	}
 	return true;
@@ -436,14 +454,14 @@ function setupTables() {
 	// )";
 	// $mysql->query ( $str );
 
-// 	$str = "
-// 		CREATE TABLE IF NOT EXISTS expects (
-// 			event BIGINT UNSIGNED NOT NULL,
-// 			param VARCHAR(255) NOT NULL,
-// 			value VARCHAR(255) NOT NULL,
-// 			KEY(event),
-// 			KEY(param)
-// 	)";
+	// $str = "
+	// CREATE TABLE IF NOT EXISTS expects (
+	// event BIGINT UNSIGNED NOT NULL,
+	// param VARCHAR(255) NOT NULL,
+	// value VARCHAR(255) NOT NULL,
+	// KEY(event),
+	// KEY(param)
+	// )";
 	$mysql->query ( $str );
 
 	clearLogs ();
@@ -453,7 +471,7 @@ function clearLogs() {
 	global $mysql, $logger;
 	$tsnow = timestampNow ();
 	$ts_delete = timestampAddDays ( $tsnow, - 1 );
-	$mysql->query ( "DELETE FROM expects where event < " . $ts_delete );
+	// $mysql->query ( "DELETE FROM expects where event < " . $ts_delete );
 	$mysql->query ( "DELETE FROM sensors where event < " . $ts_delete );
 	// $mysql->query ( "DELETE FROM triggers where event < " . $ts_delete );
 	$logger->clearLogs ();
@@ -1087,7 +1105,7 @@ function rebuildDataModel() {
 			// $model[timestampFormat(time2Timestamp($sunrise), "md")] = $v;
 		}
 		$location = $obj->location;
-	} else if (strtoupper ( $rebuild_from ) == "EXPECTS") {
+	} else if (strtoupper ( $rebuild_from ) == "DEMAND") {
 		if (count ( $expect )) {
 			logger ( LL_INFO, "rebuildDataModel(): Rebuilding from Demand Ramping" );
 			$location->name = "Demand Ramping";
@@ -1849,16 +1867,6 @@ function readSensor($i) {
 	}
 }
 
-function getRemoteData($url, $timeout = 4) {
-	$ch = curl_init ();
-	curl_setopt ( $ch, CURLOPT_URL, $url );
-	curl_setopt ( $ch, CURLOPT_RETURNTRANSFER, true );
-	curl_setopt ( $ch, CURLOPT_TIMEOUT, $timeout );
-	$response = curl_exec ( $ch );
-	curl_close ( $ch );
-	return $response;
-}
-
 function checkRegistration() {
 	global $mysql;
 	$tsnow = timestampNow ();
@@ -2187,8 +2195,7 @@ function tick() {
 	$nowOffset = timestampFormat ( $tsnow, "H" ) * 60 * 60 + timestampFormat ( $tsnow, "i" ) * 60 + timestampFormat ( $tsnow, "s" );
 
 	$model = getModel ( $tsnow );
-	echo "\nModel data:\n";
-	print_r ( $model );
+	echo "\nModel data: " . ob_print_r ( $model ) . "\n";
 
 	// Prepare the storage for later
 	$data = array (); // Whre we will store sensors and trigger data
@@ -2308,24 +2315,6 @@ function tick() {
 
 	echo "\n";
 
-	echo "Checking sensor registrations\n";
-	checkRegistration ();
-	echo "Complete\n\n";
-
-	echo "Gathering sensor data\n";
-	$sensors = gatherSensors ();
-	$data = array_merge ( $data, $sensors );
-	echo "Complete\n\n";
-
-	echo "Checking alarms\n";
-	$data = checkAlarms ( $data );
-	echo "Complete\n\n";
-	// echo "Writing LASTCHECK: '" . @$data ["INFO.LASTCHECK"] . "'\n";
-
-	echo "Checking conditions\n";
-	$data = checkConditions ( $data );
-	echo "Complete\n\n";
-
 	$retvar = 0;
 	$output = "";
 	$cmd = "hostname 2>/dev/null";
@@ -2348,7 +2337,26 @@ function tick() {
 	$data ["INFO.HOSTNAME"] = $hostname;
 	$data ["INFO.NEXTSUN"] = $next_sun;
 
+	echo "Checking sensor registrations\n";
+	checkRegistration ();
+	echo "Complete\n\n";
+
+	echo "Gathering sensor data\n";
+	$sensors = gatherSensors ();
+	$data = array_merge ( $data, $sensors );
+	echo "Complete\n\n";
+
+	echo "Checking alarms\n";
+	$data = checkAlarms ( $data );
+	echo "Complete\n\n";
+	// echo "Writing LASTCHECK: '" . @$data ["INFO.LASTCHECK"] . "'\n";
+
+	echo "Checking conditions\n";
+	$data = checkConditions ( $data );
+	echo "Complete\n\n";
+
 	ksort ( $data );
+	echo "Environment: " . ob_print_r ( $data );
 	$estr = json_encode ( $data );
 	setConfig ( "env", $estr );
 	file_put_contents ( "/tmp/env.gstation.json", $estr );
