@@ -128,8 +128,8 @@ function sendPushover($message) {
 	$exec = "php " . realpath ( dirname ( __FILE__ ) . "/../sh/send_pushover.php" ) . " \"" . $message . "\" > /tmp/pushover.log 2>&1 &";
 	exec ( $exec );
 	$log = "Executed: " . $exec;
-	echo $log . "\n";
-	logger ( LL_INF, $log );
+	//echo $log . "\n";
+	logger ( LL_DBG, $log );
 }
 
 function sendAlert($message, $by = "ALL") {

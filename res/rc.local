@@ -1,32 +1,32 @@
-echo "Starting pigpod daemon"
-pigpiod
+#echo "Starting pigpod daemon"
+#pigpiod
 
-fn=/webroot/gStation/sh/start_sensors.sh
-if [ -f "$fn" ]; then
-        echo "Starting gStation sensors"
-        . "$fn"
-else
-        echo "Skipping gStation sensor setup"
-fi
+#fn=/webroot/gStation/sh/start_sensors.sh
+#if [ -f "$fn" ]; then
+#        echo "Starting gStation sensors"
+#        . "$fn"
+#else
+#        echo "Skipping gStation sensor setup"
+#fi
 
-fn=/webroot/gStation/sh/start_triggers.sh
-if [ -f "$fn" ]; then
-        echo "Starting gStation triggers"
-        . "$fn"
-else 
-        echo "Skipping gStation trigger setup"
-fi
+#fn=/webroot/gStation/sh/start_triggers.sh
+#if [ -f "$fn" ]; then
+#        echo "Starting gStation triggers"
+#        . "$fn"
+#else 
+#        echo "Skipping gStation trigger setup"
+#fi
 
 echo "Starting gStation display"
 sh /webroot/gStation/sh/oled_monitor.sh &
 
-echo "Starting gStation sensors"
+echo "Starting gStation monitor"
 sh /webroot/gStation/sh/sensor_monitor.sh 0 &
-sh /webroot/gStation/sh/sensor_monitor.sh 1 &
-sh /webroot/gStation/sh/sensor_monitor.sh 2 &
-sh /webroot/gStation/sh/sensor_monitor.sh 3 &
-sh /webroot/gStation/sh/sensor_monitor.sh 4 &
-sh /webroot/gStation/sh/sensor_monitor.sh 5 &
+#sh /webroot/gStation/sh/sensor_monitor.sh 1 &
+#sh /webroot/gStation/sh/sensor_monitor.sh 2 &
+#sh /webroot/gStation/sh/sensor_monitor.sh 3 &
+#sh /webroot/gStation/sh/sensor_monitor.sh 4 &
+#sh /webroot/gStation/sh/sensor_monitor.sh 5 &
 
-echo "Starting gStation graph generator"
-sh /webroot/gStation/sh/graph_monitor.sh &
+#echo "Starting gStation graph generator"
+#sh /webroot/gStation/sh/graph_monitor.sh &

@@ -11,8 +11,8 @@ file_put_contents ( dirname ( __FILE__ ) . "/../board.txt", $argv [1] );
 
 setupTables ();
 setupGpio ();
-setupSensorsScript ();
-setupTriggersScript ();
+//setupSensorsScript ();
+//setupTriggersScript ();
 
 // LED PIN may have changed
 cleanFile ( "/boot/config.txt", $install_tag );
