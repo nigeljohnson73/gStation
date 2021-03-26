@@ -113,7 +113,7 @@ function checkConditions($env) {
 			echo "    Setting trigger '$k' to '" . (($v) ? (1) : (0)) . "': " . (setTrigger ( $k, $v ) ? ("success") : ("fail")) . "\n";
 		}
 	} else {
-		echo "    No triggers to fire\n";
+		//echo "    No triggers to fire\n";
 	}
 	return $env;
 }
