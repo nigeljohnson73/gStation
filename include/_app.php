@@ -1,6 +1,6 @@
 <?php
 
-// After extracting the sensor history and demands, process it into a timestamped array of values per zone
+// After extracting the sensor history and expects, process it into a timestamped array of values per zone
 // expected order from the database call is param, name, event, value, for example, "TEMPERATURE", "ZONE1", 2020-07..., 12.2132
 function processHistoryData($res) {
 	global $api_sensor_display_history;
@@ -45,8 +45,8 @@ function getSpecificHistoryData($sensor, $param) {
 	return $mysql->query ( $sql );
 }
 
-// Extracts the history data and optionally demand data for a specific parameter
-function getHistoryData($param, $sensor_exclude = [ ], $demand = true) {
+// Extracts the history data and optionally expect data for a specific parameter
+function getHistoryData($param, $sensor_exclude = [ ], $expect = true) {
 	global $mysql, $show_empty, $sensors;
 
 	// Hide any disabled sensors. This is only for temp and humidtiy history... no triggers or other stuff
@@ -70,8 +70,8 @@ function getHistoryData($param, $sensor_exclude = [ ], $demand = true) {
 	}
 
 	$sql = "(SELECT param, name, event, value FROM sensors WHERE param = '" . $param . "'" . $swhere . ")";
-	if ($demand) {
-		$sql .= " UNION (SELECT param, 'DEMAND' as name, event, value FROM demands WHERE param = '" . $param . "')";
+	if ($expect) {
+		$sql .= " UNION (SELECT param, 'EXPECT' as name, event, value FROM expects WHERE param = '" . $param . "')";
 	}
 	return $mysql->query ( $sql );
 }
@@ -215,67 +215,68 @@ function sendAlert($message) {
 }
 
 function checkAlarms($env) {
-	global $sensors, $mysql, $sensor_age_alarm;
-
-	$sqls = [ ];
-
-	// $env = ( array ) json_decode ( getConfig ( "env", json_encode ( ( object ) [ ] ) ) );
-	$lalarms = ( array ) json_decode ( getConfig ( "alarms", json_encode ( ( object ) [ ] ) ) );
-
-	// print_r ( $lalarms );
-
-	foreach ( $sensors as $s ) {
-		$sqls [] = "(select name, event from sensors where name = '" . $s->name . "' order by event desc limit 1)";
-		$env [($s->name) . ".ALARM"] = "NA";
-	}
-	$res = $mysql->query ( implode ( $sqls, " UNION " ) );
-
-	$fired = false;
-	if ($res && count ( $res )) {
-		$alarms = [ ];
-		$tsnow = timestampNow ();
-		foreach ( $res as $z ) {
-			$alarm = timestampDifference ( $z ["event"], $tsnow ) > $sensor_age_alarm;
-			// $alarm = false;
-			$alarms [$z ["name"]] = ( object ) [ 
-					"name" => $z ["name"],
-					"last_read" => $z ["event"],
-					"age" => timestampDifference ( $z ["event"], $tsnow ),
-					"status" => $alarm
-			];
-			$env [($z ["name"]) . ".ALARM"] = $alarm ? "YES" : "NO";
-			if (@$lalarms [$z ["name"]]->status != $alarm) {
-				logger ( LL_INFO, "ALARM changed status from '" . tfn ( @$lalarms [$z ["name"]]->status ) . "' to '" . tfn ( $alarm ) );
-				$message = "";
-				if ($alarm) {
-					$message = "no data for '" . $z ["name"] . "' since " . timestampFormat ( $z ["event"], "Y-m-d\TH:i:s\Z" );
-				} else {
-					$message = "'" . $z ["name"] . "' now functional";
-				}
-				sendAlert ( "Sensor alarm: " . $message );
-				$fired = true;
-			}
-		}
-
-		// $alarms["ZONE3"] ->status =false;
-		$env ["INFO.LASTCHECK"] = timestampNow ();
-		// echo "Writing LASTCHECK: '".$env["INFO.LASTCHECK"]."'\n";
-		ksort ( $env );
-		ksort ( $alarms );
-		// print_r ( ( object ) $alarms );
-		// print_r((object)$env);
-		if (! $fired) {
-			echo "checkAlarms(): No changes\n";
-		}
-		// setConfig ( "env", json_encode ( ( object ) $env ) );
-		setConfig ( "alarms", json_encode ( ( object ) $alarms ) );
-
-		// print_r(json_decode(getConfig("env")));
-	} else {
-		echo "checkAlarms(): no data from the database\n";
-	}
-
 	return $env;
+	// global $sensors, $mysql, $sensor_age_alarm;
+
+	// $sqls = [ ];
+
+	// // $env = ( array ) json_decode ( getConfig ( "env", json_encode ( ( object ) [ ] ) ) );
+	// $lalarms = ( array ) json_decode ( getConfig ( "alarms", json_encode ( ( object ) [ ] ) ) );
+
+	// // print_r ( $lalarms );
+
+	// foreach ( $sensors as $s ) {
+	// $sqls [] = "(select name, event from sensors where name = '" . $s->name . "' order by event desc limit 1)";
+	// $env [($s->name) . ".ALARM"] = "NA";
+	// }
+	// $res = $mysql->query ( implode ( $sqls, " UNION " ) );
+
+	// $fired = false;
+	// if ($res && count ( $res )) {
+	// $alarms = [ ];
+	// $tsnow = timestampNow ();
+	// foreach ( $res as $z ) {
+	// $alarm = timestampDifference ( $z ["event"], $tsnow ) > $sensor_age_alarm;
+	// // $alarm = false;
+	// $alarms [$z ["name"]] = ( object ) [
+	// "name" => $z ["name"],
+	// "last_read" => $z ["event"],
+	// "age" => timestampDifference ( $z ["event"], $tsnow ),
+	// "status" => $alarm
+	// ];
+	// $env [($z ["name"]) . ".ALARM"] = $alarm ? "YES" : "NO";
+	// if (@$lalarms [$z ["name"]]->status != $alarm) {
+	// logger ( LL_INFO, "ALARM changed status from '" . tfn ( @$lalarms [$z ["name"]]->status ) . "' to '" . tfn ( $alarm ) );
+	// $message = "";
+	// if ($alarm) {
+	// $message = "no data for '" . $z ["name"] . "' since " . timestampFormat ( $z ["event"], "Y-m-d\TH:i:s\Z" );
+	// } else {
+	// $message = "'" . $z ["name"] . "' now functional";
+	// }
+	// sendAlert ( "Sensor alarm: " . $message );
+	// $fired = true;
+	// }
+	// }
+
+	// // $alarms["ZONE3"] ->status =false;
+	// $env ["INFO.LASTCHECK"] = timestampNow ();
+	// // echo "Writing LASTCHECK: '".$env["INFO.LASTCHECK"]."'\n";
+	// ksort ( $env );
+	// ksort ( $alarms );
+	// // print_r ( ( object ) $alarms );
+	// // print_r((object)$env);
+	// if (! $fired) {
+	// echo "checkAlarms(): No changes\n";
+	// }
+	// // setConfig ( "env", json_encode ( ( object ) $env ) );
+	// setConfig ( "alarms", json_encode ( ( object ) $alarms ) );
+
+	// // print_r(json_decode(getConfig("env")));
+	// } else {
+	// echo "checkAlarms(): no data from the database\n";
+	// }
+
+	// return $env;
 }
 
 function getSnapshotUrl() {
@@ -318,14 +319,32 @@ function setupTables() {
 		)";
 	$mysql->query ( $str );
 
-	// Used for DarkSky API historic data
 	$str = "
-		CREATE TABLE IF NOT EXISTS history (
-			id VARCHAR(8) NOT NULL PRIMARY KEY,
-			data MEDIUMTEXT NOT NULL,
-			last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+		CREATE TABLE IF NOT EXISTS ports (
+			id VARCHAR(64) NOT NULL PRIMARY KEY,
+			ip MEDIUMTEXT NOT NULL,
+			type MEDIUMTEXT NOT NULL,
+			last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+			KEY(id)
 		)";
 	$mysql->query ( $str );
+
+	$str = "
+		CREATE TABLE IF NOT EXISTS colours (
+			id VARCHAR(64) NOT NULL PRIMARY KEY,
+			colour MEDIUMTEXT NOT NULL,
+			KEY(id)
+		)";
+	$mysql->query ( $str );
+
+	// // Used for DarkSky API historic data
+	// $str = "
+	// CREATE TABLE IF NOT EXISTS history (
+	// id VARCHAR(8) NOT NULL PRIMARY KEY,
+	// data MEDIUMTEXT NOT NULL,
+	// last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+	// )";
+	// $mysql->query ( $str );
 
 	// Used for the current data model
 	$str = "
@@ -343,25 +362,24 @@ function setupTables() {
 			name VARCHAR(255) NOT NULL,
 			param VARCHAR(255) NOT NULL,
 			value VARCHAR(255) NOT NULL,
-			age SMALLINT NULL,
 			KEY(event),
 			KEY(name), 
 			KEY(param, name)
 		)";
 	$mysql->query ( $str );
 
-	$str = "
-		CREATE TABLE IF NOT EXISTS triggers (
-			event BIGINT UNSIGNED NOT NULL,
-			param VARCHAR(255) NOT NULL,
-			value VARCHAR(255) NOT NULL,
-			KEY(event),
-			KEY(param)
-	)";
-	$mysql->query ( $str );
+	// $str = "
+	// CREATE TABLE IF NOT EXISTS triggers (
+	// event BIGINT UNSIGNED NOT NULL,
+	// param VARCHAR(255) NOT NULL,
+	// value VARCHAR(255) NOT NULL,
+	// KEY(event),
+	// KEY(param)
+	// )";
+	// $mysql->query ( $str );
 
 	$str = "
-		CREATE TABLE IF NOT EXISTS demands (
+		CREATE TABLE IF NOT EXISTS expects (
 			event BIGINT UNSIGNED NOT NULL,
 			param VARCHAR(255) NOT NULL,
 			value VARCHAR(255) NOT NULL,
@@ -377,9 +395,9 @@ function clearLogs() {
 	global $mysql, $logger;
 	$tsnow = timestampNow ();
 	$ts_delete = timestampAddDays ( $tsnow, - 1 );
-	$mysql->query ( "DELETE FROM demands where event < " . $ts_delete );
+	$mysql->query ( "DELETE FROM expects where event < " . $ts_delete );
 	$mysql->query ( "DELETE FROM sensors where event < " . $ts_delete );
-	$mysql->query ( "DELETE FROM triggers where event < " . $ts_delete );
+	// $mysql->query ( "DELETE FROM triggers where event < " . $ts_delete );
 	$logger->clearLogs ();
 }
 
@@ -655,15 +673,15 @@ function getDarkSkyApiData($force_recall) {
 }
 
 function rebuildModelFromDemands() {
-	$msg = "rebuildDataModel(): Using environmental demands";
+	$msg = "rebuildDataModel(): Using environmental expects";
 	echo "\n" . $msg . "\n";
 	logger ( LL_INFO, $msg );
 
 	$model = [ ]; // return this
 
-	global $demand, $demand_solstice;
+	global $expect, $expect_solstice;
 
-	$tssol = timestampFormat ( timestampNow (), "Y" ) . $demand_solstice . "000000";
+	$tssol = timestampFormat ( timestampNow (), "Y" ) . $expect_solstice . "000000";
 
 	$dcount = 0;
 	$dts = $tssol;
@@ -676,12 +694,12 @@ function rebuildModelFromDemands() {
 	$suns_step = 0;
 	$dlen_step = 0;
 
-	$dtemp = $demand [0]->day_temperature;
-	$ntemp = $demand [0]->night_temperature;
-	$dhumd = $demand [0]->day_humidity;
-	$nhumd = $demand [0]->night_humidity;
-	$suns = $demand [0]->sunset;
-	$dlen = $demand [0]->daylight_hours;
+	$dtemp = $expect [0]->day_temperature;
+	$ntemp = $expect [0]->night_temperature;
+	$dhumd = $expect [0]->day_humidity;
+	$nhumd = $expect [0]->night_humidity;
+	$suns = $expect [0]->sunset;
+	$dlen = $expect [0]->daylight_hours;
 
 	// for($i = 0; $i < 7; $i ++) {
 	for($i = 0; $i < 365; $i ++) {
@@ -706,13 +724,13 @@ function rebuildModelFromDemands() {
 
 		if ($dts >= $next_dts) {
 			// Reset the deltas
-			// echo "Next period available: " . ((count ( $demand ) > ($dcount + 1)) ? ("Yes") : ("No")) . "\n";
-			$dtemp_step = (count ( $demand ) > ($dcount + 1)) ? (($demand [$dcount + 1]->day_temperature - $demand [$dcount]->day_temperature) / ($demand [$dcount]->period_length)) : (0);
-			$ntemp_step = (count ( $demand ) > ($dcount + 1)) ? (($demand [$dcount + 1]->night_temperature - $demand [$dcount]->night_temperature) / ($demand [$dcount]->period_length)) : (0);
-			$dhumd_step = (count ( $demand ) > ($dcount + 1)) ? (($demand [$dcount + 1]->day_humidity - $demand [$dcount]->day_humidity) / ($demand [$dcount]->period_length)) : (0);
-			$nhumd_step = (count ( $demand ) > ($dcount + 1)) ? (($demand [$dcount + 1]->night_humidity - $demand [$dcount]->night_humidity) / ($demand [$dcount]->period_length)) : (0);
-			$suns_step = (count ( $demand ) > ($dcount + 1)) ? (($demand [$dcount + 1]->sunset - $demand [$dcount]->sunset) / ($demand [$dcount]->period_length)) : (0);
-			$dlen_step = (count ( $demand ) > ($dcount + 1)) ? (($demand [$dcount + 1]->daylight_hours - $demand [$dcount]->daylight_hours) / ($demand [$dcount]->period_length)) : (0);
+			// echo "Next period available: " . ((count ( $expect ) > ($dcount + 1)) ? ("Yes") : ("No")) . "\n";
+			$dtemp_step = (count ( $expect ) > ($dcount + 1)) ? (($expect [$dcount + 1]->day_temperature - $expect [$dcount]->day_temperature) / ($expect [$dcount]->period_length)) : (0);
+			$ntemp_step = (count ( $expect ) > ($dcount + 1)) ? (($expect [$dcount + 1]->night_temperature - $expect [$dcount]->night_temperature) / ($expect [$dcount]->period_length)) : (0);
+			$dhumd_step = (count ( $expect ) > ($dcount + 1)) ? (($expect [$dcount + 1]->day_humidity - $expect [$dcount]->day_humidity) / ($expect [$dcount]->period_length)) : (0);
+			$nhumd_step = (count ( $expect ) > ($dcount + 1)) ? (($expect [$dcount + 1]->night_humidity - $expect [$dcount]->night_humidity) / ($expect [$dcount]->period_length)) : (0);
+			$suns_step = (count ( $expect ) > ($dcount + 1)) ? (($expect [$dcount + 1]->sunset - $expect [$dcount]->sunset) / ($expect [$dcount]->period_length)) : (0);
+			$dlen_step = (count ( $expect ) > ($dcount + 1)) ? (($expect [$dcount + 1]->daylight_hours - $expect [$dcount]->daylight_hours) / ($expect [$dcount]->period_length)) : (0);
 
 			// echo "Next Period: " . timestampFormat ( $next_dts, "md" ) . "\n";
 			// echo " day temp step: " . $dtemp_step . "\n";
@@ -723,7 +741,7 @@ function rebuildModelFromDemands() {
 			// echo " day length step: " . $dlen_step . "\n";
 
 			// Increment the next time we gotta do this
-			$next_dts = (count ( $demand ) > ($dcount + 1)) ? (timestampAdd ( $next_dts, numDays ( $demand [$dcount]->period_length ) )) : (timestampAdd ( $tssol, numDays ( 366 ) ));
+			$next_dts = (count ( $expect ) > ($dcount + 1)) ? (timestampAdd ( $next_dts, numDays ( $expect [$dcount]->period_length ) )) : (timestampAdd ( $tssol, numDays ( 366 ) ));
 			$dcount += 1;
 		}
 
@@ -957,7 +975,7 @@ function rebuildModelFromSimulation() {
 }
 
 function rebuildDataModel() {
-	global $rebuild_from, $demand, $mysql;
+	global $rebuild_from, $expect, $mysql;
 	global $season_adjust_days, $timezone_adjust_hours;
 
 	$model = array ();
@@ -983,7 +1001,7 @@ function rebuildDataModel() {
 			if ($nk == "0229") {
 				// We really shouldn't!!!
 				echo "ALERT!!!!!! GOT A LEAP YEAR!!!!!!!\n";
-				logger ( LL_ERROR, "rebuildDataModel(): Rebuild failed du an unexpected leap year" );
+				logger ( LL_ERROR, "rebuildDataModel(): Rebuild failed due an unexpected leap year" );
 				return false;
 			}
 
@@ -1011,8 +1029,8 @@ function rebuildDataModel() {
 			// $model[timestampFormat(time2Timestamp($sunrise), "md")] = $v;
 		}
 		$location = $obj->location;
-	} else if (strtoupper ( $rebuild_from ) == "DEMANDS") {
-		if (count ( $demand )) {
+	} else if (strtoupper ( $rebuild_from ) == "EXPECTS") {
+		if (count ( $expect )) {
 			logger ( LL_INFO, "rebuildDataModel(): Rebuilding from Demand Ramping" );
 			$location->name = "Demand Ramping";
 			$model = rebuildModelFromDemands ();
@@ -1248,7 +1266,7 @@ function isGpio($type) {
 	switch ($type) {
 		// case "PI" :
 		// case "EMPTY" :
-		// case "DEMAND" :
+		// case "EXPECT" :
 		// case "DHT11" :
 		// case "DHT22" :
 		// case "MH-Z19B" :
@@ -1332,7 +1350,7 @@ function readSensorRaw_DS18B20($sensor) {
 					$dummy = $dummy;
 					echo ("Got temp: " . $temp . "\n");
 					$val = (( double ) $temp) / 1000.0;
-					if($val > 60) {
+					if ($val > 60) {
 						echo "Temp out of expected range\n";
 						$val = null;
 					} else {
@@ -1729,7 +1747,7 @@ function readSensor($i) {
 	$pin = @$sensor->pin;
 	$func = "readSensorRaw_" . str_replace ( "-", "_", $sensor->type );
 
-	if ($type == "EMPTY" || $type == "DEMAND" || $pin == 99) {
+	if ($type == "EMPTY" || $type == "EXPECT" || $pin == 99) {
 		echo ("Sensor slot #" . $i . " is not configured - endless looping required\n");
 		while ( true ) {
 			// Endless loop
@@ -1773,7 +1791,44 @@ function readSensor($i) {
 	}
 }
 
+function getRemoteData($url, $timeout = 4) {
+	$ch = curl_init ();
+	curl_setopt ( $ch, CURLOPT_URL, $url );
+	curl_setopt ( $ch, CURLOPT_RETURNTRANSFER, true );
+	curl_setopt ( $ch, CURLOPT_TIMEOUT, $timeout );
+	$response = curl_exec ( $ch );
+	curl_close ( $ch );
+	return $response;
+}
+
+function checkRegistration() {
+	global $mysql;
+	$tsnow = timestampNow ();
+	$ts_register = timestampAdd ( $tsnow, - 4 * 60 * 60 );
+	$res = $mysql->query ( "SELECT DISTINCT ip FROM ports WHERE last_updated < " . $ts_register );
+	if (is_array ( $res ) && count ( $res ) > 0) {
+		foreach ( $res as $row ) {
+			$url = "http://" . $row ["ip"] . "/api/register";
+			$response = getRemoteData ( $url, 2 );
+			if ($response == false) {
+				logger ( LL_INF, $url . ": timed out" );
+				echo $url . ": timed out\n";
+			} else {
+				// logger ( LL_INF, $url . ": Registration check complete" );
+				// echo $url . ": complete\n";
+			}
+		}
+	}
+	// echo "Remote registration check complete\n";
+	$ts_delete = timestampAdd ( $ts_register, - 1 * 60 );
+	$res = $mysql->query ( "DELETE FROM ports WHERE last_updated < " . $ts_delete );
+	// echo "Registration check complete\n";
+}
+
 function gatherSensors() {
+	$tsnow = timestampNow ();
+	$ret = array ();
+
 	global $sensor_age;
 	$key = "/tmp/sensor_data_";
 	$files = directoryListing ( "/tmp", "*.json" );
@@ -1800,12 +1855,111 @@ function gatherSensors() {
 				unset ( $j->name );
 				$j = ( array ) $j;
 				foreach ( $j as $k => $v ) {
-					$o = new StdClass ();
-					$o->name = $name;
-					$o->param = $k;
-					$o->value = $v;
-					$o->age = $age;
-					$ret [] = $o;
+					$ret [$name . "." . $k] = $v;
+					// $o = new StdClass ();
+					// $o->name = $name;
+					// $o->param = $k;
+					// $o->value = $v;
+					// $o->age = $age;
+					// $ret [] = $o;
+				}
+			}
+		}
+	}
+
+	global $mysql;
+	$res = $mysql->query ( "SELECT DISTINCT ip FROM ports" );
+	if (is_array ( $res ) && count ( $res ) > 0) {
+		foreach ( $res as $row ) {
+			$url = "http://" . $row ["ip"] . "/";
+			$response = getRemoteData ( $url, 2 );
+			if ($response !== false) {
+				echo "Processing '" . $url . "'\n";
+				$arr = ( array ) json_decode ( $response );
+				// $status = $arr ["status"]; // Probably should do something with this - it'll be ok or degraded if there is a sensor problem
+				if (isset ( $arr ["name"] ))
+					unset ( $arr ["name"] );
+				if (isset ( $arr ["srvr"] ))
+					unset ( $arr ["srvr"] );
+				if (isset ( $arr ["status"] ))
+					unset ( $arr ["status"] );
+				// HERE
+				$ret = array_merge ( $ret, $arr );
+				// foreach ( $arr as $k => $v ) {
+				// $ret [$k] = $v;
+				// list ( $name, $param ) = explode ( ".", $k );
+				// $mysql->query ( "REPLACE INTO sensors (event, name, param, value) VALUES (?, ?, ?, ?)", "isss", array (
+				// $tsnow,
+				// $name,
+				// $param,
+				// $v
+				// ) );
+				// }
+			} else {
+				logger ( LL_INF, $url . ": timed out" );
+				echo "    " . $url . ": timed out\n";
+			}
+		}
+
+		foreach ( $ret as $k => $v ) {
+			$ret [$k] = $v;
+			list ( $name, $param ) = explode ( ".", $k );
+			$mysql->query ( "REPLACE INTO sensors (event, name, param, value) VALUES (?, ?, ?, ?)", "isss", array (
+					$tsnow,
+					$name,
+					$param,
+					$v
+			) );
+		}
+
+		// echo "Remote sensor gather complete\n";
+		// echo "getConfig('".$id."')\n";
+		// if(strtoupper($id) == "ENV") {
+		// $arr = ( array ) json_decode ( $ret[0]["data"]);
+		// if(isset($arr["INFO.LASTCHECK"])) {
+		// echo "getConfig('".$id."'): Last Checked: ".timestampFormat($arr["INFO.LASTCHECK"], "Y-m-d\TH:i:s\Z")."\n";
+		// } else {
+		// echo "getConfig('".$id."'): Last Checked: NEVER\n";
+		// }
+		// }
+		// return $ret [0] ["data"];
+	}
+
+	return $ret;
+
+	global $sensor_age;
+	$key = "/tmp/sensor_data_";
+	$files = directoryListing ( "/tmp", "*.json" );
+	$ret = array ();
+	foreach ( $files as $file ) {
+		if (substr ( $file, 0, strlen ( $key ) ) == $key) {
+			$c = file_get_contents ( $file );
+			$j = json_decode ( $c );
+			$t = 0;
+			if (isset ( $j->event )) {
+				$t = $j->event;
+				unset ( $j->event );
+			}
+			$age = time () - $t;
+			$age_str = ($age < 0) ? (durationFormat ( - $age ) . " in the future") : (durationFormat ( $age ) . " old");
+			// echo "time now: ".time()." (".timestampFormat(time2Timestamp(time())).")\n";
+			// echo "time file: ".$t." (".timestampFormat(time2Timestamp($t)).")\n";
+			// echo "age: ".$age." (".$age_str.")\n";
+			if ($age >= $sensor_age) {
+				echo "Skipping '$file' - data too old (age: " . $age_str . ")\n";
+			} else {
+				echo "Processing '$file' (age: " . $age_str . ")\n";
+				$name = $j->name;
+				unset ( $j->name );
+				$j = ( array ) $j;
+				foreach ( $j as $k => $v ) {
+					$ret [$name . "." . $k] = $v;
+					// $o = new StdClass ();
+					// $o->name = $name;
+					// $o->param = $k;
+					// $o->value = $v;
+					// $o->age = $age;
+					// $ret [] = $o;
 				}
 			}
 		}
@@ -1932,12 +2086,12 @@ function getModeledDataFields($arr) {
 }
 
 function modelStatus() {
-	global $mysql, $demand, $darksky_key;
+	global $mysql, $expect, $darksky_key;
 
 	$ret = new StdClass ();
 
 	global $darksky_key;
-	if ($demand && count ( $demand )) {
+	if ($expect && count ( $expect )) {
 		$ret->modelUsed = "Demand Ramp";
 	} elseif ($darksky_key !== "") {
 		$ret->modelUsed = "DarkSky";
@@ -1959,7 +2113,7 @@ function modelStatus() {
 
 function tick() {
 	echo "************************************************************************************************************************************\n";
-	global $mysql, $bulksms_notify, $bulksms_alert_sunset, $bulksms_alert_sunrise, $bulksms_alert_tod, $triggers, $conditions;
+	global $mysql, $bulksms_notify, $bulksms_alert_sunset, $bulksms_alert_sunrise, $bulksms_alert_tod, $conditions;
 
 	// Set the parameters for the tick
 	$tsnow = timestampNow ();
@@ -2070,120 +2224,122 @@ function tick() {
 	$hl = ($status == "DAY") ? ("Day") : ("Night");
 	$temp = "temperature" . $hl;
 	$humd = "humidity" . $hl;
-	$data ["DEMAND.LIGHT"] = "'" . (($status == 'DAY') ? ("SUN") : ("MOON")) . "'";
-	$data ["DEMAND.TEMPERATURE"] = round ( $model->$temp, 3 );
+	$data ["EXPECT.LIGHT"] = "'" . (($status == 'DAY') ? ("SUN") : ("MOON")) . "'";
+	$data ["EXPECT.TEMPERATURE"] = round ( $model->$temp, 3 );
 	// echo "Humidity in model: ". $model->$humd."\n";
-	$data ["DEMAND.HUMIDITY"] = round ( $model->$humd, 3 );
+	$data ["EXPECT.HUMIDITY"] = round ( $model->$humd, 3 );
 	$data ["DATA.HOUR"] = round ( $nowOffset / (60 * 60), 3 );
 	// $data ["DATA.HR"] = floor ( $nowOffset / (60 * 60) );
 	$data ["DATA.HR"] = "" . timestampFormat ( timestampNow (), "H" );
 	$data ["DATA.MN"] = "" . timestampFormat ( timestampNow (), "i" );
 	$data ["DATA.TOD"] = "'" . $tod . "'";
 
-	// setConfig ( "temperature_demand", $model->$temp );
-	// setConfig ( "humidity_demand", $model->$humd );
+	// setConfig ( "temperature_expect", $model->$temp );
+	// setConfig ( "humidity_expect", $model->$humd );
+
+	echo "\nChecking sensor registration\n";
+	checkRegistration ();
 
 	echo "\nGathering sensor data\n";
 	$sensors = gatherSensors ();
-	$ages = array ();
-	foreach ( $sensors as $s ) {
-		$name = $s->name;
-		$param = $s->param;
-		$val = $s->value;
-		$age = $s->age;
-		$data [strtoupper ( $name . "." . $param )] = $val;
-		$ages [strtoupper ( $name )] = $age;
-	}
+	$data = array_merge ( $data, $sensors );
+	// $ages = array ();
+	// foreach ( $sensors as $s ) {
+	// $name = $s->name;
+	// $param = $s->param;
+	// $val = $s->value;
+	// $age = $s->age;
+	// $data [strtoupper ( $name . "." . $param )] = $val;
+	// $ages [strtoupper ( $name )] = $age;
+	// }
 
 	// echo "\nEnvironmental data:\n";
 	// print_r ( $data );
 
 	// Now we get the triggers and see what we need to set
 
-	echo "\nProcessing trigger conditions\n";
-	$fires = array ();
-	enumerateTriggers ();
-	foreach ( $triggers as $t ) {
-		if (isGpio ( $t->type )) {
-			$t->demand = 0;
-			$fires [$t->name] = $t;
-		}
-	}
+	// TODO: Fix triggers
+	// echo "\nProcessing trigger conditions\n";
+	// $fires = array ();
+	// enumerateTriggers ();
+	// foreach ( $triggers as $t ) {
+	// if (isGpio ( $t->type )) {
+	// $t->expect = 0;
+	// $fires [$t->name] = $t;
+	// }
+	// }
 
-	foreach ( $conditions as $c ) {
-		$oc = $c;
-		foreach ( $data as $k => $v ) {
-			$c = str_replace ( "[[" . $k . "]]", $v, $c );
-		}
+	// foreach ( $conditions as $c ) {
+	// $oc = $c;
+	// foreach ( $data as $k => $v ) {
+	// $c = str_replace ( "[[" . $k . "]]", $v, $c );
+	// }
 
-		$matches = array ();
-		if (preg_match ( "/\[\[(.*?)\]\]/", $c, $matches ) == 0) {
-			list ( $k, $expr ) = explode ( " IF ", $c );
-			if (isset ( $fires [$k] )) {
-				$fire = false;
-				$eval = '$fire = (' . $expr . ')?(highValue($fires[$k]->type)):(lowValue($fires[$k]->type));';
-				eval ( $eval );
-				$fires [$k]->demand = ($fire) ? ($fire) : ($fires [$k]->demand);
-				echo (($fire) ? ("FIRED") : ("-----")) . ": " . $k . " = (" . $expr . ")?(1):(0); // " . $oc . "\n";
-			} else {
-				echo "Skipping damaged condition - Trigger '" . $k . "' not found (" . $oc . ")\n";
-			}
-		} else {
-			$missing = [ ];
-			$cap = false;
-			foreach ( $matches as $m ) {
-				if ($cap) {
-					$missing [] = $m;
-				}
-				$cap = ! $cap;
-			}
-			echo "Skipping damaged condition - 'Sensor '" . implode ( "', '", $missing ) . "' not found (" . $oc . ")\n";
-		}
-	}
-	// setLight ( ($status == "DAY") ? ($hl_high_value) : ($hl_low_value) );
+	// $matches = array ();
+	// if (preg_match ( "/\[\[(.*?)\]\]/", $c, $matches ) == 0) {
+	// list ( $k, $expr ) = explode ( " IF ", $c );
+	// if (isset ( $fires [$k] )) {
+	// $fire = false;
+	// $eval = '$fire = (' . $expr . ')?(highValue($fires[$k]->type)):(lowValue($fires[$k]->type));';
+	// eval ( $eval );
+	// $fires [$k]->expect = ($fire) ? ($fire) : ($fires [$k]->expect);
+	// echo (($fire) ? ("FIRED") : ("-----")) . ": " . $k . " = (" . $expr . ")?(1):(0); // " . $oc . "\n";
+	// } else {
+	// echo "Skipping damaged condition - Trigger '" . $k . "' not found (" . $oc . ")\n";
+	// }
+	// } else {
+	// $missing = [ ];
+	// $cap = false;
+	// foreach ( $matches as $m ) {
+	// if ($cap) {
+	// $missing [] = $m;
+	// }
+	// $cap = ! $cap;
+	// }
+	// echo "Skipping damaged condition - 'Sensor '" . implode ( "', '", $missing ) . "' not found (" . $oc . ")\n";
+	// }
+	// }
 
-	// print_r ( $fires );
+	// echo "\nExecuting triggers\n";
+	// foreach ( $fires as $f ) {
+	// $data ["TRIGGER." . $f->name] = ($f->expect == highValue ( $f->type )) ? (1) : (0);
+	// $cmd = "gpio -g write " . $f->pin . " " . $f->expect;
+	// echo "Executing (" . $f->name . ") '" . $cmd . "'\n";
+	// system ( $cmd . " > /dev/null 2>&1" );
+	// }
 
-	echo "\nExecuting triggers\n";
-	foreach ( $fires as $f ) {
-		$data ["TRIGGER." . $f->name] = ($f->demand == highValue ( $f->type )) ? (1) : (0);
-		$cmd = "gpio -g write " . $f->pin . " " . $f->demand;
-		echo "Executing (" . $f->name . ") '" . $cmd . "'\n";
-		system ( $cmd . " > /dev/null 2>&1" );
-	}
-
-	// Stash data to database tables
-	foreach ( $data as $k => $v ) {
-		list ( $what, $k ) = explode ( ".", $k );
-		if ($what == "DEMAND") {
-			$mysql->query ( "REPLACE INTO demands (event, param, value) VALUES (?, ?, ?)", "iss", array (
-					$tsnow,
-					$k,
-					$v
-			) );
-		} elseif ($what == "TRIGGER") {
-			$mysql->query ( "REPLACE INTO triggers (event, param, value) VALUES (?, ?, ?)", "iss", array (
-					$tsnow,
-					$k,
-					$v
-			) );
-		} elseif ($what == "DATA") {
-			// We know about it, but we can ignore it
-		} elseif ($what == "INFO") {
-			// We know about it, but we can ignore it
-		} else {
-			$age = isset ( $ages [$what] ) ? ($ages [$what]) : (null);
-			// echo "writing ".$what." to database k: ".$k.", v: ".$v.", age: ".tfn($age)."\n";
-			// Must be a zone name
-			$mysql->query ( "REPLACE INTO sensors (event, name, param, value, age) VALUES (?, ?, ?, ?, ?)", "isssi", array (
-					$tsnow,
-					$what,
-					$k,
-					$v,
-					$age
-			) );
-		}
-	}
+	// // Stash data to database tables
+	// foreach ( $data as $k => $v ) {
+	// list ( $what, $k ) = explode ( ".", $k );
+	// if ($what == "EXPECT") {
+	// $mysql->query ( "REPLACE INTO expects (event, param, value) VALUES (?, ?, ?)", "iss", array (
+	// $tsnow,
+	// $k,
+	// $v
+	// ) );
+	// } elseif ($what == "TRIGGER") {
+	// $mysql->query ( "REPLACE INTO triggers (event, param, value) VALUES (?, ?, ?)", "iss", array (
+	// $tsnow,
+	// $k,
+	// $v
+	// ) );
+	// } elseif ($what == "DATA") {
+	// // We know about it, but we can ignore it
+	// } elseif ($what == "INFO") {
+	// // We know about it, but we can ignore it
+	// } else {
+	// $age = isset ( $ages [$what] ) ? ($ages [$what]) : (null);
+	// // echo "writing ".$what." to database k: ".$k.", v: ".$v.", age: ".tfn($age)."\n";
+	// // Must be a zone name
+	// $mysql->query ( "REPLACE INTO sensors (event, name, param, value, age) VALUES (?, ?, ?, ?, ?)", "isssi", array (
+	// $tsnow,
+	// $what,
+	// $k,
+	// $v,
+	// // $age
+	// ) );
+	// }
+	// }
 
 	// TODO: Get OLED Working correctly
 	$retvar = 0;
@@ -2208,8 +2364,8 @@ function tick() {
 	$data ["INFO.HOSTNAME"] = $hostname;
 	$data ["INFO.NEXTSUN"] = $next_sun;
 
-	echo "\nChecking sensor alarms\n";
-	$data = checkAlarms ( $data );
+	// echo "\nChecking sensor alarms\n";
+	// $data = checkAlarms ( $data );
 	// echo "Writing LASTCHECK: '".@$data["INFO.LASTCHECK"]."'\n";
 
 	// Set the display message
@@ -2268,8 +2424,8 @@ function getGraphColour($name) {
 
 	$ret = null;
 	foreach ( $sensors as $x ) {
-		if ($name == "DEMANDED") {
-			$name = "DEMAND";
+		if ($name == "EXPECTED") {
+			$name = "EXPECT";
 		}
 		if ($ret == null && $x->name == $name) {
 			$ret = $x->colour;
@@ -2285,4 +2441,31 @@ function getGraphColour($name) {
 	return $ret;
 }
 
+function random_color_part($lower = 0x33, $upper = 0xcc) {
+	return str_pad ( dechex ( mt_rand ( $lower, $upper ) ), 2, '0', STR_PAD_LEFT );
+}
+
+function random_color() {
+	return "#" . random_color_part () . random_color_part () . random_color_part ();
+}
+
+function getColour($name, $create = true) {
+	global $mysql;
+	$res = $mysql->query ( "SELECT colour FROM colours WHERE id = ?", "s", array (
+			$name
+	) );
+	if (is_array ( $res ) && count ( $res ) > 0) {
+		return $res [0] ["colour"];
+	}
+	if ($create !== false) {
+		if ($create === true) {
+			$create = random_color ();
+		}
+		$mysql->query ( "REPLACE INTO colours (id, colour) VALUES(?, ?)", "ss", array (
+				$name,
+				$create
+		) );
+	}
+	return $create;
+}
 ?>

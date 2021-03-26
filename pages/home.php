@@ -53,12 +53,12 @@ function getSensorData($env) {
 			</div>
 
 			<div class='sensor-container' data-ng-show='env.sensors'>
-				<div class='sensor-holder demand-holder light-{{env.demand.light}}' data-ng-show='env.demand'>
-					<div class='name'>DEMAND</div>
-					<div class='value' data-ng-show='env.demand.temperature'>{{env.demand.temperature}}°C</div>
-					<div class='value' data-ng-hide='env.demand.temperature'>&nbsp;</div>
-					<div class='value' data-ng-show='env.demand.humidity'>{{env.demand.humidity}}%RH</div>
-					<div class='value' data-ng-hide='env.demand.humidity'>&nbsp;</div>
+				<div class='sensor-holder expect-holder light-{{env.expect.light}}' data-ng-show='env.expect'>
+					<div class='name'>EXPECT</div>
+					<div class='value' data-ng-show='env.expect.temperature'>{{env.expect.temperature}}°C</div>
+					<div class='value' data-ng-hide='env.expect.temperature'>&nbsp;</div>
+					<div class='value' data-ng-show='env.expect.humidity'>{{env.expect.humidity}}%RH</div>
+					<div class='value' data-ng-hide='env.expect.humidity'>&nbsp;</div>
 				</div>
 				<div data-ng-repeat="sensor in env.sensors" class='sensor-holder state-{{sensor.state}}'>
 					<div class='name'>{{sensor.label}}</div>

@@ -16,7 +16,7 @@ if (strlen ( $pid ) > 0 && $pid != $mypid) {
 ob_end_clean ();
 
 logger ( LL_DEBUG, "tick(): started" );
-$call_delay = 5;
+$call_delay = 15; // Every this many seconds
 $last_tick = 59;
 
 $start = microtime ( true );
@@ -57,7 +57,7 @@ foreach ( $secs as $k => $s ) {
 
 	echo "\nwriting env to oled file\n";
 	$estr = getConfig ( "env" );
-	file_put_contents ( "/tmp/oled.json", $estr );
+	file_put_contents ( "/tmp/env.gstation.json", $estr );
 	print_r ( json_decode ( $estr ) );
 	echo "\n";
 

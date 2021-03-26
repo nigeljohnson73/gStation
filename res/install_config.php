@@ -7,7 +7,7 @@
 //$loc = getHostname(); // "gsDev"; // Used for the browser and alerts
 //$api_sensor_display_history = 10 * 60; // seconds per history sample to return to the browser - each point will be the average of this amount of time in seconds
 
-// Displaying demands for these paramters where you don't control them is annoying, so hide them if they are not required
+// Displaying expects for these paramters where you don't control them is annoying, so hide them if they are not required
 // $control_temperature = true;
 // $control_humidity = true;
 
@@ -55,8 +55,8 @@ $triggers [3]->type = "SSR"; // EMPTY, SSR, iSSR or LED           // Vent
 //$triggers [5]->colour = "#ccc";  // Grey
 
 $conditions = [ ];
-$conditions [] = "T1 IF [[ZONE1.TEMPERATURE]] < [[DEMAND.TEMPERATURE]]";       // Root zone up to demanded temperature
-$conditions [] = "T2 IF [[DEMAND.LIGHT]] == 'SUN'";                            // Light on if it's day time
+$conditions [] = "T1 IF [[ZONE1.TEMPERATURE]] < [[EXPECT.TEMPERATURE]]";       // Root zone up to expected temperature
+$conditions [] = "T2 IF [[EXPECT.LIGHT]] == 'SUN'";                            // Light on if it's day time
 $conditions [] = "T3 IF [[ZONE2.TEMPERATURE]] > ([[ZONE3.TEMPERATURE]] + 5)";  // Vent the atmosphere if its 5 degrees over ambient
 $conditions [] = "T3 IF [[DATA.HOUR]] >= 0.1 && [[DATA.HOUR]] < 0.2";          // vent the air overnight regarldess of temperature
 
@@ -72,13 +72,13 @@ $season_adjust_days = 0; // Adjust the file based data model
 $timezone_adjust_hours = 0; // Adjust the file based data model
 
 // Set this to the month and day you want the ramp to start on, for example 23rd of January is 0123
-//$demand_solstice = "0000";
+//$expect_solstice = "0000";
 
 // This config will have an 18hr day for 14 days, then ramp down to 12 hours over the following 21 days.
 // There will be a small temp drop over the day length cycle as well
-$demand_solstice = "0621"; // When should the demand simulation start (Format: MMDD)
-$demand = [ ];
-$demand [] = ( object ) [
+$expect_solstice = "0621"; // When should the expect simulation start (Format: MMDD)
+$expect = [ ];
+$expect [] = ( object ) [
 		"period_length" => 14,
 		"sunset" => 21 + (59/60) + (59/(60 * 60)),
 		"daylight_hours" => 18.1,
@@ -88,7 +88,7 @@ $demand [] = ( object ) [
 		"night_humidity" => 45.5
 ];
 
-$demand [] = ( object ) [
+$expect [] = ( object ) [
 		"period_length" => 21,
 		"sunset" => 21 + (59/60) + (59/(60 * 60)),
 		"daylight_hours" => 18.1,
@@ -98,7 +98,7 @@ $demand [] = ( object ) [
 		"night_humidity" => 45.5
 ];
 
-$demand [] = ( object ) [
+$expect [] = ( object ) [
 		"sunset" => 21 + (59/60) + (59/(60 * 60)),
 		"daylight_hours" => 12.1,
 		"day_temperature" => 23.5,

@@ -230,7 +230,7 @@ def main():
 	#drawTest()
 	time.sleep(3)
 
-	triggerfile = '/tmp/oled.json'
+	triggerfile = '/tmp/env.gstation.json'
 	while not done:
 		if page_timer != None:
 			now = datetime.datetime.now()

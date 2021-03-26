@@ -1,4 +1,4 @@
-app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", function($scope, $timeout, $interval, apiSvc) {
+app.controller('HomeCtrl', ["$scope", "$timeout", "$interval", "apiSvc", function($scope, $timeout, $interval, apiSvc) {
 	$scope.title = "Home Control";
 	$scope.loading = true;
 
@@ -86,9 +86,9 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 				// Save the env data first so it can be used everywhere else
 				$scope.env = data.env;
 
-				// Check for any historic 'DEMAND' data in the queue first
+				// Check for any historic 'EXPECT' data in the queue first
 				var obj = {};
-				Object.assign(obj, $scope.env.demand);
+				Object.assign(obj, $scope.env.expect);
 				processLoad($scope.history.sensor_temperature, $scope.sensor_temperature, obj, obj.temperature);
 				processLoad($scope.history.sensor_humidity, $scope.sensor_humidity, obj, obj.humidity);
 
@@ -127,9 +127,9 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 				$scope.server_mem_load_graph = updateMinuteGraph($scope.server_mem_load_graph, '#server-mem_load-graph', $scope.server_mem_load, "Memory Usage", "%");
 				$scope.server_hdd_load_graph = updateMinuteGraph($scope.server_hdd_load_graph, '#server-hdd_load-graph', $scope.server_hdd_load, "Storage Usage", "%");
 
-				// Hide the demand box if there is no demand data
-				if(data.env.demand.light == "") {
-					$scope.env.demand = null;
+				// Hide the expect box if there is no expect data
+				if (data.env.expect.light == "") {
+					$scope.env.expect = null;
 				}
 			} else {
 				$scope.env = null;
@@ -172,7 +172,7 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 		var d = new Duration();
 		apiSvc.queue(o.api, function() {
 			return {
-				today : moment().format("MMDD")
+				today: moment().format("MMDD")
 			};
 		}, function(data) {
 			plogger(o.api + "(): Data transfer: " + d.prettyEnd());
@@ -224,39 +224,39 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 	 */
 
 	$scope.api_calls.push({
-		api : "history/getSensorTemperature",
-		success : function(data) {
+		api: "history/getSensorTemperature",
+		success: function(data) {
 			$scope.history.sensor_temperature = data.history;
 		}
 	});
 
 	$scope.api_calls.push({
-		api : "history/getSensorHumidity",
-		success : function(data) {
+		api: "history/getSensorHumidity",
+		success: function(data) {
 			$scope.history.sensor_humidity = data.history;
 		}
 	});
 
 	$scope.api_calls.push({
-		api : "schedule/getTemperature",
-		requeue : true,
-		success : function(data) {
+		api: "schedule/getTemperature",
+		requeue: true,
+		success: function(data) {
 			$scope.schedule_temperature_graph = createDayGraph('#schedule-temperature-graph', data.data, "Temperature", "°C", data.xlabels);
 		}
 	});
 
 	$scope.api_calls.push({
-		api : "schedule/getHumidity",
-		requeue : true,
-		success : function(data) {
+		api: "schedule/getHumidity",
+		requeue: true,
+		success: function(data) {
 			$scope.schedule_humidity_graph = createDayGraph('#schedule-humidity-graph', data.data, "Humidity", "%", data.xlabels);
 		}
 	});
 
 	$scope.api_calls.push({
-		api : "schedule/getSun",
-		requeue : true,
-		success : function(data) {
+		api: "schedule/getSun",
+		requeue: true,
+		success: function(data) {
 			angular.forEach(data.data, function(item, index) {
 				angular.forEach(item.data, function(item, index) {
 					ts = moment(item.t);
@@ -271,48 +271,48 @@ app.controller('HomeCtrl', [ "$scope", "$timeout", "$interval", "apiSvc", functi
 	});
 
 	$scope.api_calls.push({
-		api : "schedule/getDaylight",
-		requeue : true,
-		success : function(data) {
+		api: "schedule/getDaylight",
+		requeue: true,
+		success: function(data) {
 			$scope.schedule_daylight_graph = createDayGraph('#schedule-daylight-graph', data.data, "Daylight hours", "", data.xlabels);
 		}
 	});
 
 	$scope.api_calls.push({
-		api : "history/getServerCpuLoad",
-		success : function(data) {
+		api: "history/getServerCpuLoad",
+		success: function(data) {
 			$scope.history.server_cpu_load = data.history;
 		}
 	});
 
 	$scope.api_calls.push({
-		api : "history/getServerCpuWait",
-		success : function(data) {
+		api: "history/getServerCpuWait",
+		success: function(data) {
 			$scope.history.server_cpu_wait = data.history;
 		}
 	});
 
 	$scope.api_calls.push({
-		api : "history/getServerTemperature",
-		success : function(data) {
+		api: "history/getServerTemperature",
+		success: function(data) {
 			$scope.history.server_temperature = data.history;
 		}
 	});
 
 	$scope.api_calls.push({
-		api : "history/getServerMemoryLoad",
-		success : function(data) {
+		api: "history/getServerMemoryLoad",
+		success: function(data) {
 			$scope.history.server_mem_load = data.history;
 		}
 	});
 
 	$scope.api_calls.push({
-		api : "history/getServerHddLoad",
-		success : function(data) {
+		api: "history/getServerHddLoad",
+		success: function(data) {
 			$scope.history.server_hdd_load = data.history;
 		}
 	});
 
 	// Start the history data chain
 	$scope.history_api_call = $timeout(processApiCalls, 100);
-} ]);
+}]);

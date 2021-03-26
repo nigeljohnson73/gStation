@@ -4,7 +4,7 @@ $loc = getHostname(); // Specific instance of the gStation - used in alerts and 
 $sensor_age = 30; // sensor data older than this in seconds will be ignored
 $sensor_age_alarm = 2*60;
 $show_empty = false; // Do you want triggers and sensors and things that are empty to be displayed
-$use_demand = true; // Do you want use demand values in the data
+$use_expect = true; // Do you want use expect values in the data
 $api_sensor_display_history = 10 * 60; // seconds per history sample to return to the browser - each point will be the average of this amount of time in seconds
 
 $control_temperature = true;
@@ -17,89 +17,89 @@ $sensors [] = ( object ) [
 		"type" => "PI",
 		"colour" => "#660000"
 ];
-$sensors [] = ( object ) [
-		"name" => "ZONE1",
-		"label" => "ZONE1",
-		"type" => "EMPTY", // EMPTY, DS18B20, DHT11 or DHT22
-		"colour" => "#609" // Purple
-];
-$sensors [] = ( object ) [ 
-		"name" => "ZONE2",
-		"label" => "ZONE2",
-		"type" => "EMPTY", // EMPTY, DS18B20, DHT11 or DHT22
-		"colour" => "#00c" // Dark Blue
-];
-$sensors [] = ( object ) [ 
-		"name" => "ZONE3",
-		"label" => "ZONE3",
-		"type" => "EMPTY", // EMPTY, DS18B20, DHT11 or DHT22
-		"colour" => "#66f" // Light blue
-];
-$sensors [] = ( object ) [ 
-		"name" => "ZONE4",
-		"label" => "ZONE4",
-		"type" => "EMPTY", // EMPTY, DS18B20, DHT11 or DHT22
-		"colour" => "#99f" // Very light blue
-];
-$sensors [] = ( object ) [ // This is the 5th sensor for the CO2 monitor in the Air Zone (AZ)
-		"name" => "ZONE2", // Generic air zone
-		"type" => "EMPTY" // EMPTY or MH-Z19B
-];
+// $sensors [] = ( object ) [
+// 		"name" => "ZONE1",
+// 		"label" => "ZONE1",
+// 		"type" => "EMPTY", // EMPTY, DS18B20, DHT11 or DHT22
+// 		"colour" => "#609" // Purple
+// ];
+// $sensors [] = ( object ) [ 
+// 		"name" => "ZONE2",
+// 		"label" => "ZONE2",
+// 		"type" => "EMPTY", // EMPTY, DS18B20, DHT11 or DHT22
+// 		"colour" => "#00c" // Dark Blue
+// ];
+// $sensors [] = ( object ) [ 
+// 		"name" => "ZONE3",
+// 		"label" => "ZONE3",
+// 		"type" => "EMPTY", // EMPTY, DS18B20, DHT11 or DHT22
+// 		"colour" => "#66f" // Light blue
+// ];
+// $sensors [] = ( object ) [ 
+// 		"name" => "ZONE4",
+// 		"label" => "ZONE4",
+// 		"type" => "EMPTY", // EMPTY, DS18B20, DHT11 or DHT22
+// 		"colour" => "#99f" // Very light blue
+// ];
+// $sensors [] = ( object ) [ // This is the 5th sensor for the CO2 monitor in the Air Zone (AZ)
+// 		"name" => "ZONE2", // Generic air zone
+// 		"type" => "EMPTY" // EMPTY or MH-Z19B
+// ];
 $sensors [] = ( object ) [ // This sensor is for display purposes
-		"name" => "DEMAND",
-		"label" => "DEMAND",
-		"type" => "DEMAND",
+		"name" => "EXPECT",
+		"label" => "EXPECT",
+		"type" => "EXPECT",
 		"colour" => "#fac" // Pink
 ];
 
 
 $triggers = [ ];
-$triggers [] = ( object ) [ 
-		"name" => "T1", // Generally used for heat
-		"label" => "T1",
-		"type" => "EMPTY", // EMPTY, SSR, iSSR or LED
-		"colour" => "#c00" // Dark red
-];
-$triggers [] = ( object ) [ 
-		"name" => "T2", // Generally used for light
-		"label" => "T2",
-		"type" => "EMPTY", // EMPTY, SSR, iSSR or LED
-		"colour" => "#fc0" // Orange
-];
-$triggers [] = ( object ) [ 
-		"name" => "T3",
-		"label" => "T3",
-		"type" => "EMPTY", // EMPTY, SSR, iSSR or LED
-		"colour" => "#ccc"
-];
-$triggers [] = ( object ) [ 
-		"name" => "T4",
-		"label" => "T4",
-		"type" => "EMPTY", // EMPTY, SSR, iSSR or LED
-		"colour" => "#ccc"
-];
-$triggers [] = ( object ) [ 
-		"name" => "T5",
-		"label" => "T5",
-		"type" => "EMPTY", // EMPTY, SSR, iSSR or LED
-		"colour" => "#ccc"
-];
-$triggers [] = ( object ) [ 
-		"name" => "T6",
-		"label" => "T6",
-		"type" => "EMPTY", // EMPTY, SSR, iSSR or LED
-		"colour" => "#ccc"
-];
+// $triggers [] = ( object ) [ 
+// 		"name" => "T1", // Generally used for heat
+// 		"label" => "T1",
+// 		"type" => "EMPTY", // EMPTY, SSR, iSSR or LED
+// 		"colour" => "#c00" // Dark red
+// ];
+// $triggers [] = ( object ) [ 
+// 		"name" => "T2", // Generally used for light
+// 		"label" => "T2",
+// 		"type" => "EMPTY", // EMPTY, SSR, iSSR or LED
+// 		"colour" => "#fc0" // Orange
+// ];
+// $triggers [] = ( object ) [ 
+// 		"name" => "T3",
+// 		"label" => "T3",
+// 		"type" => "EMPTY", // EMPTY, SSR, iSSR or LED
+// 		"colour" => "#ccc"
+// ];
+// $triggers [] = ( object ) [ 
+// 		"name" => "T4",
+// 		"label" => "T4",
+// 		"type" => "EMPTY", // EMPTY, SSR, iSSR or LED
+// 		"colour" => "#ccc"
+// ];
+// $triggers [] = ( object ) [ 
+// 		"name" => "T5",
+// 		"label" => "T5",
+// 		"type" => "EMPTY", // EMPTY, SSR, iSSR or LED
+// 		"colour" => "#ccc"
+// ];
+// $triggers [] = ( object ) [ 
+// 		"name" => "T6",
+// 		"label" => "T6",
+// 		"type" => "EMPTY", // EMPTY, SSR, iSSR or LED
+// 		"colour" => "#ccc"
+// ];
 
 $conditions = [ ];
-$conditions [] = "T1 IF [[ZONE1.TEMPERATURE]] < [[DEMAND.TEMPERATURE]]";
-$conditions [] = "T2 IF [[DEMAND.LIGHT]] == 'SUN'";
-$conditions [] = "BAD_TRIGGER_TEST IF [[ZONE1.TEMPERATURE]] < [[DEMAND.TEMPERATURE]]";
-$conditions [] = "T6 IF [[BAD_SENSOR_TEST]]";
+// $conditions [] = "T1 IF [[ZONE1.TEMPERATURE]] < [[EXPECT.TEMPERATURE]]";
+// $conditions [] = "T2 IF [[EXPECT.LIGHT]] == 'SUN'";
+// $conditions [] = "BAD_TRIGGER_TEST IF [[ZONE1.TEMPERATURE]] < [[EXPECT.TEMPERATURE]]";
+// $conditions [] = "T6 IF [[BAD_SENSOR_TEST]]";
 
 $graphs = [];
-$graphs[] = "temperature.ZONE1";
-$graphs[] = "humidity.ZONE1";
+// $graphs[] = "temperature.ZONE1";
+// $graphs[] = "humidity.ZONE1";
 
 $sensor_pin_0 = 99;
 $sensor_pin_1 = 99;
@@ -142,12 +142,12 @@ $timezone_adjust_hours = 0; // If you want to move forward in the day (because y
  */
 
 /**
- * START DEMAND ENVIRONMENT
+ * START EXPECT ENVIRONMENT
  */
-$demand_solstice = "0621"; // When should the demand ramping start.
-$demand = [];
+$expect_solstice = "0621"; // When should the expect ramping start.
+$expect = [];
 /**
- * END DEMAND ENVIRONMENT
+ * END EXPECT ENVIRONMENT
  */
 
 /**

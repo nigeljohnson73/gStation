@@ -30,7 +30,7 @@ $tsnow = timestampNow ();
 $env = json_decode(getConfig("env"));
 $pinpoint_dem = array ();
 $pinpoint_dem ["x"] = timestamp2Time ( $tsnow );
-$pinpoint_dem ["y"] = ((array)$env)["DEMAND.HUMIDITY"];
+$pinpoint_dem ["y"] = ((array)$env)["EXPECT.HUMIDITY"];
 
 $pinpoint = array (
 		//( object ) $pinpoint_act,

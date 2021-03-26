@@ -14,7 +14,7 @@ echo "Sample point duration : " . durationStamp ( $api_sensor_display_history ) 
 $pt = new ProcessTimer ();
 $res = getHistoryData ( "TEMPERATURE", [ 
 		"PI"
-], $use_demand );
+], $use_expect );
 $activity_db = $pt->duration ();
 
 $pt = new ProcessTimer ();
@@ -23,7 +23,7 @@ if ($res && count ( $res )) {
 }
 if (! $control_temperature) {
 	foreach($ret->history as $k => $v) {
-		if($v->name == "DEMAND") {
+		if($v->name == "EXPECT") {
 			unset($ret->history[$k]);
 		}
 	}

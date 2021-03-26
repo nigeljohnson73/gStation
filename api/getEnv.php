@@ -61,21 +61,22 @@ $env->control->humidity = $control_humidity;
 $env->data = envExtract ( "DATA", $dbenv );
 $env->data->tod = str_replace ( "'", "", $env->data->tod );
 
-// Extract and process the system demands
-if($use_demand) $env->demand = envExtract ( "DEMAND", $dbenv );
+// Extract and process the system expects
+if ($use_expect)
+	$env->expect = envExtract ( "EXPECT", $dbenv );
 if (! $control_temperature) {
-	unset ( $env->demand->temperature );
+	unset ( $env->expect->temperature );
 }
 if (! $control_humidity) {
-	unset ( $env->demand->humidity );
+	unset ( $env->expect->humidity );
 }
-$env->demand->light = str_replace ( "'", "", $env->demand->light );
-$env->demand->name = $sensors [6]->name;
-$env->demand->label = $sensors [6]->label;
-$env->demand->colour = $sensors [6]->colour;
+$env->expect->light = str_replace ( "'", "", $env->expect->light );
+$env->expect->name = $sensors [6]->name;
+$env->expect->label = $sensors [6]->label;
+$env->expect->colour = $sensors [6]->colour;
 
-// $env->demand->light="sun";
-unset ( $env->demand->alarm );
+// $env->expect->light="sun";
+unset ( $env->expect->alarm );
 
 $env->pi = envExtract ( "PI", $dbenv );
 $env->pi->name = "PI";
@@ -84,8 +85,35 @@ $env->pi->colour = "#600";
 
 // Extract and process sensor information
 $env->sensors = [ ];
-foreach ( $sensors as $s ) {
-	if ($s->name != "DEMAND" && $s->name != "PI" && ! inArrayByName ( $s->name, $env->sensors )) {
+
+function getPorts() {
+	$ret = new StdClass();
+	$ret->sensors = array ();
+	$ret->triggers = array ();
+	global $mysql;
+	$res = $mysql->query ( "SELECT id, type FROM ports" );
+	if (is_array ( $res ) && count ( $res ) > 0) {
+		foreach ( $res as $row ) {
+			$r = new StdClass ();
+			$r->name = $row ["id"];
+			$r->label = $r->name;
+			$r->type = $row ["type"];
+			$r->colour = getColour ( $r->name );
+			if ($r->type == "TRIGGER") {
+				$ret->triggers [] = $r;
+			} else {
+				$ret->sensors[] = $r;
+			}
+//			logger(LL_INF, "Saving port for display: ".ob_print_r($r);)
+		}
+	}
+	return $ret;
+}
+
+$ports = getPorts ();
+
+foreach ( $ports->sensors as $s ) {
+	if ($s->name != "EXPECT" && $s->name != "PI" && ! inArrayByName ( $s->name, $env->sensors )) {
 		// echo "Processing sensor '".$s->name."'\n";
 		// print_r ( $s );
 		if ($show_empty || $s->type != "EMPTY") {
@@ -112,7 +140,7 @@ foreach ( $env->sensors as $s ) {
 
 // Extract and process trigger details
 $env->triggers = [ ];
-foreach ( $triggers as $t ) {
+foreach ( $ports->triggers as $t ) {
 	if (! inArrayByName ( $t->name, $env->triggers )) {
 		// echo "Processing sensor '".$s->name."'\n";
 		// print_r ( $s );

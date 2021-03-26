@@ -42,11 +42,11 @@ There is only 1 sensor and 2 output triggers. Version 2 will allow up to 4 one-w
 as well as up to 6 control triggers. The sensors supported are the DS18B20 for temerature, the DHT11, and DHT22 for temperature and humidity, 
 and I'm adding the MH-Z19B for Carbon Dioxide.
 
-There is only 1 'environment' modelled. This means the demands for heat, humidity and light are across all of the 'zones' you set up, so you cannot 
+There is only 1 'environment' modelled. This means the expects for heat, humidity and light are across all of the 'zones' you set up, so you cannot 
 have a temperature plan for a root zone as a separate plan for the air zone. I do not expect this to change in the foreseable future.
-You can have separate triggers run heaters in different zones based on the sensors you assign to that zone but the demanded temps 
+You can have separate triggers run heaters in different zones based on the sensors you assign to that zone but the expected temps 
 will be the same, or at least will be based on this. I will add the ability to have a delta in the command structure so you can set things to 
-be -2 degrees of the demanded value for example.
+be -2 degrees of the expected value for example.
 
 The web interface is very limited and needs to be refreshed manually. This will change to automatically updating and 
 allowing for some parameter control in the future.

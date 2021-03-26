@@ -13,7 +13,7 @@ function getLocalMeasurements_orig($what, $name) {
 		$twhere = "param in ('" . implode ( "','", $bits ) . "')";
 	}
 	$sql = "SELECT event, name, value FROM sensors where param = '" . $what . "' and " . $swhere . " ";
-	$sql .= "union select event, 'DEMANDED' as 'name', value from demands where param = '" . $what . "' ";
+	$sql .= "union select event, 'EXPECTED' as 'name', value from expects where param = '" . $what . "' ";
 	$sql .= "union select event, 'TRIGGER' as 'name', value from triggers where " . $twhere;
 	// echo "SQL: \"" . $sql . "\"\n";
 	$res = $mysql->query ( $sql );
@@ -23,12 +23,12 @@ function getLocalMeasurements_orig($what, $name) {
 		$ret = array ();
 		foreach ( $res as $r ) {
 			// echo ob_print_r($r);
-			// $dem [timestamp2Time ( $r ["entered"] )] = $r ["demanded"];
+			// $dem [timestamp2Time ( $r ["entered"] )] = $r ["expected"];
 			$ret [$r ["name"]] [timestamp2Time ( $r ["event"] )] = $r ["value"];
 		}
 		// return array (
 		// "temperature" => $act
-		// // "demanded" => $dem
+		// // "expected" => $dem
 		// );
 		return $ret;
 	}
@@ -58,8 +58,8 @@ function getLocalMeasurements($what, $name) {
 			$mult = ($bit [1] + 0) * (1 / (count ( $bits ) + 1)); // ($bit[1] + 0)*0.2;
 			                                                      // $sqls [strtolower ( $obit )] = "SELECT event, param as 'name', (value*".$mult.") as value FROM triggers WHERE param = '" . $bit . "' AND value > 0.5";
 			$sqls [strtolower ( $obit )] = "SELECT event, param as 'name', (value*" . $mult . ") as value FROM triggers WHERE param = '" . $bit . "'";
-		} else if (strtolower ( $bit ) == "demand" || strtolower ( $bit ) == "demanded") {
-			$sqls [strtolower ( $obit )] = "SELECT event, 'DEMANDED' as 'name', value FROM demands WHERE param = '" . $what . "'";
+		} else if (strtolower ( $bit ) == "expect" || strtolower ( $bit ) == "expected") {
+			$sqls [strtolower ( $obit )] = "SELECT event, 'EXPECTED' as 'name', value FROM expects WHERE param = '" . $what . "'";
 		} else if (in_array ( strtolower ( $what ), array (
 				"sensor_age",
 				"sensor_ages"
