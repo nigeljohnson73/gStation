@@ -3,15 +3,8 @@ include_once (dirname ( __FILE__ ) . "/../../functions.php");
 global $mysql;
 $ret = startJsonRespose ();
 
-if (isset ( $_POST ["sleep"] )) {
-	echo "Sleep time supplied: " . $_POST ["sleep"] . "s\n";
-	usleep ( $_POST ["sleep"] * 1000000 );
-} else {
-	echo "No sleep time supplied\n";
-}
-
 if (isset ( $_POST ["data"] )) {
-	logger ( LL_INF, "data supplied: '" . $_POST ["data"] );
+	//logger ( LL_INF, "data supplied: '" . $_POST ["data"] );
 	$obj = json_decode ( $_POST ["data"] );
 	// logger ( LL_INF, ob_print_r ( $json ) );
 	// $hostname = $json ["name"];
@@ -28,7 +21,7 @@ if (isset ( $_POST ["data"] )) {
 		$p->type = $port->type;
 		logger ( LL_INF, ob_print_r ( $p ) );
 		// logger ( LL_INF, ob_print_r ( array_values ( ( array ) $p ) ) );
-		$mysql->query ( "REPLACE INTO ports (id, ip, type) VALUES(?, ?, ?)", "sss", array_values ( ( array ) $p ) );
+		$mysql->query ( "REPLACE INTO ports (id, ip, type, alarm) VALUES(?, ?, ?, 'NO')", "sss", array_values ( ( array ) $p ) );
 	}
 
 	// $mysql->query ( "REPLACE INTO model (id, data) VALUES(?, ?)", "ss", array_values ( $values ) );

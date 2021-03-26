@@ -1,9 +1,9 @@
 <?php
 include_once (dirname ( __FILE__ ) . "/../functions.php");
 $ret = startJsonRespose ();
-global $sensors;
-global $triggers;
-global $show_empty;
+// global $sensors;
+// global $triggers;
+// global $show_empty;
 global $loc;
 global $control_temperature, $control_humidity;
 
@@ -71,9 +71,9 @@ if (! $control_humidity) {
 	unset ( $env->expect->humidity );
 }
 $env->expect->light = str_replace ( "'", "", $env->expect->light );
-$env->expect->name = $sensors [6]->name;
-$env->expect->label = $sensors [6]->label;
-$env->expect->colour = $sensors [6]->colour;
+$env->expect->name = "EXPECT"; // $sensors [6]->name;
+$env->expect->label = "EXPECT"; // $sensors [6]->label;
+$env->expect->colour = "#fac"; // $sensors [6]->colour;
 
 // $env->expect->light="sun";
 unset ( $env->expect->alarm );
@@ -81,13 +81,13 @@ unset ( $env->expect->alarm );
 $env->pi = envExtract ( "PI", $dbenv );
 $env->pi->name = "PI";
 $env->pi->label = $loc; // gethostname();//"CPU";
-$env->pi->colour = "#600";
+$env->pi->colour = "#090";
 
 // Extract and process sensor information
 $env->sensors = [ ];
 
 function getPorts() {
-	$ret = new StdClass();
+	$ret = new StdClass ();
 	$ret->sensors = array ();
 	$ret->triggers = array ();
 	global $mysql;
@@ -102,9 +102,8 @@ function getPorts() {
 			if ($r->type == "TRIGGER") {
 				$ret->triggers [] = $r;
 			} else {
-				$ret->sensors[] = $r;
+				$ret->sensors [] = $r;
 			}
-//			logger(LL_INF, "Saving port for display: ".ob_print_r($r);)
 		}
 	}
 	return $ret;
@@ -116,22 +115,23 @@ foreach ( $ports->sensors as $s ) {
 	if ($s->name != "EXPECT" && $s->name != "PI" && ! inArrayByName ( $s->name, $env->sensors )) {
 		// echo "Processing sensor '".$s->name."'\n";
 		// print_r ( $s );
-		if ($show_empty || $s->type != "EMPTY") {
-			$sensor = envExtract ( $s->name, $dbenv );
-			$sensor->name = $s->name;
-			$sensor->type = $s->type;
-			$sensor->label = $s->label;
-			$sensor->colour = ($s->colour);
-			// print_r ( $sensor );
-			$env->sensors [] = $sensor;
-		}
+		// if ($show_empty || $s->type != "EMPTY") {
+		$sensor = envExtract ( $s->name, $dbenv );
+		$sensor->name = $s->name;
+		$sensor->type = $s->type;
+		$sensor->label = $s->label;
+		$sensor->colour = ($s->colour);
+		// print_r ( $sensor );
+		$env->sensors [] = $sensor;
+		// }
 	}
 }
 // Calculate the sensor state
 foreach ( $env->sensors as $s ) {
-	if ($s->type == strtoupper ( "EMPTY" )) {
-		$s->state = "disabled";
-	} else if (strtoupper ( $s->alarm ) == "YES") {
+	// if ($s->type == strtoupper ( "EMPTY" )) {
+	// $s->state = "disabled";
+	// } else
+	if (isset ( $s->alarm ) && strtoupper ( $s->alarm ) == "YES") {
 		$s->state = "alarm";
 	} else {
 		$s->state = "normal";
@@ -157,7 +157,9 @@ foreach ( $ports->triggers as $t ) {
 }
 // Calculate the trigger state
 foreach ( $env->triggers as $t ) {
-	if ($t->type == "EMPTY") {
+	if (isset ( $s->alarm ) && strtoupper ( $s->alarm ) == "YES") {
+		$t->state = "alarm";
+	} else if ($t->type == "EMPTY") {
 		$t->state = "disabled";
 	} else if ($t->state == 0) {
 		$t->state = "off";

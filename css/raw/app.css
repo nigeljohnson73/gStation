@@ -413,7 +413,7 @@ cover {
 	color: #999;
 }
 
-.sensor-holder.state-disabled, .sensor-holder.state-disabled .name, .trigger-holder.state-disabled {
+.sensor-holder.state-disabled, .sensor-holder.state-disabled .name {
 	background-color: #dadada;
 	color: #aaa;
 }
@@ -434,6 +434,19 @@ cover {
 	color:#999;
 	
 }
+.trigger-holder.state-alarm {
+	border-color: #000;
+	background-color: #c00;
+	color: #ccc;
+	background-color: #c00;
+}
+
+.trigger-holder.state-disabled, .trigger-holder.state-disabled .name {
+	background-color: #dadada;
+	color: #aaa;
+}
+
+
 .chart-container {
 	position: relative;
 }

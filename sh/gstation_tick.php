@@ -19,6 +19,14 @@ logger ( LL_DEBUG, "tick(): started" );
 $call_delay = 15; // Every this many seconds
 $last_tick = 59;
 
+echo "************************************************************************************************************************************\n";
+
+// Do the setup and clear up
+echo "tick(): Normalising Database\n";
+setupTables ();
+echo "tick(): Setting up GPIO\n";
+setupGpio ();
+
 $start = microtime ( true );
 $end = timestamp2Time ( timestampFormat ( timestampNow (), "YmdHi" ) . sprintf ( "%02d", $last_tick ) );
 echo "Building tick scheduler\n";
@@ -34,44 +42,34 @@ for($s = floor ( $start ); $s <= $end; $s += $call_delay) {
 
 $tsnow = timestampNow ();
 
-// Do the setup and clear up
-echo "tick(): Normalising Database\n";
-setupTables ();
-echo "tick(): Setting up GPIO\n";
-setupGpio ();
-
 echo "\ntick(): Startup at " . timestampFormat ( $tsnow, "Y-m-d\TH:i:s T" ) . "\n";
-// if ($darksky_key != "") {
-// echo "Location: " . $loc . " (" . latToDms ( $lat ) . ", " . lngToDms ( $lng ) . ")\n\n";
-// } else {
-// echo "Location: SIMULATED ENVIRONMENT\n\n";
-// }
-// clearSensorLogger ();
-
-$quiet = false;
 foreach ( $secs as $k => $s ) {
-	$tsnow = timestampNow ();
-	echo "tick(): " . timestampFormat ( $tsnow, "H:i:s " ) . ": Start loop\n";
-	tick ( $quiet );
-	$quiet = true;
-
-	echo "\nwriting env to oled file\n";
-	$estr = getConfig ( "env" );
-	file_put_contents ( "/tmp/env.gstation.json", $estr );
-	print_r ( json_decode ( $estr ) );
-	echo "\n";
-
 	$now = microTime ( true );
-	$tsnow = time2Timestamp ( floor ( $now ) );
+	$tsnow = timestampNow ();
+	if (ceil ( $secs [$k] - $now ) >= 0) {
+		echo "--------------------------------------------------------------------------------------\n";
+		echo "tick(): " . timestampFormat ( $tsnow, "H:i:s " ) . ": Start loop\n";
+		tick ();
 
-	echo "TICK: " . timestampFormat ( $tsnow, "H:i:s " ) . ": ";
-	if (isset ( $secs [$k + 1] )) {
-		$wake = $secs [$k + 1];
-		$sleep = ($wake - $now);
-		echo "need to sleep " . sprintf ( "%0.2f", $sleep ) . " seconds\n";
-		usleep ( $sleep * 1000000 );
+		echo "tick(): " . timestampFormat ( $tsnow, "H:i:s " ) . ": End loop\n";
+		$now = microTime ( true );
+		$tsnow = time2Timestamp ( floor ( $now ) );
+
+		echo "tick(): " . timestampFormat ( $tsnow, "H:i:s " ) . ": ";
+		if (isset ( $secs [$k + 1] )) {
+			$wake = $secs [$k + 1];
+			$sleep = ($wake - $now);
+			if ($sleep > 0) {
+				echo "sleeping for " . sprintf ( "%0.2f", $sleep ) . " seconds\n";
+				usleep ( $sleep * 1000000 );
+			} else {
+				echo "overran slot by " . sprintf ( "%0.2f", - $sleep ) . " seconds\n";
+			}
+		} else {
+			echo "Job done\n";
+		}
 	} else {
-		echo "Job done\n";
+		echo "tick(): skipping loop in the past\n";
 	}
 }
 
@@ -86,5 +84,7 @@ if (strlen ( trim ( $str ) ) == 0) {
 }
 echo "Log output:\n";
 echo $str . "\n";
+
+echo "************************************************************************************************************************************\n";
 
 ?>

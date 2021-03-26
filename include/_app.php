@@ -1,5 +1,38 @@
 <?php
 
+function sendSms($message) {
+	global $bulksms_notify;
+	sendSmsTo ( $message, $bulksms_notify );
+}
+
+function sendPushover($message) {
+	// Spawn off a child process to do it so that we can return t othe tick quickly.
+	$exec = "php " . realpath ( dirname ( __FILE__ ) . "/../sh/send_pushover.php" ) . " \"" . $message . "\" > /tmp/pushover.log 2>&1 &";
+	exec ( $exec );
+	$log = "Executed: " . $exec;
+	echo $log . "\n";
+	logger ( LL_INF, $log );
+}
+
+function sendAlert($message, $by = "ALL") {
+	if (! $by) {
+		return;
+	}
+	echo "Alert(): " . $message . "\n";
+	logger ( LL_INFO, "Alert(): " . $message );
+	$by = explode ( ",", $by );
+
+	if (in_array ( "ALL", $by ) || in_array ( "PUSHOVER", $by )) {
+		sendPushover ( $message );
+	}
+
+	if (in_array ( "ALL", $by ) || in_array ( "SMS", $by )) {
+		sendSms ( $message );
+	}
+
+	// TODO: do the bulksms stuff
+}
+
 // After extracting the sensor history and expects, process it into a timestamped array of values per zone
 // expected order from the database call is param, name, event, value, for example, "TEMPERATURE", "ZONE1", 2020-07..., 12.2132
 function processHistoryData($res) {
@@ -142,141 +175,65 @@ function getTodayModelParamDataset($top, $bottom, $col, $today) {
 	return getParamHolder ( "Today", $col, $dataset );
 }
 
-function sendPushover_RAW($message) {
-	global $loc, $app_title, $pushover_user_key, $pushover_api_token, $pushover_server_url, $pushover_server_title;
-	echo timestampFormat ( timestampNow (), "Y-m-d\TH:i:s\Z" ) . ": Pushover send starting.\n";
-	if (strlen ( $pushover_user_key ) && strlen ( $pushover_api_token )) {
-		/*
-		 * curl_setopt($c, CURLOPT_POSTFIELDS, array(
-		 * //'token' => $this->getToken(),
-		 * //'user' => $this->getUser(),
-		 * //'title' => $this->getTitle(),
-		 * //'message' => $this->getMessage(),
-		 * 'html' => $this->getHtml(),
-		 * 'device' => $this->getDevice(),
-		 * 'priority' => $this->getPriority(),
-		 * 'timestamp' => $this->getTimestamp(),
-		 * 'expire' => $this->getExpire(),
-		 * 'retry' => $this->getRetry(),
-		 * 'callback' => $this->getCallback(),
-		 * //'url' => $this->getUrl(),
-		 * 'sound' => $this->getSound(),
-		 * //'url_title' => $this->getUrlTitle()
-		 * ));
-		 */
+function checkAlarms($env) {
+	global $mysql, $sensor_age_alarm, $alert_alarm;
+	$tsnow = timestampNow ();
+	$env ["INFO.LASTCHECK"] = $tsnow;
 
-		$post_fields = [ 
-				"token" => $pushover_api_token,
-				"user" => $pushover_user_key,
-				"title" => $loc . " - " . $app_title,
-				"message" => $message
-		];
+	$new_alarms = array ();
+	$new_clears = array ();
 
-		if (strlen ( $pushover_server_url )) {
-			$post_fields ["url"] = $pushover_server_url;
-			if (strlen ( $pushover_server_title )) {
-				$post_fields ["url_title"] = $pushover_server_title;
+	$dbports = $mysql->query ( "SELECT id as name, alarm FROM ports" );
+	$ports = array ();
+	if ($dbports && count ( $dbports )) {
+		foreach ( $dbports as $row ) {
+			$ports [$row ["name"]] = $row ["alarm"];
+		}
+
+		$lastupdate = $mysql->query ( "SELECT n.name AS name, (SELECT MAX(event) FROM sensors WHERE name=n.name) AS event FROM (SELECT DISTINCT name FROM sensors) n" );
+		if ($lastupdate && count ( $lastupdate )) {
+			foreach ( $lastupdate as $row ) {
+				if (($tsnow - $row ["event"] > $sensor_age_alarm)) {
+					$env [$row ["name"] . ".alarm"] = "YES";
+					if (@$ports [$row ["name"]] == "NO") {
+						$new_alarms [] = $row ["name"];
+						echo "    Set alarm on '" . $row["name"]."\n";
+					}
+				} else {
+					$env [$row ["name"] . ".alarm"] = "NO";
+					if (@$ports [$row ["name"]] == "YES") {
+						$new_clears [] = $row ["name"];
+						echo "    Cleared alarm on '" . $row["name"]."\n";
+					}
+				}
 			}
 		}
-
-		$fn = getSnapshotFileName ();
-		if (strlen ( $fn ) && file_exists ( $fn )) {
-			// echo "Adding file attachment for '$fn' (" . number_format ( filesize ( $fn ) / 1000 ) . "kb)\n";
-			$post_fields ["attachment"] = new CurlFile ( realpath ( $fn ), "image/jpeg", basename ( $fn ) );
-		}
-		// echo "Post_fields:" . ob_print_r ( $post_fields );
-		curl_setopt_array ( $ch = curl_init (), array (
-				CURLOPT_URL => "https://api.pushover.net/1/messages.json",
-				CURLOPT_POSTFIELDS => $post_fields,
-				CURLOPT_SAFE_UPLOAD => true,
-				CURLOPT_RETURNTRANSFER => true
-		) );
-		// curl_exec ( $ch );
-		echo "Curl Exec: " . tfn ( curl_exec ( $ch ) ) . "\n";
-		print_r ( curl_getinfo ( $ch ) );
-		curl_close ( $ch );
 	}
-	echo timestampFormat ( timestampNow (), "Y-m-d\TH:i:s\Z" ) . ": Pushover send complete.\n";
-}
 
-function sendPushover($message) {
-	// Spawn off a child process to do it so that we can return t othe tick quickly.
-	$exec = "php " . realpath ( dirname ( __FILE__ ) . "/../sh/send_pushover.php" ) . " \"" . $message . "\" > /tmp/pushover.log 2>&1 &";
-	exec ( $exec );
-	echo "Executed: " . $exec . "\n";
-}
-
-function sendAlert($message) {
-	echo "Alert(): " . $message . "\n";
-	logger ( LL_INFO, "Alert(): " . $message );
-	sendPushover ( $message );
-
-	// TODO: do the bulksms stuff
-}
-
-function checkAlarms($env) {
+	if((count ( $new_alarms ) + count ( $new_clears )) == 0) {
+		echo "    No new alarms or clears\n";
+	}
+	$message = "";
+	if (count ( $new_alarms )) {
+		if (strlen ( $message )) {
+			$message .= " ";
+		}
+		$message .= "Set alarm status: '" . implode ( "', '", $new_alarms ) . "'.";
+		logger ( LL_ERR, "Set alarm status: '" . implode ( "', '", $new_alarms ) . "'." );
+		$lastupdate = $mysql->query ( "UPDATE ports SET alarm ='YES' WHERE id IN ('" . implode ( "', '", $new_alarms ) . "')" );
+	}
+	if (count ( $new_clears )) {
+		if (strlen ( $message )) {
+			$message .= " ";
+		}
+		logger ( LL_INF, "Cleared alarm status: '" . implode ( "', '", $new_clears ) . "'." );
+		$message .= "Cleared alarm status: '" . implode ( "', '", $new_clears ) . "'.";
+		$lastupdate = $mysql->query ( "UPDATE ports SET alarm ='NO' WHERE id IN ('" . implode ( "', '", $new_clears ) . "')" );
+	}
+	if (strlen ( $message )) {
+		sendAlert ( $message, $alert_alarm );
+	}
 	return $env;
-	// global $sensors, $mysql, $sensor_age_alarm;
-
-	// $sqls = [ ];
-
-	// // $env = ( array ) json_decode ( getConfig ( "env", json_encode ( ( object ) [ ] ) ) );
-	// $lalarms = ( array ) json_decode ( getConfig ( "alarms", json_encode ( ( object ) [ ] ) ) );
-
-	// // print_r ( $lalarms );
-
-	// foreach ( $sensors as $s ) {
-	// $sqls [] = "(select name, event from sensors where name = '" . $s->name . "' order by event desc limit 1)";
-	// $env [($s->name) . ".ALARM"] = "NA";
-	// }
-	// $res = $mysql->query ( implode ( $sqls, " UNION " ) );
-
-	// $fired = false;
-	// if ($res && count ( $res )) {
-	// $alarms = [ ];
-	// $tsnow = timestampNow ();
-	// foreach ( $res as $z ) {
-	// $alarm = timestampDifference ( $z ["event"], $tsnow ) > $sensor_age_alarm;
-	// // $alarm = false;
-	// $alarms [$z ["name"]] = ( object ) [
-	// "name" => $z ["name"],
-	// "last_read" => $z ["event"],
-	// "age" => timestampDifference ( $z ["event"], $tsnow ),
-	// "status" => $alarm
-	// ];
-	// $env [($z ["name"]) . ".ALARM"] = $alarm ? "YES" : "NO";
-	// if (@$lalarms [$z ["name"]]->status != $alarm) {
-	// logger ( LL_INFO, "ALARM changed status from '" . tfn ( @$lalarms [$z ["name"]]->status ) . "' to '" . tfn ( $alarm ) );
-	// $message = "";
-	// if ($alarm) {
-	// $message = "no data for '" . $z ["name"] . "' since " . timestampFormat ( $z ["event"], "Y-m-d\TH:i:s\Z" );
-	// } else {
-	// $message = "'" . $z ["name"] . "' now functional";
-	// }
-	// sendAlert ( "Sensor alarm: " . $message );
-	// $fired = true;
-	// }
-	// }
-
-	// // $alarms["ZONE3"] ->status =false;
-	// $env ["INFO.LASTCHECK"] = timestampNow ();
-	// // echo "Writing LASTCHECK: '".$env["INFO.LASTCHECK"]."'\n";
-	// ksort ( $env );
-	// ksort ( $alarms );
-	// // print_r ( ( object ) $alarms );
-	// // print_r((object)$env);
-	// if (! $fired) {
-	// echo "checkAlarms(): No changes\n";
-	// }
-	// // setConfig ( "env", json_encode ( ( object ) $env ) );
-	// setConfig ( "alarms", json_encode ( ( object ) $alarms ) );
-
-	// // print_r(json_decode(getConfig("env")));
-	// } else {
-	// echo "checkAlarms(): no data from the database\n";
-	// }
-
-	// return $env;
 }
 
 function getSnapshotUrl() {
@@ -324,6 +281,7 @@ function setupTables() {
 			id VARCHAR(64) NOT NULL PRIMARY KEY,
 			ip MEDIUMTEXT NOT NULL,
 			type MEDIUMTEXT NOT NULL,
+			alarm TINYTEXT NOT NULL,
 			last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 			KEY(id)
 		)";
@@ -1809,15 +1767,19 @@ function checkRegistration() {
 	if (is_array ( $res ) && count ( $res ) > 0) {
 		foreach ( $res as $row ) {
 			$url = "http://" . $row ["ip"] . "/api/register";
+			echo "    Processing '" . $url . "'";
 			$response = getRemoteData ( $url, 2 );
 			if ($response == false) {
 				logger ( LL_INF, $url . ": timed out" );
-				echo $url . ": timed out\n";
+				echo " timed out\n";
 			} else {
+				echo " complete\n";
 				// logger ( LL_INF, $url . ": Registration check complete" );
 				// echo $url . ": complete\n";
 			}
 		}
+	} else {
+		echo "    Registrations up to date\n";
 	}
 	// echo "Remote registration check complete\n";
 	$ts_delete = timestampAdd ( $ts_register, - 1 * 60 );
@@ -1848,9 +1810,9 @@ function gatherSensors() {
 			// echo "time file: ".$t." (".timestampFormat(time2Timestamp($t)).")\n";
 			// echo "age: ".$age." (".$age_str.")\n";
 			if ($age >= $sensor_age) {
-				echo "Skipping '$file' - data too old (age: " . $age_str . ")\n";
+				echo "    Skipping '$file' - data too old (age: " . $age_str . ")\n";
 			} else {
-				echo "Processing '$file' (age: " . $age_str . ")\n";
+				echo "    Processing '$file' complete (age: " . $age_str . ")\n";
 				$name = $j->name;
 				unset ( $j->name );
 				$j = ( array ) $j;
@@ -1872,9 +1834,10 @@ function gatherSensors() {
 	if (is_array ( $res ) && count ( $res ) > 0) {
 		foreach ( $res as $row ) {
 			$url = "http://" . $row ["ip"] . "/";
+			echo "    Processing '" . $url . "'";
 			$response = getRemoteData ( $url, 2 );
 			if ($response !== false) {
-				echo "Processing '" . $url . "'\n";
+				echo " complete\n";
 				$arr = ( array ) json_decode ( $response );
 				// $status = $arr ["status"]; // Probably should do something with this - it'll be ok or degraded if there is a sensor problem
 				if (isset ( $arr ["name"] ))
@@ -1896,8 +1859,8 @@ function gatherSensors() {
 				// ) );
 				// }
 			} else {
-				logger ( LL_INF, $url . ": timed out" );
-				echo "    " . $url . ": timed out\n";
+				logger ( LL_INF, $url . " timed out" );
+				echo ": timed out\n";
 			}
 		}
 
@@ -1970,32 +1933,36 @@ function gatherSensors() {
 function setupGpio($quiet = false) {
 	// echo "setupGpio(): called\n";
 	$runtime_version = @file_get_contents ( dirname ( __FILE__ ) . "/../board.txt" );
+	if (strlen ( $runtime_version ) == 0) {
+		$runtime_version = "2.1g";
+	}
 
-	global $sensor_pin_1, $sensor_pin_2, $sensor_pin_3, $sensor_pin_4, $trigger_pin_1, $trigger_pin_2, $trigger_pin_3, $trigger_pin_4, $trigger_pin_5, $trigger_pin_6, $led_pin, $button_pin;
+// 	global $sensor_pin_1, $sensor_pin_2, $sensor_pin_3, $sensor_pin_4, $trigger_pin_1, $trigger_pin_2, $trigger_pin_3, $trigger_pin_4, $trigger_pin_5, $trigger_pin_6, 
+	global $led_pin, $button_pin;
 
 	if (in_array ( $runtime_version, [ 
 			"2.1f",
 			"2.1g",
-			"2.0b",
-			"2.0c"
+			"2.0c",
+			"2.0b"
 	] )) {
-		$sensor_pin_1 = 4;
-		$sensor_pin_2 = 17;
-		$sensor_pin_3 = 7;
+		// $sensor_pin_1 = 4;
+		// $sensor_pin_2 = 17;
+		// $sensor_pin_3 = 7;
 
-		$trigger_pin_1 = 18;
-		$trigger_pin_2 = 23;
-		$trigger_pin_3 = 24;
-		$trigger_pin_4 = 25;
+		// $trigger_pin_1 = 18;
+		// $trigger_pin_2 = 23;
+		// $trigger_pin_3 = 24;
+		// $trigger_pin_4 = 25;
 
 		// The 2.1 boards have more sensors
 		if (in_array ( $runtime_version, [ 
 				"2.1g",
 				"2.1f"
 		] )) {
-			$sensor_pin_4 = 22;
-			$trigger_pin_5 = 8;
-			$trigger_pin_6 = 11;
+			// $sensor_pin_4 = 22;
+			// $trigger_pin_5 = 8;
+			// $trigger_pin_6 = 11;
 		}
 
 		// In these versions of the board, the sensors and triggers are all the same, but the button pin moved, and an LED was added in later versions.
@@ -2019,47 +1986,47 @@ function setupGpio($quiet = false) {
 		}
 	}
 	if ($runtime_version == "2.0") {
-		// THe first PCB
-		$sensor_pin_1 = 4;
+		// // THe first PCB
+		// $sensor_pin_1 = 4;
 
-		$trigger_pin_1 = 17;
-		$trigger_pin_2 = 18;
+		// $trigger_pin_1 = 17;
+		// $trigger_pin_2 = 18;
 
 		$button_pin = 14;
 	}
 
 	if (! $quiet) {
-		echo "setupGpio(): runtime_version = " . $runtime_version . "\n";
-		if ($sensor_pin_1 != 99) {
-			echo "setupGpio(): sensor_pin_1 = " . $sensor_pin_1 . "\n";
-		}
-		if ($sensor_pin_2 != 99) {
-			echo "setupGpio(): sensor_pin_2 = " . $sensor_pin_2 . "\n";
-		}
-		if ($sensor_pin_3 != 99) {
-			echo "setupGpio(): sensor_pin_3 = " . $sensor_pin_3 . "\n";
-		}
-		if ($sensor_pin_4 != 99) {
-			echo "setupGpio(): sensor_pin_4 = " . $sensor_pin_4 . "\n";
-		}
-		if ($trigger_pin_1 != 99) {
-			echo "setupGpio(): trigger_pin_1 = " . $trigger_pin_1 . "\n";
-		}
-		if ($trigger_pin_2 != 99) {
-			echo "setupGpio(): trigger_pin_2 = " . $trigger_pin_2 . "\n";
-		}
-		if ($trigger_pin_3 != 99) {
-			echo "setupGpio(): trigger_pin_3 = " . $trigger_pin_3 . "\n";
-		}
-		if ($trigger_pin_4 != 99) {
-			echo "setupGpio(): trigger_pin_4 = " . $trigger_pin_4 . "\n";
-		}
-		if ($trigger_pin_5 != 99) {
-			echo "setupGpio(): trigger_pin_5 = " . $trigger_pin_5 . "\n";
-		}
-		if ($trigger_pin_6 != 99) {
-			echo "setupGpio(): trigger_pin_6 = " . $trigger_pin_6 . "\n";
-		}
+		// echo "setupGpio(): runtime_version = " . $runtime_version . "\n";
+		// if ($sensor_pin_1 != 99) {
+		// echo "setupGpio(): sensor_pin_1 = " . $sensor_pin_1 . "\n";
+		// }
+		// if ($sensor_pin_2 != 99) {
+		// echo "setupGpio(): sensor_pin_2 = " . $sensor_pin_2 . "\n";
+		// }
+		// if ($sensor_pin_3 != 99) {
+		// echo "setupGpio(): sensor_pin_3 = " . $sensor_pin_3 . "\n";
+		// }
+		// if ($sensor_pin_4 != 99) {
+		// echo "setupGpio(): sensor_pin_4 = " . $sensor_pin_4 . "\n";
+		// }
+		// if ($trigger_pin_1 != 99) {
+		// echo "setupGpio(): trigger_pin_1 = " . $trigger_pin_1 . "\n";
+		// }
+		// if ($trigger_pin_2 != 99) {
+		// echo "setupGpio(): trigger_pin_2 = " . $trigger_pin_2 . "\n";
+		// }
+		// if ($trigger_pin_3 != 99) {
+		// echo "setupGpio(): trigger_pin_3 = " . $trigger_pin_3 . "\n";
+		// }
+		// if ($trigger_pin_4 != 99) {
+		// echo "setupGpio(): trigger_pin_4 = " . $trigger_pin_4 . "\n";
+		// }
+		// if ($trigger_pin_5 != 99) {
+		// echo "setupGpio(): trigger_pin_5 = " . $trigger_pin_5 . "\n";
+		// }
+		// if ($trigger_pin_6 != 99) {
+		// echo "setupGpio(): trigger_pin_6 = " . $trigger_pin_6 . "\n";
+		// }
 		if ($button_pin != 99) {
 			echo "setupGpio(): button_pin = " . $button_pin . "\n";
 		}
@@ -2112,8 +2079,8 @@ function modelStatus() {
 }
 
 function tick() {
-	echo "************************************************************************************************************************************\n";
-	global $mysql, $bulksms_notify, $bulksms_alert_sunset, $bulksms_alert_sunrise, $bulksms_alert_tod, $conditions;
+	// echo "************************************************************************************************************************************\n";
+	global $mysql, $conditions, $alert_sunrise, $alert_sunset, $alert_tod;
 
 	// Set the parameters for the tick
 	$tsnow = timestampNow ();
@@ -2205,17 +2172,19 @@ function tick() {
 		$msg = "Status changed from '" . $last_status . "' to '" . $status . "'";
 		$ll = LL_INFO;
 		setConfig ( "status", $status );
-		if (($status == "DAY" && $bulksms_alert_sunrise) || ($status == "NIGHT" && $bulksms_alert_sunset)) {
-			echo "############################### SMS ##### $msg\n";
-			sendSms ( $msg, $bulksms_notify );
+		if ($status == "DAY" && $alert_sunrise) {
+			//echo "############################### ALERT ##### $msg\n";
+			sendAlert ( $msg, $alert_sunrise );
+		}
+		if ($status == "NIGHT" && $alert_sunset) {
+			//echo "############################### ALERT ##### $msg\n";
+			sendAlert ( $msg, $alert_sunset );
 		}
 	} else {
-		if ($last_tod != $tod) {
+		if ($last_tod != $tod && $alert_tod) {
 			$msg = "Time of day changed from '" . $last_tod . "' to '" . $tod . "'";
-			if ($bulksms_alert_tod) {
-				echo "############################### SMS ##### $msg\n";
-				sendSms ( $msg, $bulksms_notify );
-			}
+			//echo "############################### ALERT ##### $msg\n";
+			sendAlert ( $msg, $alert_tod );
 		}
 	}
 	logger ( $ll, "tick(): " . $msg );
@@ -2237,12 +2206,23 @@ function tick() {
 	// setConfig ( "temperature_expect", $model->$temp );
 	// setConfig ( "humidity_expect", $model->$humd );
 
-	echo "\nChecking sensor registration\n";
-	checkRegistration ();
+	echo "\n";
 
-	echo "\nGathering sensor data\n";
+	echo "Checking sensor registrations\n";
+	checkRegistration ();
+	echo "Complete\n\n";
+
+	echo "Gathering sensor data\n";
 	$sensors = gatherSensors ();
 	$data = array_merge ( $data, $sensors );
+	echo "Complete\n\n";
+
+	echo "Checking alarms\n";
+	$data = checkAlarms ( $data );
+	echo "Complete\n\n";
+
+	// echo "Writing LASTCHECK: '" . @$data ["INFO.LASTCHECK"] . "'\n";
+
 	// $ages = array ();
 	// foreach ( $sensors as $s ) {
 	// $name = $s->name;
@@ -2341,7 +2321,6 @@ function tick() {
 	// }
 	// }
 
-	// TODO: Get OLED Working correctly
 	$retvar = 0;
 	$output = "";
 	$cmd = "hostname 2>/dev/null";
@@ -2364,21 +2343,18 @@ function tick() {
 	$data ["INFO.HOSTNAME"] = $hostname;
 	$data ["INFO.NEXTSUN"] = $next_sun;
 
-	// echo "\nChecking sensor alarms\n";
-	// $data = checkAlarms ( $data );
-	// echo "Writing LASTCHECK: '".@$data["INFO.LASTCHECK"]."'\n";
+	ksort ( $data );
+	$estr = json_encode ( $data );
+	setConfig ( "env", $estr );
+	file_put_contents ( "/tmp/env.gstation.json", $estr );
 
+	// TODO: Get OLED Working correctly
 	// Set the display message
 	$ostr = "";
 	$ostr .= $ipaddress;
 	$ostr .= "|";
 	$ostr .= $next_sun;
 	file_put_contents ( "/tmp/oled.txt", $ostr );
-
-	ksort ( $data );
-	// echo "\nEnvironmental data:\n";
-	// print_r ( $data );
-	setConfig ( "env", json_encode ( $data ) );
 }
 
 function getAllGraphColours() {

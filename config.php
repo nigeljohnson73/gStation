@@ -1,8 +1,8 @@
 <?php
-$loc = getHostname(); // Specific instance of the gStation - used in alerts and the browser
+$loc = getHostname (); // Specific instance of the gStation - used in alerts and the browser
 
 $sensor_age = 30; // sensor data older than this in seconds will be ignored
-$sensor_age_alarm = 2*60;
+$sensor_age_alarm = 2 * 60;
 $show_empty = false; // Do you want triggers and sensors and things that are empty to be displayed
 $use_expect = true; // Do you want use expect values in the data
 $api_sensor_display_history = 10 * 60; // seconds per history sample to return to the browser - each point will be the average of this amount of time in seconds
@@ -11,39 +11,39 @@ $control_temperature = true;
 $control_humidity = true;
 
 $sensors = [ ];
-$sensors [] = ( object ) [
+$sensors [] = ( object ) [ 
 		"name" => "PI",
 		"label" => "PI",
 		"type" => "PI",
 		"colour" => "#660000"
 ];
 // $sensors [] = ( object ) [
-// 		"name" => "ZONE1",
-// 		"label" => "ZONE1",
-// 		"type" => "EMPTY", // EMPTY, DS18B20, DHT11 or DHT22
-// 		"colour" => "#609" // Purple
+// "name" => "ZONE1",
+// "label" => "ZONE1",
+// "type" => "EMPTY", // EMPTY, DS18B20, DHT11 or DHT22
+// "colour" => "#609" // Purple
 // ];
-// $sensors [] = ( object ) [ 
-// 		"name" => "ZONE2",
-// 		"label" => "ZONE2",
-// 		"type" => "EMPTY", // EMPTY, DS18B20, DHT11 or DHT22
-// 		"colour" => "#00c" // Dark Blue
+// $sensors [] = ( object ) [
+// "name" => "ZONE2",
+// "label" => "ZONE2",
+// "type" => "EMPTY", // EMPTY, DS18B20, DHT11 or DHT22
+// "colour" => "#00c" // Dark Blue
 // ];
-// $sensors [] = ( object ) [ 
-// 		"name" => "ZONE3",
-// 		"label" => "ZONE3",
-// 		"type" => "EMPTY", // EMPTY, DS18B20, DHT11 or DHT22
-// 		"colour" => "#66f" // Light blue
+// $sensors [] = ( object ) [
+// "name" => "ZONE3",
+// "label" => "ZONE3",
+// "type" => "EMPTY", // EMPTY, DS18B20, DHT11 or DHT22
+// "colour" => "#66f" // Light blue
 // ];
-// $sensors [] = ( object ) [ 
-// 		"name" => "ZONE4",
-// 		"label" => "ZONE4",
-// 		"type" => "EMPTY", // EMPTY, DS18B20, DHT11 or DHT22
-// 		"colour" => "#99f" // Very light blue
+// $sensors [] = ( object ) [
+// "name" => "ZONE4",
+// "label" => "ZONE4",
+// "type" => "EMPTY", // EMPTY, DS18B20, DHT11 or DHT22
+// "colour" => "#99f" // Very light blue
 // ];
 // $sensors [] = ( object ) [ // This is the 5th sensor for the CO2 monitor in the Air Zone (AZ)
-// 		"name" => "ZONE2", // Generic air zone
-// 		"type" => "EMPTY" // EMPTY or MH-Z19B
+// "name" => "ZONE2", // Generic air zone
+// "type" => "EMPTY" // EMPTY or MH-Z19B
 // ];
 $sensors [] = ( object ) [ // This sensor is for display purposes
 		"name" => "EXPECT",
@@ -52,43 +52,42 @@ $sensors [] = ( object ) [ // This sensor is for display purposes
 		"colour" => "#fac" // Pink
 ];
 
-
 $triggers = [ ];
-// $triggers [] = ( object ) [ 
-// 		"name" => "T1", // Generally used for heat
-// 		"label" => "T1",
-// 		"type" => "EMPTY", // EMPTY, SSR, iSSR or LED
-// 		"colour" => "#c00" // Dark red
+// $triggers [] = ( object ) [
+// "name" => "T1", // Generally used for heat
+// "label" => "T1",
+// "type" => "EMPTY", // EMPTY, SSR, iSSR or LED
+// "colour" => "#c00" // Dark red
 // ];
-// $triggers [] = ( object ) [ 
-// 		"name" => "T2", // Generally used for light
-// 		"label" => "T2",
-// 		"type" => "EMPTY", // EMPTY, SSR, iSSR or LED
-// 		"colour" => "#fc0" // Orange
+// $triggers [] = ( object ) [
+// "name" => "T2", // Generally used for light
+// "label" => "T2",
+// "type" => "EMPTY", // EMPTY, SSR, iSSR or LED
+// "colour" => "#fc0" // Orange
 // ];
-// $triggers [] = ( object ) [ 
-// 		"name" => "T3",
-// 		"label" => "T3",
-// 		"type" => "EMPTY", // EMPTY, SSR, iSSR or LED
-// 		"colour" => "#ccc"
+// $triggers [] = ( object ) [
+// "name" => "T3",
+// "label" => "T3",
+// "type" => "EMPTY", // EMPTY, SSR, iSSR or LED
+// "colour" => "#ccc"
 // ];
-// $triggers [] = ( object ) [ 
-// 		"name" => "T4",
-// 		"label" => "T4",
-// 		"type" => "EMPTY", // EMPTY, SSR, iSSR or LED
-// 		"colour" => "#ccc"
+// $triggers [] = ( object ) [
+// "name" => "T4",
+// "label" => "T4",
+// "type" => "EMPTY", // EMPTY, SSR, iSSR or LED
+// "colour" => "#ccc"
 // ];
-// $triggers [] = ( object ) [ 
-// 		"name" => "T5",
-// 		"label" => "T5",
-// 		"type" => "EMPTY", // EMPTY, SSR, iSSR or LED
-// 		"colour" => "#ccc"
+// $triggers [] = ( object ) [
+// "name" => "T5",
+// "label" => "T5",
+// "type" => "EMPTY", // EMPTY, SSR, iSSR or LED
+// "colour" => "#ccc"
 // ];
-// $triggers [] = ( object ) [ 
-// 		"name" => "T6",
-// 		"label" => "T6",
-// 		"type" => "EMPTY", // EMPTY, SSR, iSSR or LED
-// 		"colour" => "#ccc"
+// $triggers [] = ( object ) [
+// "name" => "T6",
+// "label" => "T6",
+// "type" => "EMPTY", // EMPTY, SSR, iSSR or LED
+// "colour" => "#ccc"
 // ];
 
 $conditions = [ ];
@@ -97,7 +96,7 @@ $conditions = [ ];
 // $conditions [] = "BAD_TRIGGER_TEST IF [[ZONE1.TEMPERATURE]] < [[EXPECT.TEMPERATURE]]";
 // $conditions [] = "T6 IF [[BAD_SENSOR_TEST]]";
 
-$graphs = [];
+$graphs = [ ];
 // $graphs[] = "temperature.ZONE1";
 // $graphs[] = "humidity.ZONE1";
 
@@ -145,7 +144,7 @@ $timezone_adjust_hours = 0; // If you want to move forward in the day (because y
  * START EXPECT ENVIRONMENT
  */
 $expect_solstice = "0621"; // When should the expect ramping start.
-$expect = [];
+$expect = [ ];
 /**
  * END EXPECT ENVIRONMENT
  */
@@ -178,9 +177,6 @@ $bulksms_username = ""; // BulkSMS is used to send info on status bits, go set u
 $bulksms_password = "";
 $bulksms_sender = "TxtsRFun";
 $bulksms_notify = "447000000000"; // This is where text alerts will go.
-$bulksms_alert_sunrise = false;
-$bulksms_alert_sunset = false;
-$bulksms_alert_tod = false;
 /**
  * END BULKSMS
  */
@@ -194,6 +190,17 @@ $pushover_server_url = ""; // The URL to go to the server in the message, must b
 $pushover_server_title = "Go to $loc"; // The text that will be shown for the link
 /**
  * END PUSHOVER
+ */
+
+/**
+ * START ALERT SETUP
+ */
+$alert_sunrise = false; // can be false, "ALL", or a comma separated string of: SMS, PUSHOVER
+$alert_sunset = false; // can be false, "ALL", or a comma separated string of: SMS, PUSHOVER
+$alert_tod = false; // can be false, "ALL", or a comma separated string of: SMS, PUSHOVER
+$alert_alarm = "PUSHOVER"; // can be false, "ALL", or a comma separated string of: SMS, PUSHOVER
+/**
+ * END ALERT
  */
 
 /**
