@@ -1,5 +1,105 @@
 <?php
 
+function setTrigger($name, $state) {
+	global $mysql;
+	$ch = curl_init ();
+
+	$ips = $mysql->query ( "SELECT ip from ports where id = ?", "s", array (
+			$name
+	) );
+	if ($ips and count ( $ips )) {
+		$ip = $ips [0] ["ip"];
+
+		curl_setopt ( $ch, CURLOPT_URL, "http://" . $ip . "/api/trigger/set" );
+		curl_setopt ( $ch, CURLOPT_POST, 1 );
+		curl_setopt ( $ch, CURLOPT_POSTFIELDS, "name=" . urlencode ( $name ) . "&state=" . urlencode ( $state ) );
+		curl_setopt ( $ch, CURLOPT_HTTPHEADER, array (
+				'Content-Type: application/x-www-form-urlencoded'
+		) );
+
+		// receive server response ...
+		curl_setopt ( $ch, CURLOPT_RETURNTRANSFER, true );
+
+		$server_output = curl_exec ( $ch );
+
+		curl_close ( $ch );
+
+		// // further processing ....
+		// if ($server_output == "OK") {
+
+		// } else {
+
+		// }
+	} else {
+		echo "FAILED\n";
+		return false;
+	}
+	return true;
+}
+
+function checkConditions($env) {
+	global $conditions;
+	$triggers = array ();
+	$change = array ();
+
+	foreach ( $env as $k => $v ) {
+		if (strpos ( $k, ".state" ) !== false) {
+			list ( $name, $tag ) = explode ( ".", $k );
+			$triggers [strtoupper ( $name )] = $v;
+		}
+	}
+
+	foreach ( $conditions as $cnum => $c ) {
+		$oc = $c;
+		foreach ( $env as $k => $v ) {
+			$c = str_replace ( "[[" . strtoupper ( $k ) . "]]", $v, $c );
+		}
+
+		$matches = array ();
+		if (preg_match ( "/\[\[(.*?)\]\]/", $c, $matches ) == 0) {
+			list ( $k, $expr ) = explode ( " IF ", $c );
+			if (isset ( $triggers [$k] )) {
+				$fire = false;
+				$eval = '$fire = (' . $expr . ')?(true):(false);';
+				eval ( $eval );
+				if ($fire != $triggers [$k]) {
+					echo "    #" . ($cnum + 1) . " Trigger '$k' changing from '" . $triggers [$k] . "' to '" . (($fire) ? (1) : (0)) . "' ($oc)\n";
+					$change [$k] = $fire;
+				} else if (isset ( $change [$k] )) {
+					echo "    #" . ($cnum + 1) . " Removing trigger '$k' change ($oc)\n";
+					unset ( $change [$k] );
+				} else {
+					echo "    #" . ($cnum + 1) . " No effect on '$k' ($oc)\n";
+				}
+			} else {
+				echo "    #" . ($cnum + 1) . " Invalid condition - Trigger not found '" . $k . "' (" . $oc . ")\n";
+			}
+		} else {
+			$missing = [ ];
+			$cap = false;
+			foreach ( $matches as $m ) {
+				if ($cap) {
+					$missing [] = $m;
+				}
+				$cap = ! $cap;
+			}
+			echo "    #" . ($cnum + 1) . " Invalid condition - Sensor not found '" . implode ( "', '", $missing ) . "' (" . $oc . ")\n";
+		}
+	}
+
+	echo "Complete\n";
+
+	echo "\nExecuting trigger change requests\n";
+	if (count ( $change )) {
+		foreach ( $change as $k => $v ) {
+			echo "    Setting trigger '$k' to '" . (($v) ? (1) : (0)) . "': " . (setTrigger ( $k, $v ) ? ("success") : ("fail")) . "\n";
+		}
+	} else {
+		echo "    No triggers to fire\n";
+	}
+	return $env;
+}
+
 function sendSms($message) {
 	global $bulksms_notify;
 	sendSmsTo ( $message, $bulksms_notify );
@@ -197,20 +297,20 @@ function checkAlarms($env) {
 					$env [$row ["name"] . ".alarm"] = "YES";
 					if (@$ports [$row ["name"]] == "NO") {
 						$new_alarms [] = $row ["name"];
-						echo "    Set alarm on '" . $row["name"]."\n";
+						echo "    Set alarm on '" . $row ["name"] . "\n";
 					}
 				} else {
 					$env [$row ["name"] . ".alarm"] = "NO";
 					if (@$ports [$row ["name"]] == "YES") {
 						$new_clears [] = $row ["name"];
-						echo "    Cleared alarm on '" . $row["name"]."\n";
+						echo "    Cleared alarm on '" . $row ["name"] . "\n";
 					}
 				}
 			}
 		}
 	}
 
-	if((count ( $new_alarms ) + count ( $new_clears )) == 0) {
+	if ((count ( $new_alarms ) + count ( $new_clears )) == 0) {
 		echo "    No new alarms or clears\n";
 	}
 	$message = "";
@@ -336,14 +436,14 @@ function setupTables() {
 	// )";
 	// $mysql->query ( $str );
 
-	$str = "
-		CREATE TABLE IF NOT EXISTS expects (
-			event BIGINT UNSIGNED NOT NULL,
-			param VARCHAR(255) NOT NULL,
-			value VARCHAR(255) NOT NULL,
-			KEY(event),
-			KEY(param)
-	)";
+// 	$str = "
+// 		CREATE TABLE IF NOT EXISTS expects (
+// 			event BIGINT UNSIGNED NOT NULL,
+// 			param VARCHAR(255) NOT NULL,
+// 			value VARCHAR(255) NOT NULL,
+// 			KEY(event),
+// 			KEY(param)
+// 	)";
 	$mysql->query ( $str );
 
 	clearLogs ();
@@ -1937,7 +2037,7 @@ function setupGpio($quiet = false) {
 		$runtime_version = "2.1g";
 	}
 
-// 	global $sensor_pin_1, $sensor_pin_2, $sensor_pin_3, $sensor_pin_4, $trigger_pin_1, $trigger_pin_2, $trigger_pin_3, $trigger_pin_4, $trigger_pin_5, $trigger_pin_6, 
+	// global $sensor_pin_1, $sensor_pin_2, $sensor_pin_3, $sensor_pin_4, $trigger_pin_1, $trigger_pin_2, $trigger_pin_3, $trigger_pin_4, $trigger_pin_5, $trigger_pin_6,
 	global $led_pin, $button_pin;
 
 	if (in_array ( $runtime_version, [ 
@@ -2173,17 +2273,17 @@ function tick() {
 		$ll = LL_INFO;
 		setConfig ( "status", $status );
 		if ($status == "DAY" && $alert_sunrise) {
-			//echo "############################### ALERT ##### $msg\n";
+			// echo "############################### ALERT ##### $msg\n";
 			sendAlert ( $msg, $alert_sunrise );
 		}
 		if ($status == "NIGHT" && $alert_sunset) {
-			//echo "############################### ALERT ##### $msg\n";
+			// echo "############################### ALERT ##### $msg\n";
 			sendAlert ( $msg, $alert_sunset );
 		}
 	} else {
 		if ($last_tod != $tod && $alert_tod) {
 			$msg = "Time of day changed from '" . $last_tod . "' to '" . $tod . "'";
-			//echo "############################### ALERT ##### $msg\n";
+			// echo "############################### ALERT ##### $msg\n";
 			sendAlert ( $msg, $alert_tod );
 		}
 	}
@@ -2220,106 +2320,11 @@ function tick() {
 	echo "Checking alarms\n";
 	$data = checkAlarms ( $data );
 	echo "Complete\n\n";
-
 	// echo "Writing LASTCHECK: '" . @$data ["INFO.LASTCHECK"] . "'\n";
 
-	// $ages = array ();
-	// foreach ( $sensors as $s ) {
-	// $name = $s->name;
-	// $param = $s->param;
-	// $val = $s->value;
-	// $age = $s->age;
-	// $data [strtoupper ( $name . "." . $param )] = $val;
-	// $ages [strtoupper ( $name )] = $age;
-	// }
-
-	// echo "\nEnvironmental data:\n";
-	// print_r ( $data );
-
-	// Now we get the triggers and see what we need to set
-
-	// TODO: Fix triggers
-	// echo "\nProcessing trigger conditions\n";
-	// $fires = array ();
-	// enumerateTriggers ();
-	// foreach ( $triggers as $t ) {
-	// if (isGpio ( $t->type )) {
-	// $t->expect = 0;
-	// $fires [$t->name] = $t;
-	// }
-	// }
-
-	// foreach ( $conditions as $c ) {
-	// $oc = $c;
-	// foreach ( $data as $k => $v ) {
-	// $c = str_replace ( "[[" . $k . "]]", $v, $c );
-	// }
-
-	// $matches = array ();
-	// if (preg_match ( "/\[\[(.*?)\]\]/", $c, $matches ) == 0) {
-	// list ( $k, $expr ) = explode ( " IF ", $c );
-	// if (isset ( $fires [$k] )) {
-	// $fire = false;
-	// $eval = '$fire = (' . $expr . ')?(highValue($fires[$k]->type)):(lowValue($fires[$k]->type));';
-	// eval ( $eval );
-	// $fires [$k]->expect = ($fire) ? ($fire) : ($fires [$k]->expect);
-	// echo (($fire) ? ("FIRED") : ("-----")) . ": " . $k . " = (" . $expr . ")?(1):(0); // " . $oc . "\n";
-	// } else {
-	// echo "Skipping damaged condition - Trigger '" . $k . "' not found (" . $oc . ")\n";
-	// }
-	// } else {
-	// $missing = [ ];
-	// $cap = false;
-	// foreach ( $matches as $m ) {
-	// if ($cap) {
-	// $missing [] = $m;
-	// }
-	// $cap = ! $cap;
-	// }
-	// echo "Skipping damaged condition - 'Sensor '" . implode ( "', '", $missing ) . "' not found (" . $oc . ")\n";
-	// }
-	// }
-
-	// echo "\nExecuting triggers\n";
-	// foreach ( $fires as $f ) {
-	// $data ["TRIGGER." . $f->name] = ($f->expect == highValue ( $f->type )) ? (1) : (0);
-	// $cmd = "gpio -g write " . $f->pin . " " . $f->expect;
-	// echo "Executing (" . $f->name . ") '" . $cmd . "'\n";
-	// system ( $cmd . " > /dev/null 2>&1" );
-	// }
-
-	// // Stash data to database tables
-	// foreach ( $data as $k => $v ) {
-	// list ( $what, $k ) = explode ( ".", $k );
-	// if ($what == "EXPECT") {
-	// $mysql->query ( "REPLACE INTO expects (event, param, value) VALUES (?, ?, ?)", "iss", array (
-	// $tsnow,
-	// $k,
-	// $v
-	// ) );
-	// } elseif ($what == "TRIGGER") {
-	// $mysql->query ( "REPLACE INTO triggers (event, param, value) VALUES (?, ?, ?)", "iss", array (
-	// $tsnow,
-	// $k,
-	// $v
-	// ) );
-	// } elseif ($what == "DATA") {
-	// // We know about it, but we can ignore it
-	// } elseif ($what == "INFO") {
-	// // We know about it, but we can ignore it
-	// } else {
-	// $age = isset ( $ages [$what] ) ? ($ages [$what]) : (null);
-	// // echo "writing ".$what." to database k: ".$k.", v: ".$v.", age: ".tfn($age)."\n";
-	// // Must be a zone name
-	// $mysql->query ( "REPLACE INTO sensors (event, name, param, value, age) VALUES (?, ?, ?, ?, ?)", "isssi", array (
-	// $tsnow,
-	// $what,
-	// $k,
-	// $v,
-	// // $age
-	// ) );
-	// }
-	// }
+	echo "Checking conditions\n";
+	$data = checkConditions ( $data );
+	echo "Complete\n\n";
 
 	$retvar = 0;
 	$output = "";

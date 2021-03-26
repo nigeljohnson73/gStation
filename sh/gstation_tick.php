@@ -22,7 +22,7 @@ $last_tick = 59;
 echo "************************************************************************************************************************************\n";
 
 // Do the setup and clear up
-echo "tick(): Normalising Database\n";
+echo "tick(): Performing Housekeeping\n";
 setupTables ();
 echo "tick(): Setting up GPIO\n";
 setupGpio ();
@@ -50,11 +50,12 @@ foreach ( $secs as $k => $s ) {
 		echo "--------------------------------------------------------------------------------------\n";
 		echo "tick(): " . timestampFormat ( $tsnow, "H:i:s " ) . ": Start loop\n";
 		tick ();
-
 		echo "tick(): " . timestampFormat ( $tsnow, "H:i:s " ) . ": End loop\n";
+		echo "--------------------------------------------------------------------------------------\n";
+
 		$now = microTime ( true );
 		$tsnow = time2Timestamp ( floor ( $now ) );
-
+		
 		echo "tick(): " . timestampFormat ( $tsnow, "H:i:s " ) . ": ";
 		if (isset ( $secs [$k + 1] )) {
 			$wake = $secs [$k + 1];
@@ -73,7 +74,8 @@ foreach ( $secs as $k => $s ) {
 	}
 }
 
-echo "tick(): complete\n\n";
+echo "************************************************************************************************************************************\n";
+
 logger ( LL_DEBUG, "tick(): completed" );
 
 $str = $logger->getString ();
@@ -85,6 +87,5 @@ if (strlen ( trim ( $str ) ) == 0) {
 echo "Log output:\n";
 echo $str . "\n";
 
-echo "************************************************************************************************************************************\n";
 
 ?>
