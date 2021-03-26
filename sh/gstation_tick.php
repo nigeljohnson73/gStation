@@ -55,7 +55,7 @@ foreach ( $secs as $k => $s ) {
 
 		$now = microTime ( true );
 		$tsnow = time2Timestamp ( floor ( $now ) );
-		
+
 		echo "tick(): " . timestampFormat ( $tsnow, "H:i:s " ) . ": ";
 		if (isset ( $secs [$k + 1] )) {
 			$wake = $secs [$k + 1];
@@ -86,6 +86,5 @@ if (strlen ( trim ( $str ) ) == 0) {
 }
 echo "Log output:\n";
 echo $str . "\n";
-
 
 ?>
