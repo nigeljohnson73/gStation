@@ -2355,6 +2355,13 @@ function tick() {
 	$data = checkConditions ( $data );
 	echo "Complete\n\n";
 
+	// Capitalise the keys in the array
+	$tmp = array();
+	foreach($data as $k=>$v) {
+		$tmp[strtoupper($k)] = $v;
+	}
+	$data = $tmp;
+	
 	ksort ( $data );
 	echo "Environment: " . ob_print_r ( $data );
 	$estr = json_encode ( $data );
@@ -2368,6 +2375,8 @@ function tick() {
 	$ostr .= "|";
 	$ostr .= $next_sun;
 	file_put_contents ( "/tmp/oled.txt", $ostr );
+	
+	return $data;
 }
 
 function getAllGraphColours() {
