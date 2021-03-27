@@ -17,7 +17,7 @@ max_page = 2
 page_timer = None
 page_timeout = datetime.timedelta(seconds=10)
 BORDER=False
-bgimg = Image.open(os.path.dirname(os.path.abspath(__file__))+"/../gfx/100px.jpg").convert("L")
+bgimg = Image.open(os.path.dirname(os.path.abspath(__file__))+"/../gfx/oledbg.jpg").convert("L")
 
 # logging
 logging.basicConfig(
