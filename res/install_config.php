@@ -73,8 +73,8 @@ $bulksms_notify = "447000000000";
 // If you're using Pushover for alerting, configure it here
 $pushover_user_key = ""; // you
 $pushover_api_token = ""; // the application
-$pushover_server_url = ""; // The URL to go to the server in the message, must be accessible from your device
-//$pushover_server_title = "Go to $loc"; // The text that will be shown for the link
+// $pushover_server_url = "http://$loc/"; // The URL to go to the server in the message, must be accessible from your device
+// $pushover_server_title = "Go to $loc"; // The text that will be shown for the link
 
 // $alert_sunrise = false;
 // $alert_sunset = false;
