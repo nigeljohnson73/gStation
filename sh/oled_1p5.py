@@ -17,6 +17,7 @@ max_page = 2
 page_timer = None
 page_timeout = datetime.timedelta(seconds=10)
 BORDER=False
+bgimg = Image.open(os.path.dirname(os.path.abspath(__file__))+"/../gfx/100px.jpg").convert("L")
 
 # logging
 logging.basicConfig(
@@ -126,26 +127,14 @@ def drawData(data):
 			draw.rectangle((0, 0, device.width-1, device.height-1), outline="white", fill="black")
 
 		ypos = drawText(draw, data["INFO.IPADDR"], ypos)
+		ypos = drawText(draw, data["INFO.NEXTSUN"], ypos)
+		ypos = ypos + 4
 
 		if page == 0:
-			ypos = drawText(draw, data["INFO.NEXTSUN"], ypos)
-			ypos = ypos + 4
-
-			z1x = '{}'.format(" Z1 ") if 'ZONE1.TEMPERATURE' in data else " -- "
-			z2x = '{}'.format(" Z2 ") if 'ZONE2.TEMPERATURE' in data else " -- "
-			z3x = '{}'.format(" Z3 ") if 'ZONE3.TEMPERATURE' in data else " -- "
-			ypos = drawText(draw, "  {} {} {}".format(z1x, z2x, z3x), ypos)
-			#ypos = drawText(draw, "   Z1   Z2   Z3 ", ypos)
-
-			ypos = drawText(draw, "T {} {} {}".format(floatValue("ZONE1.TEMPERATURE", data), floatValue("ZONE2.TEMPERATURE", data), floatValue("ZONE3.TEMPERATURE", data)), ypos)
-			ypos = drawText(draw, "H {} {} {}".format(floatValue("ZONE1.HUMIDITY", data), floatValue("ZONE2.HUMIDITY", data), floatValue("ZONE3.HUMIDITY", data)), ypos)
-
-			for i in range(1, 7):
-				drawTrigger(i, data, draw);
+			draw.bitmap([(0,10)], bgimg)
 
 		elif page == 1:
-			ypos = drawText(draw, data["INFO.NEXTSUN"], ypos)
-			ypos = ypos + 4
+			ypos = ypos + 10
 			ypos = drawText(draw, "CPU Load {}%".format(floatValue("PI.CPU_LOAD", data)), ypos)
 			ypos = drawText(draw, "CPU Temp {}C".format(floatValue("PI.TEMPERATURE", data)), ypos)
 			ypos = drawText(draw, "Mem Load {}%".format(floatValue("PI.MEM_LOAD", data)), ypos)
@@ -157,6 +146,7 @@ def drawData(data):
 		now = datetime.datetime.now()
 		text = now.strftime("%Y-%m-%d %H:%M")
 		drawText(draw, text, ypos=device.height-8, size=8)
+
 def drawTest():
 	logger("testing")
 	ypos = 0;
