@@ -113,7 +113,7 @@ function checkConditions($env) {
 			echo "    Setting trigger '$k' to '" . (($v) ? (1) : (0)) . "': " . (setTrigger ( $k, $v ) ? ("success") : ("fail")) . "\n";
 		}
 	} else {
-		//echo "    No triggers to fire\n";
+		// echo " No triggers to fire\n";
 	}
 	return $env;
 }
@@ -128,7 +128,7 @@ function sendPushover($message) {
 	$exec = "php " . realpath ( dirname ( __FILE__ ) . "/../sh/send_pushover.php" ) . " \"" . $message . "\" > /tmp/pushover.log 2>&1 &";
 	exec ( $exec );
 	$log = "Executed: " . $exec;
-	//echo $log . "\n";
+	// echo $log . "\n";
 	logger ( LL_DBG, $log );
 }
 
@@ -2269,9 +2269,6 @@ function tick() {
 			$tod = "LATE";
 		}
 	}
-	if ($last_tod != $tod) {
-		setConfig ( "tod", $tod );
-	}
 
 	$msg = "Status is still '" . $last_tod . "'";
 	$ll = LL_DEBUG;
@@ -2279,16 +2276,18 @@ function tick() {
 		$msg = "Status changed from '" . $last_status . "' to '" . $status . "'";
 		$ll = LL_INFO;
 		setConfig ( "status", $status );
-		if ($status == "DAY" && $alert_sunrise) {
+		if (! $alert_tod && $status == "DAY" && $alert_sunrise) {
 			// echo "############################### ALERT ##### $msg\n";
 			sendAlert ( $msg, $alert_sunrise );
 		}
-		if ($status == "NIGHT" && $alert_sunset) {
+		if (! $alert_tod && $status == "NIGHT" && $alert_sunset) {
 			// echo "############################### ALERT ##### $msg\n";
 			sendAlert ( $msg, $alert_sunset );
 		}
-	} else {
-		if ($last_tod != $tod && $alert_tod) {
+	}
+	if ($last_tod != $tod) {
+		setConfig ( "tod", $tod );
+		if ($alert_tod) {
 			$msg = "Time of day changed from '" . $last_tod . "' to '" . $tod . "'";
 			// echo "############################### ALERT ##### $msg\n";
 			sendAlert ( $msg, $alert_tod );
@@ -2356,12 +2355,12 @@ function tick() {
 	echo "Complete\n\n";
 
 	// Capitalise the keys in the array
-	$tmp = array();
-	foreach($data as $k=>$v) {
-		$tmp[strtoupper($k)] = $v;
+	$tmp = array ();
+	foreach ( $data as $k => $v ) {
+		$tmp [strtoupper ( $k )] = $v;
 	}
 	$data = $tmp;
-	
+
 	ksort ( $data );
 	echo "Environment: " . ob_print_r ( $data );
 	$estr = json_encode ( $data );
@@ -2375,7 +2374,7 @@ function tick() {
 	$ostr .= "|";
 	$ostr .= $next_sun;
 	file_put_contents ( "/tmp/oled.txt", $ostr );
-	
+
 	return $data;
 }
 

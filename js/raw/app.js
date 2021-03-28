@@ -4,7 +4,7 @@
  | |_| |/ _ \ | '_ \ / _ \ '__| | |_| | | | '_ \ / __| __| |/ _ \| '_ \/ __|
  |  _  |  __/ | |_) |  __/ |	|  _| |_| | | | | (__| |_| | (_) | | | \__ \
  |_| |_|\___|_| .__/ \___|_|	|_|  \__,_|_| |_|\___|\__|_|\___/|_| |_|___/
-              |_|														   
+			  |_|														   
  */
 
 // Returns the data element of an object array keyed by the name parameter
@@ -62,13 +62,13 @@ hours2Hm = function(num) {
 	return lpad("" + hours, 2) + ":" + lpad("" + minutes, 2);
 };
 mins2Hm = function(num) {
-	return hours2Hm(num/60);
+	return hours2Hm(num / 60);
 };
 secs2Hm = function(num) {
-	return mins2Hm(num/60);
+	return mins2Hm(num / 60);
 };
 ms2Hm = function(num) {
-	return secs2Hm(num/1000);
+	return secs2Hm(num / 1000);
 };
 
 hexToRgb = function(hex) {
@@ -80,9 +80,9 @@ hexToRgb = function(hex) {
 
 	var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
 	return result ? {
-		r : parseInt(result[1], 16),
-		g : parseInt(result[2], 16),
-		b : parseInt(result[3], 16)
+		r: parseInt(result[1], 16),
+		g: parseInt(result[2], 16),
+		b: parseInt(result[3], 16)
 	} : null;
 };
 
@@ -209,10 +209,10 @@ Array.prototype.random = function() {
  * for example genKey('unlllaaa') would produce 'E5ncyCgt'
  */
 function genKey(key) {
-	var uc = [ 'A', 'B', 'C', 'E', 'F', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'R', 'T', 'W', 'Y', 'Z' ];
-	var lc = [ 'a', 'b', 'd', 'e', 'g', 'h', 'k', 'n', 'p', 'q', 'r', 's', 't', 'x', 'y', 'z' ];
-	var nc = [ '2', '3', '4', '5', '6', '7', '8', '9' ];
-	var sc = [ '=', '-', '.', '_', '@' ];
+	var uc = ['A', 'B', 'C', 'E', 'F', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'R', 'T', 'W', 'Y', 'Z'];
+	var lc = ['a', 'b', 'd', 'e', 'g', 'h', 'k', 'n', 'p', 'q', 'r', 's', 't', 'x', 'y', 'z'];
+	var nc = ['2', '3', '4', '5', '6', '7', '8', '9'];
+	var sc = ['=', '-', '.', '_', '@'];
 	var an = [].concat(uc).concat(lc).concat(nc);
 	var ny = [].concat(sc).concat(an);
 	return key.replace(/[xlunas]/g, function(c) {
@@ -221,9 +221,9 @@ function genKey(key) {
 }
 
 var Base64 = {
-	_keyStr : "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
+	_keyStr: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
 
-	encode : function(input) {
+	encode: function(input) {
 		var output = "";
 		var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
 		var i = 0;
@@ -250,7 +250,7 @@ var Base64 = {
 		return output;
 	},
 
-	decode : function(input) {
+	decode: function(input) {
 		var output = "";
 		var chr1, chr2, chr3;
 		var enc1, enc2, enc3, enc4;
@@ -282,7 +282,7 @@ var Base64 = {
 		return output;
 	},
 
-	_utf8_encode : function(string) {
+	_utf8_encode: function(string) {
 		string = string.replace(/\r\n/g, "\n");
 		var utftext = "";
 
@@ -303,7 +303,7 @@ var Base64 = {
 		return utftext;
 	},
 
-	_utf8_decode : function(utftext) {
+	_utf8_decode: function(utftext) {
 		var string = "";
 		var i = 0;
 		var c = c1 = c2 = 0;
@@ -355,21 +355,21 @@ $(document).ready(function() {
 	logger("Application Loaded");
 });
 
-var app = angular.module("myApp", [ 'ngRoute' ]);
+var app = angular.module("myApp", ['ngRoute']);
 
-app.config([ "$locationProvider", "$routeProvider", function($locationProvider, $routeProvider) {
+app.config(["$locationProvider", "$routeProvider", function($locationProvider, $routeProvider) {
 	$locationProvider.html5Mode(true);
 
 	$routeProvider.when('/', {
-		templateUrl : '/pages/home.php',
-		controller : 'HomeCtrl'
+		templateUrl: '/pages/home.php',
+		controller: 'HomeCtrl'
 	}).when('/about', {
-		templateUrl : '/pages/about.php',
-		controller : 'AboutCtrl'
+		templateUrl: '/pages/about.php',
+		controller: 'AboutCtrl'
 	}).when('/config', {
-		templateUrl : '/pages/config.php',
-		controller : 'ConfigCtrl'
+		templateUrl: '/pages/config.php',
+		controller: 'ConfigCtrl'
 	}).otherwise({
-		templateUrl : '/pages/404.php'
+		templateUrl: '/pages/404.php'
 	});
-} ]);
+}]);

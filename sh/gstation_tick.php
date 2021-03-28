@@ -16,7 +16,7 @@ if (strlen ( $pid ) > 0 && $pid != $mypid) {
 ob_end_clean ();
 
 logger ( LL_DEBUG, "tick(): started" );
-$call_delay = 15; // Every this many seconds
+$call_delay = 10; // Every this many seconds
 $last_tick = 59;
 
 echo "************************************************************************************************************************************\n";

@@ -157,7 +157,7 @@ foreach ( $ports->triggers as $t ) {
 }
 // Calculate the trigger state
 foreach ( $env->triggers as $t ) {
-	if (isset ( $s->alarm ) && strtoupper ( $s->alarm ) == "YES") {
+	if (isset ( $t->alarm ) && strtoupper ( $t->alarm ) == "YES") {
 		$t->state = "alarm";
 	} else if ($t->type == "EMPTY") {
 		$t->state = "disabled";
