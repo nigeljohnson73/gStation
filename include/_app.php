@@ -79,6 +79,7 @@ function checkConditions($env) {
 			if (isset ( $triggers [$k] )) {
 				$fire = false;
 				$eval = '$fire = (' . $expr . ')?(true):(false);';
+				//echo "    EVAL: >>>$eval<<<\n";
 				eval ( $eval );
 				if ($fire != $triggers [$k]) {
 					echo "    #" . ($cnum + 1) . " Trigger '$k' changing from '" . $triggers [$k] . "' to '" . (($fire) ? (1) : (0)) . "' ($oc)\n";
